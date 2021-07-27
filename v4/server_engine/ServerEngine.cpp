@@ -123,7 +123,7 @@ void		ServerEngine::getStartPage(void)
 {
 	std::string tmp;
     std::string body;
-    std::ifstream ifs("./error.html");
+    std::ifstream ifs("./html_pages/index.html");  //./start.html
     while (getline(ifs, tmp))
         body += tmp;
     this->_startPage = "HTTP/1.1 OK\r\n\r\n" + body;

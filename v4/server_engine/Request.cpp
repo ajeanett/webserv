@@ -46,11 +46,11 @@ void Request::parse_request(void){
     if (_linePosition != std::string::npos)
         _startLine["version"] = _currentLine.substr(_linePosition + 1, findPosition - _linePosition - 1);
         //  Печать стартовой строки для проверки
-        // std::map<std::string,std::string>::iterator it;
-        // std::cout << "MAP First Line" << std::endl;
-        // for (it=_startLine.begin(); it!=_startLine.end(); it++)
-        //     std::cout << it->first << " " << it->second << std::endl;
-        // std::cout << "END of MAP First Line" << std::endl;
+        std::map<std::string,std::string>::iterator it;
+        std::cout << "MAP First Line" << std::endl;
+        for (it=_startLine.begin(); it!=_startLine.end(); it++)
+            std::cout << it->first << " " << it->second << std::endl;
+        std::cout << "END of MAP First Line" << std::endl;
 }
 
 void Request::parse_headers(void){
@@ -104,11 +104,11 @@ void Request::parse_headers(void){
         _headers[header_key] = header_value;
     }
 
-    // std::map<std::string,std::string>::iterator itm;
-    // std::cout << "HEADERS in MAP" << std::endl;
-    // for (itm = _headers.begin(); itm != _headers.end(); itm++)
-    //     std::cout <<"Key: " <<itm->first << " Value: " << itm->second << std::endl;
-    // std::cout << "HEADERS in MAP END" << std::endl;
+    std::map<std::string,std::string>::iterator itm;
+    std::cout << "HEADERS in MAP" << std::endl;
+    for (itm = _headers.begin(); itm != _headers.end(); itm++)
+        std::cout <<"Key: " <<itm->first << " Value: " << itm->second << std::endl;
+    std::cout << "HEADERS in MAP END" << std::endl;
 }
 
 void Request::parse_body(void){ // 
@@ -124,7 +124,7 @@ void Request::parse_body(void){ //
     else
         _body = _request.substr(this->_requestPosition);
         //  Печать боди для проверки
-    // std::cout << "BODY" << std::endl << _body<< std::endl << "BODY END" << std::endl;
+    std::cout << "BODY" << std::endl << _body<< std::endl << "BODY END" << std::endl;
 
 }
 
