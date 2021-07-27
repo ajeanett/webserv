@@ -6,7 +6,7 @@
 /*   By: ajeanett <ajeanett@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/18 20:32:21 by ajeanett          #+#    #+#             */
-/*   Updated: 2021/07/27 15:11:32 by ajeanett         ###   ########.fr       */
+/*   Updated: 2021/07/27 16:35:01 by ajeanett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int main(void)
 {
     ServerEngine serv;
     Date d;
-    std::cout << d.get_time() <<std::endl;
+    std::cout << d.get_time() << std::endl;
     serv.servStart();
     // serv.getStartPage();
     serv.run();

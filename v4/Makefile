@@ -6,13 +6,14 @@
 #    By: ajeanett <ajeanett@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/09 15:15:25 by ajeanett          #+#    #+#              #
-#    Updated: 2021/07/26 18:27:54 by ajeanett         ###   ########.fr        #
+#    Updated: 2021/07/27 16:35:46 by ajeanett         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = webserv
 SRCS =	main.cpp server_engine/ServerEngine.cpp server_engine/Request.cpp \
-		parse_config/LocationData.cpp parse_config/ServerData.cpp parse_config/ParserConfig.cpp 
+		parse_config/LocationData.cpp parse_config/ServerData.cpp parse_config/ParserConfig.cpp \
+		server_engine/Date.cpp
 	
 OBJECTS = $(SRCS:.cpp=.o)
 FLAGS = clang++ -Wall -Wextra -Werror
