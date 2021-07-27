@@ -1,14 +1,16 @@
-#include "date.hpp"
+#include "Date.hpp"
 
 std::string Date::get_time(){
 
+    std::string d;
+
     gettimeofday(&_t, NULL);
     _tm = gmtime(&_t.tv_sec);
-    strftime(_buf, 1000, "%A %Y %H:%M:%S", _tm);
+    strftime(_buf, 1000, "%a, %d %b %Y %H:%M:%S GMT", _tm);
 
-    _ret = _buf;
+    d = std::string(_buf);
 
-    return (_ret);
+    return (d);
 
 }
 
