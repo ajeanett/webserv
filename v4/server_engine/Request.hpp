@@ -25,13 +25,20 @@ private:
     std::map<std::string, std::string> _headers; // хедеры
     std::string                        _body; // боди, есть не всегда
     size_t                             _requestPosition;
+	void parse_request();
+	void parse_headers();
+	void parse_body();
+
 public:
     Request();
     Request(const std::string &request);
     virtual ~Request();
-    void parse_request(void);
-    void parse_headers(void);
-    void parse_body(void);
+	void parse(std::string const &request_str);
+	std::string respond() const;
+
+	const std::map<std::string, std::string> &getStartLine() const;
+	const std::map<std::string, std::string> &getHeaders() const;
+	const std::string &getBody() const;
 };
 
 

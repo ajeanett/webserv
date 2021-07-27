@@ -45,8 +45,8 @@ class ServerEngine{
         void	run(void);
         void    setAddr(int port);
         int     ft_select(int mx, timeval timeout);
-        bool    ft_send(void);
-        bool    ft_receive(void);
+        bool    ft_send(Request const &request);
+        bool    ft_receive(Request &request);
         bool    ft_accept(int *mx);
         bool    check_request(std::string buffer);
 

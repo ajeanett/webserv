@@ -19,8 +19,8 @@
 int main(void)
 {
     ServerEngine serv;
-    Date d;
-    std::cout << d.get_time() << std::endl;
+//    Date d;
+//    std::cout << d.get_time() << std::endl;
     serv.servStart();
     // serv.getStartPage();
     serv.run();

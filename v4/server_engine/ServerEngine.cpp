@@ -28,7 +28,7 @@ static void        print_servers(ParserConfig & i){
     while (index < i.getServers().size())
     {
         i_loc = 0;
-        
+
         std::cout << "Server: " << index <<  std::endl;
         std::cout << "Port: " << i.getServers()[index].getPort() <<  std::endl;
         std::cout << "Host: " << i.getServers()[index].getHost() <<  std::endl;
@@ -66,9 +66,9 @@ int		ServerEngine::servStart(void)
     std::string configfile = "./ex.conf";
     ParserConfig    _p(configfile);
     // std::cout << _p << std::endl;
-    std::map<int, ServerData>::iterator it;
+//    std::map<int, ServerData>::iterator it;
     int i = 0;
-    print_servers(_p);
+//    print_servers(_p);
     while (_p.getServers()[i].getPort())
     {
         _ports.insert(_p.getServers()[i].getPort());
@@ -93,7 +93,7 @@ int		ServerEngine::servStart(void)
         int a = 1;
         if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &a, sizeof(int)) < 0)
             perror("setsockopt(SO_REUSEADDR) failed");
-        
+
         setAddr(*it);
 
 	    if (bind(_fd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0)
@@ -107,6 +107,7 @@ int		ServerEngine::servStart(void)
 	    	return (-1);
 	    }
         _listen_fds.insert(_fd);
+		std::cout << "servStart port: " << *it << std::endl;
     }
     return (0);
 }
@@ -147,7 +148,7 @@ int     ServerEngine::ft_select(int mx, timeval timeout){
     return (ret);
 }
 
-bool ServerEngine::ft_send(){
+bool ServerEngine::ft_send(const Request &request) {
 
     bool ret;
 
@@ -160,7 +161,9 @@ bool ServerEngine::ft_send(){
         {
             // std::cout << "send2" << std::endl;
             errno = 0;
-            send(*it, _startPage.c_str(), _startPage.size(), 0);//в другой if перенести
+            std::string msg = request.respond();
+			send(*it, msg.c_str(), msg.length(), 0);
+//            send(*it, _startPage.c_str(), _startPage.size(), 0);//в другой if перенести
             // std::cout << "Send" << std::endl;
             _clients_recv.insert(*it);
             FD_CLR(*it, &_writeset_master);
@@ -233,7 +236,7 @@ bool    ServerEngine::check_request(std::string buffer){
     return (false); // проверить ошибки 404, 500, 505
 }
 
-bool ServerEngine::ft_receive(){
+bool ServerEngine::ft_receive(Request &request) {
 
     bool ret;
 
@@ -259,13 +262,14 @@ bool ServerEngine::ft_receive(){
             // buffer += std::string(_buf);
             full_request = check_request(_buffer[*it]);
             // std::cout << "Read:"<< std::endl << _buffer[*it] << std::endl << "Read END!"<< std::endl;
-            if (full_request == true)
+            if (full_request)
             {
-                Request request(_buffer[*it]);
-                request.parse_request();
-                request.parse_headers();
-                request.parse_body();
-
+//                Request request(_buffer[*it]);
+//                request.parse_request();
+//                request.parse_headers();
+//                request.parse_body();
+				request.parse(_buffer[*it]);
+                std::cout << request.getStartLine().find("method")->second << ' ' << request.getStartLine().find("location")->second << std::endl << std::endl;
                 _clients_send.insert(*it);
                 FD_SET(*it, &_writeset_master);
                 _clients_recv.erase(*it);
@@ -290,7 +294,7 @@ bool ServerEngine::ft_accept(int *mx){
     bool ret;
 
     ret = false;
-    
+
     for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
     {
         // std::cout << "accept " << *it << std::endl;
@@ -315,7 +319,7 @@ bool ServerEngine::ft_accept(int *mx){
             break;
         }
     }
-    
+
     return(ret);
 }
 
@@ -324,7 +328,7 @@ void		ServerEngine::run(void)
     int mx = *max_element(_listen_fds.begin(), _listen_fds.end());
     _clients_recv.clear();
     _clients_send.clear();
-    FD_ZERO(&_readset_master); 
+    FD_ZERO(&_readset_master);
     FD_ZERO(&_writeset_master);
 
     getStartPage(); // сгенерировать index.html для автоиндекса, если путь не файл, а директория
@@ -333,6 +337,7 @@ void		ServerEngine::run(void)
         FD_SET(*it, &_readset_master);
 
     bool    _run = true;
+    Request request;
     while(_run)
     {
         // std::cout << "start" << std::endl;
@@ -348,24 +353,19 @@ void		ServerEngine::run(void)
             if (ret > 0)
                 sel = false;
         }
-
         if (!sel)
         {
-            sel = ft_send(); // отправка данных клиенту
+            sel = ft_send(request); // отправка данных клиенту
         }
-
         if (!sel)
         {
-            sel = ft_receive(); // получение данные от клиента
+            sel = ft_receive(request); // получение данные от клиента
         }
-
         if (!sel)
         {
             sel = ft_accept(&mx); // проверяем запросы на соединение
         }
-
         sel = true;
         // std::cout << "end" << std::endl;
     }
-
 }
