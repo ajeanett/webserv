@@ -18,7 +18,8 @@ SRCS =	main.cpp \
 		parse_config/ParserConfig.cpp \
 		server_engine/Date.cpp \
 		HTTP/Request.cpp \
-		HTTP/Response.cpp
+		HTTP/Response.cpp \
+		HTTP/Responders/GetResponder.cpp
 
 OBJECTS = $(SRCS:.cpp=.o)
 #FLAGS = clang++ -Wall -Wextra -Werror
