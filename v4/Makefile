@@ -11,12 +11,18 @@
 # **************************************************************************** #
 
 NAME = webserv
-SRCS =	main.cpp server_engine/ServerEngine.cpp server_engine/Request.cpp \
-		parse_config/LocationData.cpp parse_config/ServerData.cpp parse_config/ParserConfig.cpp \
-		server_engine/Date.cpp
-	
+SRCS =	main.cpp \
+		server_engine/ServerEngine.cpp \
+		parse_config/LocationData.cpp \
+		parse_config/ServerData.cpp \
+		parse_config/ParserConfig.cpp \
+		server_engine/Date.cpp \
+		HTTP/Request.cpp \
+		HTTP/Response.cpp
+
 OBJECTS = $(SRCS:.cpp=.o)
-FLAGS = clang++ -Wall -Wextra -Werror
+#FLAGS = clang++ -Wall -Wextra -Werror
+FLAGS = clang++ -Wall
 
 all: $(NAME)
 
@@ -24,7 +30,7 @@ $(NAME): $(OBJECTS)
 	clang++ $(OBJECTS) -o $(NAME)
 
 %.o: %.cpp %.hpp
-	@$(FLAGS) -c $< -o $@
+	$(FLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(OBJECTS)

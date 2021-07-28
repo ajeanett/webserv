@@ -136,9 +136,15 @@ void Request::parse(const std::string &request_str)
 	parse_body();
 }
 
-std::string Request::respond() const
+std::string Request::respond(ParserConfig const &config) const
 {
-	return ("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 5\r\n\r\n12345");
+	Response response;
+
+	response.setStatus("200", "OK");
+	response.setVersion("HTTP/1.1");
+	response.getHeaders()["Content-Type"] = "text/plain";
+	response.setBody("1234567");
+	return (response.str());
 }
 
 const std::map<std::string, std::string> &Request::getStartLine() const

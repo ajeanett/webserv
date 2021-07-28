@@ -1,8 +1,7 @@
 #include "ParserConfig.hpp"
 
-ParserConfig::ParserConfig(std::string &configfile)
+ParserConfig::ParserConfig()
 {
-    Parser(configfile);
 }
 
 ParserConfig::~ParserConfig()

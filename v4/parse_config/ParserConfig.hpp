@@ -20,10 +20,10 @@ private:
     void    fillServerData(ServerData &s, std::string &buffer);
 
 public:
-    ParserConfig(std::string &configfile);
+    ParserConfig();
     ParserConfig(ParserConfig &cpy);
     ~ParserConfig();
-    ParserConfig	&operator=(const ParserConfig &cpy);
+    ParserConfig	&operator = (const ParserConfig &cpy);
     void    Parser(std::string name);
     ServerData ParseServer(std::ifstream &configfile, std::string &buffer);
     std::map<int, ServerData> &getServers();

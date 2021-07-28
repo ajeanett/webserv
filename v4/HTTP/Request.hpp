@@ -14,6 +14,8 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include "../parse_config/ParserConfig.hpp"
+#include "Response.hpp"
 
 class Request
 {
@@ -34,7 +36,7 @@ public:
     Request(const std::string &request);
     virtual ~Request();
 	void parse(std::string const &request_str);
-	std::string respond() const;
+	std::string respond(ParserConfig const &config) const;
 
 	const std::map<std::string, std::string> &getStartLine() const;
 	const std::map<std::string, std::string> &getHeaders() const;

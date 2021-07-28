@@ -5,7 +5,7 @@ ServerEngine::ServerEngine(std::set<int> const & ports){
         this->_ports.insert(*it);
 	_listen_fds.clear();
     std::cout << "WebServer created.\n";
-        }
+}
 
 ServerEngine::ServerEngine(void){
     // this->_ports.insert(80);
@@ -61,17 +61,17 @@ ServerEngine::~ServerEngine(){
 
 int		ServerEngine::servStart(void)
 {
-    // запуск парсера, добавить в структуру класса экземпляр класса конфига
-    // в цикле заполнить порты из конфига
-    std::string configfile = "./ex.conf";
-    ParserConfig    _p(configfile);
-    // std::cout << _p << std::endl;
-//    std::map<int, ServerData>::iterator it;
-    int i = 0;
-//    print_servers(_p);
-    while (_p.getServers()[i].getPort())
+//	запуск парсера, добавить в структуру класса экземпляр класса конфига
+//	в цикле заполнить порты из конфига
+	std::string configfile = "./ex.conf";
+//	ParserConfig    _p(configfile);
+	_config.Parser(configfile);
+	int i = 0;
+
+//	print_servers(_p);
+    while (_config.getServers()[i].getPort())
     {
-        _ports.insert(_p.getServers()[i].getPort());
+        _ports.insert(_config.getServers()[i].getPort());
         i++;
     }
     i = 0;
@@ -156,15 +156,15 @@ bool ServerEngine::ft_send(const Request &request) {
 
     for (std::set<int>::iterator it = _clients_send.begin(); it != _clients_send.end(); ++it)
     {
-        // std::cout << "send " << *it << std::endl;
+//		std::cout << "send " << *it << std::endl;
         if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
         {
-            // std::cout << "send2" << std::endl;
             errno = 0;
-            std::string msg = request.respond();
+            std::string msg = request.respond(_config);
 			send(*it, msg.c_str(), msg.length(), 0);
-//            send(*it, _startPage.c_str(), _startPage.size(), 0);//в другой if перенести
-            // std::cout << "Send" << std::endl;
+			std::cout << "Respond: '" << msg << '\'' << std::endl;
+//			send(*it, _startPage.c_str(), _startPage.size(), 0);//в другой if перенести
+//			std::cout << "Send" << std::endl;
             _clients_recv.insert(*it);
             FD_CLR(*it, &_writeset_master);
             FD_CLR(*it, &_readset_master);
