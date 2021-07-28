@@ -24,7 +24,7 @@ CGI::CGI(/* args */)
     _tmpEnvCGI["HTTP_USER_AGENT"];
 }
 
-CGI::CGI(Request req){
+CGI::CGI(Request &req){
      /* environment variables for CGI */
     _tmpEnvCGI["SERVER_SOFTWARE"] = "Webserv by kfriese and ajeanett";
     _tmpEnvCGI["SERVER_NAME"];
@@ -49,11 +49,100 @@ CGI::CGI(Request req){
 
 CGI::~CGI()
 {
+    
 }
 
-CGI::runCGI(){
-    prepareEnvCGI();
+int     CGI::clearCGI(){
 
+    _tmpEnvCGI["SERVER_NAME"].clear();
+    _tmpEnvCGI["GATEWAY_INTERFACE"].clear();
+    _tmpEnvCGI["SERVER_PROTOCOL"].clear();
+    _tmpEnvCGI["SERVER_PORT"].clear();
+    _tmpEnvCGI["REQUEST_METHOD"].clear();
+    _tmpEnvCGI["PATH_INFO"].clear();
+    _tmpEnvCGI["PATH_TRANSLATED"].clear();
+    _tmpEnvCGI["SCRIPT_NAME"].clear();
+    _tmpEnvCGI["QUERY_STRING"].clear();
+    _tmpEnvCGI["REMOTE_HOST"].clear();
+    _tmpEnvCGI["REMOTE_ADDR"].clear();
+    _tmpEnvCGI["AUTH_TYPE"].clear();
+    _tmpEnvCGI["REMOTE_USER"].clear();
+    _tmpEnvCGI["REMOTE_IDENT"].clear();
+    _tmpEnvCGI["CONTENT_TYPE"].clear();
+    _tmpEnvCGI["CONTENT_LENGTH"].clear();
+    _tmpEnvCGI["HTTP_ACCEPT"].clear();
+    _tmpEnvCGI["HTTP_USER_AGENT"].clear();
+
+}
+
+void    CGI::fillTmpEnvCgi(Request &req, ServerData & serv){
+
+    std::string curr_loc_str;
+    std::vector<LocationData> locs;
+    std::vector<LocationData>::iterator it;
+
+    curr_loc_str = req.getStartLine().find("location")->second;
+    locs = serv.getLocationData();
+
+    _tmpEnvCGI["SERVER_NAME"] = serv.getServerName();
+    _tmpEnvCGI["GATEWAY_INTERFACE"] = "CGI/1.1";
+    _tmpEnvCGI["SERVER_PROTOCOL"] = req.getStartLine().find("version")->second;
+    _tmpEnvCGI["SERVER_PORT"] = std::to_string(serv.getPort());
+    _tmpEnvCGI["REQUEST_METHOD"] = req.getStartLine().find("method")->second;
+    _tmpEnvCGI["PATH_INFO"] = req.getStartLine().find("location")->second;
+    for (it = locs.begin(); it != locs.end(); ++it)
+    {
+        if ((*it).getLocationPath() == curr_loc_str)
+        {
+            _tmpEnvCGI["PATH_TRANSLATED"] = (*it).getRoot();
+            _tmpEnvCGI["SCRIPT_NAME"] = (*it).getCgiPath();
+        }
+    }
+        _tmpEnvCGI["QUERY_STRING"] = "";
+        _tmpEnvCGI["REMOTE_HOST"] = req.getHeaders().find("Referer") == req.getHeaders().end() ? "" : req.getHeaders().find("Content-Type")->second;
+        _tmpEnvCGI["REMOTE_ADDR"] = "";
+        _tmpEnvCGI["AUTH_TYPE"] = "BASIC";
+        _tmpEnvCGI["REMOTE_USER"] = "User";
+        // _tmpEnvCGI["REMOTE_IDENT"] = "";
+        _tmpEnvCGI["CONTENT_TYPE"] = req.getHeaders().find("Content-Type") == req.getHeaders().end() ? "" : req.getHeaders().find("Content-Type")->second;
+        _tmpEnvCGI["CONTENT_LENGTH"] = std::to_string(req.getBody().size());
+        _tmpEnvCGI["HTTP_ACCEPT"] =  req.getHeaders().find("Accept") == req.getHeaders().end() ? "" : req.getHeaders().find("Accept")->second;
+        _tmpEnvCGI["HTTP_USER_AGENT"] = req.getHeaders().find("User-Agent") == req.getHeaders().end() ? "" : req.getHeaders().find("User-Agent")->second;
+    
+}
+
+void    CGI::fillEnvp(char *** envp){
+
+    *envp = new char* [_tmpEnvCGI.size() + 1];
+	int	i = 0;
+    //Заплняем переменные окружения в char** из мапы, которую мы создали ранее
+	for (std::map<std::string, std::string>::iterator it = _tmpEnvCGI.begin(); it != _tmpEnvCGI.end(); ++it) {
+		std::string	var = it->first + "=" + it->second; //каждая строка в переменной окружения должна быть вида key=value
+		(*envp)[i] = new char[var.size() + 1];
+		std::strcpy((*envp)[i], var.c_str());
+		i++;
+	}
+	(*envp)[i] = NULL; //зануляем двухмерный массив
+
+    return ;
+}
+
+void    CGI::prepareEnvCGI(Request &req, ServerData & serv, char *** envp){
+
+    clearCGI(); //очищаем предыдущие данные перед повторным использованием;
+    fillTmpEnvCgi(req, serv);
+    fillEnvp(envp);
+}
+
+
+int CGI::runCGI(Request &req, ServerData & serv){
+
+    char **envp = nullptr;
+    prepareEnvCGI(req, serv, &envp);
+    startCGI(envp);
+
+    if (envp)
+        delete[] envp;
 }
 
 // Specification

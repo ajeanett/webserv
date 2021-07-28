@@ -15,7 +15,7 @@ class ServerData
 private:
     std::string     _server_name;
     int             _port;
-    std::string     _host; //нужно будет перевести в int возможно, если неиспользовать IFADDR_ANY
+    std::string     _host; //нужно будет перевести в int возможно, если не использовать IFADDR_ANY
     std::vector<LocationData>    _loc; // массив локейшенов данного сервера со всеми данными
     // std::map<int, LocationData>    _loc; // массив локейшенов данного сервера со всеми данными
 

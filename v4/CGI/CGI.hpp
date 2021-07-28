@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include <map>
-#include "../server_engine/Request.hpp"
+#include "../HTTP/Request.hpp"
+#include "../parse_config/ParserConfig.hpp"
 
 //попробовать запустить python3 igra.py из сервера
 // /usr/local/bin/python3 igra.py - путь для запуска в execve
@@ -13,11 +14,17 @@ class CGI
 private:
     /* data */
     std::map<std::string, std::string> _tmpEnvCGI;  // мапа для занесения пар ключ\значение для переменных окружения CGI, перед выполнением execve нужно будет перевести в char**
+    char                                **_envp; // переменные окружения для execve;
+    void    prepareEnvCGI(Request &req, ServerData & serv, char *** envp);
+    int     startCGI(char **envp);
+    int     clearCGI();
+    void    fillTmpEnvCgi(Request &req, ServerData & serv);
+    void    fillEnvp(char *** envp);
 
 public:
     CGI(/* args */);
-    CGI(Request req);
-    int runCGI();
+    CGI(Request &req);
+    int runCGI(Request &req, ServerData & serv);
     ~CGI();
 
 };
