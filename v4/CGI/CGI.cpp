@@ -2,29 +2,58 @@
 
 CGI::CGI(/* args */)
 {
-    _tmpEnvCGI["SERVER_SOFTWARE"];
+    /* environment variables for CGI */
+    _tmpEnvCGI["SERVER_SOFTWARE"] = "Webserv by kfriese and ajeanett";
     _tmpEnvCGI["SERVER_NAME"];
     _tmpEnvCGI["GATEWAY_INTERFACE"];
     _tmpEnvCGI["SERVER_PROTOCOL"];
     _tmpEnvCGI["SERVER_PORT"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
-    _tmpEnvCGI["SERVER_SOFTWARE"];
+    _tmpEnvCGI["REQUEST_METHOD"];
+    _tmpEnvCGI["PATH_INFO"];
+    _tmpEnvCGI["PATH_TRANSLATED"];
+    _tmpEnvCGI["SCRIPT_NAME"];
+    _tmpEnvCGI["QUERY_STRING"];
+    _tmpEnvCGI["REMOTE_HOST"];
+    _tmpEnvCGI["REMOTE_ADDR"];
+    _tmpEnvCGI["AUTH_TYPE"];
+    _tmpEnvCGI["REMOTE_USER"];
+    _tmpEnvCGI["REMOTE_IDENT"];
+    _tmpEnvCGI["CONTENT_TYPE"];
+    _tmpEnvCGI["CONTENT_LENGTH"];
+    _tmpEnvCGI["HTTP_ACCEPT"];
+    _tmpEnvCGI["HTTP_USER_AGENT"];
+}
 
-
+CGI::CGI(Request req){
+     /* environment variables for CGI */
+    _tmpEnvCGI["SERVER_SOFTWARE"] = "Webserv by kfriese and ajeanett";
+    _tmpEnvCGI["SERVER_NAME"];
+    _tmpEnvCGI["GATEWAY_INTERFACE"];
+    _tmpEnvCGI["SERVER_PROTOCOL"];
+    _tmpEnvCGI["SERVER_PORT"];
+    _tmpEnvCGI["REQUEST_METHOD"];
+    _tmpEnvCGI["PATH_INFO"];
+    _tmpEnvCGI["PATH_TRANSLATED"];
+    _tmpEnvCGI["SCRIPT_NAME"];
+    _tmpEnvCGI["QUERY_STRING"];
+    _tmpEnvCGI["REMOTE_HOST"];
+    _tmpEnvCGI["REMOTE_ADDR"];
+    _tmpEnvCGI["AUTH_TYPE"];
+    _tmpEnvCGI["REMOTE_USER"];
+    _tmpEnvCGI["REMOTE_IDENT"];
+    _tmpEnvCGI["CONTENT_TYPE"];
+    _tmpEnvCGI["CONTENT_LENGTH"];
+    _tmpEnvCGI["HTTP_ACCEPT"];
+    _tmpEnvCGI["HTTP_USER_AGENT"];
 }
 
 CGI::~CGI()
 {
+}
+
+CGI::runCGI(){
+    prepareEnvCGI();
+
 }
 
 // Specification

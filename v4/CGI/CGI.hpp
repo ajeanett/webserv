@@ -3,8 +3,10 @@
 
 #include <iostream>
 #include <map>
+#include "../server_engine/Request.hpp"
 
 //попробовать запустить python3 igra.py из сервера
+// /usr/local/bin/python3 igra.py - путь для запуска в execve
 
 class CGI
 {
@@ -14,6 +16,8 @@ private:
 
 public:
     CGI(/* args */);
+    CGI(Request req);
+    int runCGI();
     ~CGI();
 
 };
