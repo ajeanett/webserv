@@ -36,7 +36,7 @@ public:
     Request(const std::string &request);
     virtual ~Request();
 	void parse(std::string const &request_str);
-	std::string respond(ParserConfig const &config) const;
+	std::string respond(ParserConfig const &config, ServerData const &serverData) const;
 
 	const std::map<std::string, std::string> &getStartLine() const;
 	const std::map<std::string, std::string> &getHeaders() const;

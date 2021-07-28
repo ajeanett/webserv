@@ -64,7 +64,6 @@ int		ServerEngine::servStart(void)
 //	запуск парсера, добавить в структуру класса экземпляр класса конфига
 //	в цикле заполнить порты из конфига
 	std::string configfile = "./ex.conf";
-//	ParserConfig    _p(configfile);
 	_config.Parser(configfile);
 	int i = 0;
 
@@ -95,6 +94,7 @@ int		ServerEngine::servStart(void)
             perror("setsockopt(SO_REUSEADDR) failed");
 
         setAddr(*it);
+        _fdPort[_fd] = *it;
 
 	    if (bind(_fd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0)
 	    {
@@ -148,7 +148,7 @@ int     ServerEngine::ft_select(int mx, timeval timeout){
     return (ret);
 }
 
-bool ServerEngine::ft_send(const Request &request) {
+bool ServerEngine::ft_send(const Request &request, int current_port) {
 
     bool ret;
 
@@ -160,9 +160,19 @@ bool ServerEngine::ft_send(const Request &request) {
         if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
         {
             errno = 0;
-            std::string msg = request.respond(_config);
+//			std::cout << "Current port: " << current_port << std::endl;
+			int serverFd = -1;
+            for (std::map<int, ServerData>::iterator it = _config.getServers().begin(); it != _config.getServers().end(); ++it)
+			{
+				if (it->second.getPort() == current_port)
+					serverFd = it->first;
+			}
+            ServerData data = _config.getServers()[serverFd];
+            std::string msg = request.respond(_config, data);
 			send(*it, msg.c_str(), msg.length(), 0);
-			std::cout << "Respond: '" << msg << '\'' << std::endl;
+			std::cout << "Respond on " << *it << ": '" << msg << '\'' << std::endl;
+			std::cout << "Server name: " << data.getServerName() << std::endl;
+			std::cout << "Server port: " << data.getPort() << std::endl;
 //			send(*it, _startPage.c_str(), _startPage.size(), 0);//в другой if перенести
 //			std::cout << "Send" << std::endl;
             _clients_recv.insert(*it);
@@ -288,7 +298,7 @@ bool ServerEngine::ft_receive(Request &request) {
     return(ret);
 }
 
-bool ServerEngine::ft_accept(int *mx){
+bool ServerEngine::ft_accept(int *mx, int *current_port){
 
     bool ret;
 
@@ -296,7 +306,7 @@ bool ServerEngine::ft_accept(int *mx){
 
     for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
     {
-        // std::cout << "accept " << *it << std::endl;
+         std::cout << "accept " << *it << std::endl;
         // Определяем тип события и выполняем соответствующие действия
         if(FD_ISSET(*it, &_readset))
         {
@@ -309,6 +319,7 @@ bool ServerEngine::ft_accept(int *mx){
               perror("accept");
               exit(3);
             }
+			*current_port = _fdPort[*it];
             if (*mx < sock)
                 *mx = sock;
             fcntl(sock, F_SETFL, O_NONBLOCK);
@@ -345,6 +356,7 @@ void		ServerEngine::run(void)
         timeout.tv_sec = 15;
         timeout.tv_usec = 0;
 
+		int current_port;
         bool sel = true;
         while (sel) {
             // Ждём события в одном из сокетов
@@ -354,7 +366,7 @@ void		ServerEngine::run(void)
         }
         if (!sel)
         {
-            sel = ft_send(request); // отправка данных клиенту
+            sel = ft_send(request, current_port); // отправка данных клиенту
         }
         if (!sel)
         {
@@ -362,7 +374,7 @@ void		ServerEngine::run(void)
         }
         if (!sel)
         {
-            sel = ft_accept(&mx); // проверяем запросы на соединение
+            sel = ft_accept(&mx, &current_port); // проверяем запросы на соединение
         }
         sel = true;
         // std::cout << "end" << std::endl;

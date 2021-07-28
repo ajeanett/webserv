@@ -136,7 +136,7 @@ void Request::parse(const std::string &request_str)
 	parse_body();
 }
 
-std::string Request::respond(ParserConfig const &config) const
+std::string Request::respond(ParserConfig const &config, ServerData const &serverData) const
 {
 	Response response;
 

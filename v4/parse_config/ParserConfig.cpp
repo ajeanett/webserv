@@ -41,8 +41,8 @@ void        ParserConfig::fillServerData(ServerData &s, std::string &buffer){
     size_t next = 0;
     if ((next = buffer.find("port ", 0)) != std::string::npos)
     {
-            next += 5;
-            s.setPort(atoi((buffer.substr(next, (buffer.find(";") - next)).c_str()))); // ищем точку с запятой, вырезаем от пробела до точи с запятой, коертируем в строку си, переводим в инт и записываем в значение порта.
+		next += 5;
+		s.setPort(atoi((buffer.substr(next, (buffer.find(";") - next)).c_str()))); // ищем точку с запятой, вырезаем от пробела до точи с запятой, коертируем в строку си, переводим в инт и записываем в значение порта.
     }
     else if ((next = buffer.find("host ", 0)) != std::string::npos)
     {
@@ -160,7 +160,7 @@ void    ParserConfig::Parser(std::string name){
     while (getline(configfile, buffer))
     {
         next = buffer.find("server ", 0);
-        if (next  != std::string::npos)
+        if (next != std::string::npos)
         {
             server_find = true;
         }
@@ -174,8 +174,6 @@ void    ParserConfig::Parser(std::string name){
                 server_find = false;
             }
         }
-        
-
     }
 }
 

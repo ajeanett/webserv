@@ -30,6 +30,7 @@ class ServerEngine{
         std::map<int, std::string>  _buffer;// мапа для чтения запросов\request`ов, int -  это фд клиента, string - буффер отдельно для каждого клиента.
         // bool                        _sel; //
         std::map<int, bool>         _chunked; // проверка на фрагментированность каждого запроса. int -  это фд клиента, bool - фрагментирован запрос или нет.
+        std::map<int, int>			_fdPort;
 
     public:
         ServerEngine(ServerEngine const & src);
@@ -46,9 +47,9 @@ class ServerEngine{
         void	run(void);
         void    setAddr(int port);
         int     ft_select(int mx, timeval timeout);
-        bool    ft_send(Request const &request);
+        bool    ft_send(Request const &request, int current_port);
         bool    ft_receive(Request &request);
-        bool    ft_accept(int *mx);
+        bool    ft_accept(int *mx, int *current_port);
         bool    check_request(std::string buffer);
 
 };
