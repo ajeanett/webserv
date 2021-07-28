@@ -19,44 +19,44 @@ ServerEngine::~ServerEngine(){
             std::cout << "WebServer destroyed!\n";
         }
 
-static void        print_servers(ParserConfig & i){
-    std::cout << "PARSER CONFIG" << std::endl;
-    // std::cout << i.getServers()[0].getPort();
-    size_t index = 0;
-    size_t i_loc;
-    size_t i_vect;
-    while (index < i.getServers().size())
-    {
-        i_loc = 0;
+// static void        print_servers(ParserConfig & i){
+//     std::cout << "PARSER CONFIG" << std::endl;
+//     // std::cout << i.getServers()[0].getPort();
+//     size_t index = 0;
+//     size_t i_loc;
+//     size_t i_vect;
+//     while (index < i.getServers().size())
+//     {
+//         i_loc = 0;
 
-        std::cout << "Server: " << index <<  std::endl;
-        std::cout << "Port: " << i.getServers()[index].getPort() <<  std::endl;
-        std::cout << "Host: " << i.getServers()[index].getHost() <<  std::endl;
-        std::cout << "Server_name: " << i.getServers()[index].getServerName() <<  std::endl;
-        while (i_loc < i.getServers()[index].getLocationData().size())
-        {
-            i_vect = 0;
-            if (!i.getServers()[index].getLocationData()[i_loc].getLocationPath().empty())
-                std::cout << "LocationPath: " << i.getServers()[index].getLocationData()[i_loc].getLocationPath() <<  std::endl;
-            if (!i.getServers()[index].getLocationData()[i_loc].getRoot().empty())
-                std::cout << "Root: " << i.getServers()[index].getLocationData()[i_loc].getRoot() <<  std::endl;
-            if (!i.getServers()[index].getLocationData()[i_loc].getFullPath().empty())
-                std::cout << "FullPath: " << i.getServers()[index].getLocationData()[i_loc].getFullPath() <<  std::endl;
-            while (i_vect < i.getServers()[index].getLocationData()[i_loc].getMethods().size())
-            {
-                std::cout << "Method: " << i_vect << " "<< i.getServers()[index].getLocationData()[i_loc].getMethods()[i_vect] <<  std::endl;
-                ++i_vect;
-            }
-            if (!i.getServers()[index].getLocationData()[i_loc].getIndex().empty())
-                std::cout << "Index " << i.getServers()[index].getLocationData()[i_loc].getIndex() <<  std::endl;
-            i_loc++;
-        }
-        // std::cout << "LocationPath: " << i.getServers()[index].getLocationData()[0].getLocationPath() <<  std::endl;
+//         std::cout << "Server: " << index <<  std::endl;
+//         std::cout << "Port: " << i.getServers()[index].getPort() <<  std::endl;
+//         std::cout << "Host: " << i.getServers()[index].getHost() <<  std::endl;
+//         std::cout << "Server_name: " << i.getServers()[index].getServerName() <<  std::endl;
+//         while (i_loc < i.getServers()[index].getLocationData().size())
+//         {
+//             i_vect = 0;
+//             if (!i.getServers()[index].getLocationData()[i_loc].getLocationPath().empty())
+//                 std::cout << "LocationPath: " << i.getServers()[index].getLocationData()[i_loc].getLocationPath() <<  std::endl;
+//             if (!i.getServers()[index].getLocationData()[i_loc].getRoot().empty())
+//                 std::cout << "Root: " << i.getServers()[index].getLocationData()[i_loc].getRoot() <<  std::endl;
+//             if (!i.getServers()[index].getLocationData()[i_loc].getFullPath().empty())
+//                 std::cout << "FullPath: " << i.getServers()[index].getLocationData()[i_loc].getFullPath() <<  std::endl;
+//             while (i_vect < i.getServers()[index].getLocationData()[i_loc].getMethods().size())
+//             {
+//                 std::cout << "Method: " << i_vect << " "<< i.getServers()[index].getLocationData()[i_loc].getMethods()[i_vect] <<  std::endl;
+//                 ++i_vect;
+//             }
+//             if (!i.getServers()[index].getLocationData()[i_loc].getIndex().empty())
+//                 std::cout << "Index " << i.getServers()[index].getLocationData()[i_loc].getIndex() <<  std::endl;
+//             i_loc++;
+//         }
+//         // std::cout << "LocationPath: " << i.getServers()[index].getLocationData()[0].getLocationPath() <<  std::endl;
 
-        ++index;
-        std::cout << "SERV END" << std::endl <<std::endl;
-    }
-}
+//         ++index;
+//         std::cout << "SERV END" << std::endl <<std::endl;
+//     }
+// }
 
 
 int		ServerEngine::servStart(void)
@@ -133,8 +133,8 @@ void		ServerEngine::getStartPage(void)
 int     ServerEngine::ft_select(int mx, timeval timeout){
     int ret;
 
-    FD_ZERO(&_readset); // всегда обновлять в начале while и write здесь
-    FD_ZERO(&_writeset); // всегда обновлять в начале while и write здесь
+    FD_ZERO(&_readset); // всегда обновлять в начале while
+    FD_ZERO(&_writeset); // всегда обновлять в начале while
 
     memcpy(&_readset, &_readset_master, sizeof(_readset_master));
     memcpy(&_writeset, &_writeset_master, sizeof(_writeset_master));
@@ -195,7 +195,6 @@ bool    ServerEngine::check_request(std::string buffer){
     //проверить \r\n\r\n, затем проверяем наличие content-lenght, если число равно боди. Нужно будет актуальный размер боди сравнивать с этим числом.
     //Если content-lenght нет, то проверить transfer encoding и равен ли он chunked. Если равен, то дождаться, когда придет "0\r\n\r\n" (неважно, в конце боди или нет, важно, чтобы после первого \r\n\r\n)
     // Если нету ни content length или transfer encoding и есть \r\n\r\n, то значит запрос пришел полностью
-    // std::string buffer;
 
     if (next  != std::string::npos)
     {
@@ -224,7 +223,7 @@ bool    ServerEngine::check_request(std::string buffer){
                 // trim(tmp); //утонить, нужно ли обрезать пробелы и табуляцию по краям. upd. Уточнил - не нужно.
                 if (tmp == "chunked")
                 {
-                    // _chunked[fd] = true;
+                    // _chunked[fd] = true; // нет необходимости в булевой переменной
                     if (buffer.find("0\r\n\r\n", prev) != std::string::npos)
                         return (true);
                     return (false);
