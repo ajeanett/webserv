@@ -1,4 +1,5 @@
 #include "Request.hpp"
+#include "Responders/IResponder.hpp"
 #include <vector>
 
 Request::Request(const std::string &request) : _request(request) //
@@ -138,13 +139,24 @@ void Request::parse(const std::string &request_str)
 
 std::string Request::respond(ParserConfig const &config, ServerData const &serverData) const
 {
-	Response response;
+	IResponder *responder;
 
-	response.setStatus("200", "OK");
-	response.setVersion("HTTP/1.1");
-	response.getHeaders()["Content-Type"] = "text/plain";
-	response.setBody("1234567");
-	return (response.str());
+	if (_startLine.find("method")->second == "GET")
+		responder = new GetResponder();
+//	else if (_startLine.find("method")->second == "POST")
+//		responder = new PostResponder();
+//	else if (_startLine.find("method")->second == "DELETE")
+//		responder = new DeleteResponder();
+//	else if (_startLine.find("method")->second == "PUT")
+//		responder = new PutResponder();
+	else
+	{
+		// Invalid method
+		return ("");
+	}
+	std::string response = responder->respond(*this, config, serverData);
+	delete responder;
+	return (response);
 }
 
 const std::map<std::string, std::string> &Request::getStartLine() const

@@ -21,4 +21,6 @@ add_executable(webserv
 		HTTP/Request.hpp
 		HTTP/Response.cpp
 		HTTP/Response.hpp
-)
+		HTTP/Responders/GetResponder.cpp
+		HTTP/Responders/GetResponder.hpp
+		HTTP/Responders/IResponder.hpp)

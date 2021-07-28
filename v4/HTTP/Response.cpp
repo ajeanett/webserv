@@ -1,6 +1,6 @@
 #include "Response.hpp"
 
-Response::Response()
+Response::Response() : _version("HTTP/1.1")
 {
 }
 

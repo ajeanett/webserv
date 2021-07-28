@@ -26,13 +26,14 @@ public:
     ServerData  &operator=(const ServerData &cpy);
     ~ServerData();
 
-    std::string                 &getServerName();
-    int                         getPort();
-    std::string                 getHost();
-    std::vector<LocationData>   &getLocationData();
-    void                        setServerName(std::string name);
-    void                        setPort(int port);
-    void                        setHost(std::string host);
+    const std::string &getServerName() const;
+    int getPort() const;
+    const std::string &getHost() const;
+    const std::vector<LocationData> &getLocationData() const;
+    void addLocationData(LocationData const &locationData);
+    void setServerName(std::string name);
+    void setPort(int port);
+    void setHost(std::string host);
 };
 
 #endif

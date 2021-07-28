@@ -24,35 +24,35 @@ LocationData&	LocationData::operator=(const LocationData &cpy) {
 	
 	return (*this);
 }
-size_t&	LocationData::getClientBufferBodySize() {
+size_t	LocationData::getClientBufferBodySize() const{
 	return (_client_buffer_body_size);
 	};
-std::string				&LocationData::getLocationPath(void){
+std::string const			&LocationData::getLocationPath(void) const{
 	return (this->_location_path);
 }
-std::string				&LocationData::getRoot(void){
+std::string const			&LocationData::getRoot(void) const {
 	return (this->_root);
 }
-std::string				&LocationData::getFullPath(void){
+const std::string				&LocationData::getFullPath(void) const {
 	return (this->_full_path);
 }
-std::string				&LocationData::getCgiPath(void){
+const std::string				&LocationData::getCgiPath(void) const {
 	return (this->_cgi_path);
 }
-std::string				&LocationData::getCgiExtension(void){
+const std::string				&LocationData::getCgiExtension(void) const {
 	return (this->_cgi_extension);
 }
-std::string				&LocationData::getIndex(void){
+const std::string				&LocationData::getIndex(void) const {
 	return (this->_index);
 }
-std::string				&LocationData::getRedirect(void){
+const std::string				&LocationData::getRedirect(void) const {
 	return (this->_redirect);
 }
-std::vector<std::string>	&LocationData::getMethods(void){
+const std::vector<std::string>	&LocationData::getMethods(void) const {
 	return (this->_methods);
 }
 
-bool					&LocationData::getAutoindex() {
+bool					LocationData::getAutoindex() const {
 	return (this->_autoindex);
 }
 

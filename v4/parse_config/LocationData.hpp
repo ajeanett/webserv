@@ -27,25 +27,25 @@ public:
 	~LocationData();
 	LocationData(const LocationData &copy);
 	void					setAutoindex(bool autoindex);
-	bool					&getAutoindex();
+	bool					getAutoindex() const;
 	void					setLocationPath(std:: string location);
-	std::string				&getLocationPath(void);
+	std::string const		&getLocationPath(void) const;
 	void					setRoot(std:: string root);
-	std::string				&getRoot(void);
+	const std::string				&getRoot(void) const;
 	void					setFullPath(std:: string s1, std:: string s2); //root + location
-	std::string				&getFullPath(void);
+	const std::string				&getFullPath(void) const;
 	void					setCgiPath(std:: string cgipath);
-	std::string				&getCgiPath(void);
+	const std::string				&getCgiPath(void) const;
 	void					setCgiExtension(std:: string cgiextension);
-	std::string				&getCgiExtension(void);
+	const std::string				&getCgiExtension(void) const;
 	void					setIndex(std:: string index);
-	std::string				&getIndex();
+	const std::string				&getIndex() const;
 	void					setRedirect(std::string redirect);
-	std::string				&getRedirect(void);
+	const std::string				&getRedirect(void) const;
 	void					setMethods(std::string methods);
-	std::vector<std::string>	&getMethods(void);
+	const std::vector<std::string>	&getMethods(void) const;
 	void					setClientBufferBodySize(size_t body_size);
-	size_t					&getClientBufferBodySize(void);
+	size_t					getClientBufferBodySize(void) const;
 
 //////////////////////////////////////////////
 	// size_t&	getBodySize();

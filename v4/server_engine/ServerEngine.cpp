@@ -149,39 +149,31 @@ int     ServerEngine::ft_select(int mx, timeval timeout){
 }
 
 bool ServerEngine::ft_send(const Request &request, int current_port) {
+	bool ret = false;
 
-    bool ret;
-
-    ret = false;
-
-    for (std::set<int>::iterator it = _clients_send.begin(); it != _clients_send.end(); ++it)
-    {
-//		std::cout << "send " << *it << std::endl;
-        if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
-        {
-            errno = 0;
-//			std::cout << "Current port: " << current_port << std::endl;
+	for (std::set<int>::iterator it = _clients_send.begin(); it != _clients_send.end(); ++it)
+	{
+		if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
+		{
+			errno = 0;
 			int serverFd = -1;
-            for (std::map<int, ServerData>::iterator it = _config.getServers().begin(); it != _config.getServers().end(); ++it)
+			for (std::map<int, ServerData>::iterator it = _config.getServers().begin(); it != _config.getServers().end(); ++it)
 			{
 				if (it->second.getPort() == current_port)
 					serverFd = it->first;
 			}
-            ServerData data = _config.getServers()[serverFd];
-            std::string msg = request.respond(_config, data);
+			ServerData data = _config.getServers()[serverFd];
+			std::string msg = request.respond(_config, data);
 			send(*it, msg.c_str(), msg.length(), 0);
-			std::cout << "Respond on " << *it << ": '" << msg << '\'' << std::endl;
+			std::cout << "Respond on " << *it << ": \'" << msg << '\'' << std::endl;
 			std::cout << "Server name: " << data.getServerName() << std::endl;
-			std::cout << "Server port: " << data.getPort() << std::endl;
-//			send(*it, _startPage.c_str(), _startPage.size(), 0);//в другой if перенести
-//			std::cout << "Send" << std::endl;
-            _clients_recv.insert(*it);
-            FD_CLR(*it, &_writeset_master);
-            FD_CLR(*it, &_readset_master);
-            close(*it);
-            _clients_send.erase(*it);
-            ret = true;
-            break;
+			_clients_recv.insert(*it);
+			FD_CLR(*it, &_writeset_master);
+			FD_CLR(*it, &_readset_master);
+			close(*it);
+			_clients_send.erase(*it);
+			ret = true;
+			break;
         }
     }
     return(ret);
@@ -306,14 +298,14 @@ bool ServerEngine::ft_accept(int *mx, int *current_port){
 
     for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
     {
-         std::cout << "accept " << *it << std::endl;
-        // Определяем тип события и выполняем соответствующие действия
+//		std::cout << "accept " << *it << std::endl;
+//		 Определяем тип события и выполняем соответствующие действия
         if(FD_ISSET(*it, &_readset))
         {
            // Поступил новый запрос на соединение, используем accept
            errno = 0;
            int sock = accept(*it, NULL, NULL);
-        //    std::cout << "accept complete " << sock << std::endl;
+//			std::cout << "accept complete " << sock << std::endl;
            if(sock < 0)
             {
               perror("accept");

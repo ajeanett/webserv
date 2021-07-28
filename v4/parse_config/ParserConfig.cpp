@@ -135,9 +135,7 @@ ServerData ParserConfig::ParseServer(std::ifstream &configfile, std::string &buf
         }
         fillServerData(s, buffer);
         if ((next = buffer.find("location ")) != std::string::npos)
-        {
-            s.getLocationData().push_back(ParseLocations(configfile, buffer, next + 9));
-        }
+            s.addLocationData(ParseLocations(configfile, buffer, next + 9));
     }
     return (s);
 }

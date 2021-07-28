@@ -28,20 +28,25 @@ ServerData  &ServerData::operator=(const ServerData &cpy){
     return *this;
 }
 
-std::string                 &ServerData::getServerName(){
+const std::string                 &ServerData::getServerName() const {
     return (this->_server_name);
 }
 
-int                         ServerData::getPort(){
+int                         ServerData::getPort() const {
     return (this->_port);
 }
 
-std::string                 ServerData::getHost(){
+const std::string                 &ServerData::getHost() const {
     return (this->_host);
 }
 
-std::vector<LocationData>   &ServerData::getLocationData(){
+const std::vector<LocationData>   &ServerData::getLocationData() const {
     return (this->_loc);
+}
+
+void ServerData::addLocationData(const LocationData &locationData)
+{
+	_loc.push_back(locationData);
 }
 
 void                        ServerData::setServerName(std::string name){

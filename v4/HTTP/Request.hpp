@@ -16,6 +16,7 @@
 #include <map>
 #include "../parse_config/ParserConfig.hpp"
 #include "Response.hpp"
+#include "Responders/GetResponder.hpp"
 
 class Request
 {
