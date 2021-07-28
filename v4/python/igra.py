@@ -1,9 +1,10 @@
+#!/usr/bin/env python
 koloda = [6,7,8,9,10,2,3,4,11] * 4
 
 import random
 random.shuffle(koloda)
 
-print('Поиграем в BlackJack?')
+print('Let`s play BlackJack?')
 count = 0
 count2 = 0
 final1 = 0
@@ -11,46 +12,46 @@ final2 = 0
 
 while True:
     if final1 == 0:
-      choice = input('Игрок 1, будете брать карту? y/n\n')
+      choice = input('Player 1, Do you want to get a card? y/n\n')
       if choice == 'y':
           current = koloda.pop()
-          print('Игроку 1 попалась карта достоинством %d\n' %current)
+          print('Player 1 got a card with a value %d\n' %current)
           count += current
           if count > 21:
-              print('Извините, но игрок 1 проиграл, т.к. у него %d очков' %count)
+              print('Sorry, but player 1 lost because he has %d points' %count)
               break
           elif count == 21:
-              print('Поздравляю, вы набрали 21!')
+              print('Congratulations, you scored 21!')
               final1 = 1
           else:
-              print('У игрока 1 %d очков.' %count)
+              print('The first player has% d points.' %count)
       elif choice == 'n':
-          print('У игрока 1 %d очков' %count)
+          print('The first player has% d points.' %count)
           final1 = 1
     if final2 == 0:
-      choice2 = input('Игрок 2, будете брать карту? y/n\n')
+      choice2 = input('Player 2, Do you want to get a card? y/n\n')
       if choice2 == 'y':
           current = koloda.pop()
-          print('Игроку 2 попалась карта достоинством %d\n' %current)
+          print('Player 2 got a card with a value %d\n' %current)
           count2 += current
           if count2 > 21:
-              print('Извините, но Игрок 2 проиграл, т.к. у него %d очков' %count2)
+              print('Sorry, but player 2 lost because he has %d points' %count2)
               break
           elif count2 == 21:
-              print('Поздравляю, вы набрали 21!')
+              print('Congratulations, you scored 21!')
               final2 = 1
           else:
-              print('У игрока 2 %d очков.' %count2)
+              print('The second player has% d points.' %count2)
       elif choice2 == 'n':
-          print('У игрока 2 %d очков' %count2)
+          print('The second player has% d points.' %count2)
           final2 = 1
 
     if final1 == 1 and final2 == 1:
         if count > count2:
-          print('Победил игрок 1')
+          print('Player 1 wins')
         elif count < count2:
-          print('победил игрок 2')
+          print('Player 2 wins')
         else:
-          print('Победила дружба')
+          print('Friendship won')
         break
-print('До новых встреч!')
+print('Have a good day!')
