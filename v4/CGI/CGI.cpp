@@ -45,6 +45,7 @@ CGI::CGI(Request &req){
     _tmpEnvCGI["CONTENT_LENGTH"];
     _tmpEnvCGI["HTTP_ACCEPT"];
     _tmpEnvCGI["HTTP_USER_AGENT"];
+    _current_root = "";
 }
 
 CGI::~CGI()
@@ -72,10 +73,11 @@ int     CGI::clearCGI(){
     _tmpEnvCGI["CONTENT_LENGTH"].clear();
     _tmpEnvCGI["HTTP_ACCEPT"].clear();
     _tmpEnvCGI["HTTP_USER_AGENT"].clear();
+    _current_root.clear();
 
 }
 
-void    CGI::fillTmpEnvCgi(Request &req, ServerData & serv){
+void    CGI::fillTmpEnvCgi(const Request &req, ServerData & serv){
 
     std::string curr_loc_str;
     std::vector<LocationData> locs;
@@ -95,7 +97,8 @@ void    CGI::fillTmpEnvCgi(Request &req, ServerData & serv){
         if ((*it).getLocationPath() == curr_loc_str)
         {
             _tmpEnvCGI["PATH_TRANSLATED"] = (*it).getRoot();
-            _tmpEnvCGI["SCRIPT_NAME"] = (*it).getCgiPath();
+            _current_root = (*it).getRoot();
+            _tmpEnvCGI["SCRIPT_NAME"] = !(*it).getCgiPath().empty() ? (*it).getCgiPath() : "" ;
         }
     }
         _tmpEnvCGI["QUERY_STRING"] = "";
@@ -127,22 +130,63 @@ void    CGI::fillEnvp(char *** envp){
     return ;
 }
 
-void    CGI::prepareEnvCGI(Request &req, ServerData & serv, char *** envp){
+void    CGI::prepareEnvCGI(const Request &req, ServerData & serv, char *** envp){
 
     clearCGI(); //очищаем предыдущие данные перед повторным использованием;
     fillTmpEnvCgi(req, serv);
     fillEnvp(envp);
 }
 
+// void    CGI::startCGI(char *** envp){
 
-int CGI::runCGI(Request &req, ServerData & serv){
+// }
+
+
+int CGI::runCGI(const Request &req, ServerData & serv){
 
     char **envp = nullptr;
     prepareEnvCGI(req, serv, &envp);
-    startCGI(envp);
+    // startCGI(&envp);
 
-    if (envp)
+
+    pid_t _pid;
+    int _status;
+    _pid = fork();
+
+    if (_pid == -1) 
+    {
+        perror("error");
+    } 
+    else if (_pid == 0) {
+      std::cout << "START CHILD PROCESS" << std::endl;
+    chdir(_current_root.c_str());
+
+    char **arg = new char*[3];
+    std::string path = _current_root + _tmpEnvCGI["SCRIPT_NAME"];
+    arg[0] = "/usr/local/bin/python3"; //strdup(path.c_str());
+    arg[1] = "./python/test.py"; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+    arg[2] = NULL;
+    std::cerr << "execve path = " << arg[0] << std::endl;
+    std::cerr << "execve 1st argument path = " << arg[1] << std::endl;
+        if (execve(arg[0], arg, envp) == -1) 
+        {
+            std::cerr << "ERROR CGI" << std::endl;
+        }
+    exit(0);
+    }
+
+    std::cout << "PARENT PROCESS" << std::endl;
+    waitpid(_pid, &_status, 0);
+
+    if (envp) 
+    {
+        for (int i = 0; envp[i] != NULL; ++i) 
+        {
+          delete[] envp[i];
+        }
         delete[] envp;
+        envp = NULL;
+    }
 }
 
 // Specification

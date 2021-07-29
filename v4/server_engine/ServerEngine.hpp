@@ -5,6 +5,7 @@
 #include "Webserv_main.hpp"
 #include "../HTTP/Request.hpp"
 #include "../parse_config/ParserConfig.hpp"
+#include "../CGI/CGI.hpp"
 
 #define TCP_MAX 65535
 

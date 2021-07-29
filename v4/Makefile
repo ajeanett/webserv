@@ -6,7 +6,7 @@
 #    By: ajeanett <ajeanett@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/09 15:15:25 by ajeanett          #+#    #+#              #
-#    Updated: 2021/07/27 16:35:46 by ajeanett         ###   ########.fr        #
+#    Updated: 2021/07/29 11:22:58 by ajeanett         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,8 @@ SRCS =	main.cpp \
 		server_engine/Date.cpp \
 		HTTP/Request.cpp \
 		HTTP/Response.cpp \
-		HTTP/Responders/GetResponder.cpp
+		HTTP/Responders/GetResponder.cpp \
+		CGI/CGI.cpp
 
 OBJECTS = $(SRCS:.cpp=.o)
 #FLAGS = clang++ -Wall -Wextra -Werror
