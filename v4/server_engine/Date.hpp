@@ -11,7 +11,7 @@ class Date
 		char				_buf[1000];
 		struct timeval		_t;
 		struct tm*			_tm;
-		static std::string	_ret;
+		static std::string	_ret; // 54321
 
 	public:
 		Date(){}
