@@ -74,12 +74,12 @@ LocationData        ParseLocations(std::ifstream &configfile, std::string &buffe
         if ((next = buffer.find("root ") != std::string::npos))
         {
             next += 5;
-            l.setRoot(buffer.substr(next, buffer.rfind(";") - next));
+            l.setRoot(buffer.substr(next + 1, buffer.rfind(";") - next - 1));
         }
         else if ((next = buffer.find("\tindex ")) != std::string::npos)
         {
             next += 6;
-            l.setIndex(buffer.substr(next, buffer.rfind(";") - next));
+            l.setIndex(buffer.substr(next + 1, buffer.rfind(";") - next - 1));
         }
         else if ((next = buffer.find("method ")) != std::string::npos)
         {
