@@ -102,7 +102,7 @@ void    CGI::fillTmpEnvCgi(const Request &req, ServerData & serv){
         }
     }
         _tmpEnvCGI["QUERY_STRING"] = "";
-        _tmpEnvCGI["REMOTE_HOST"] = req.getHeaders().find("Referer") == req.getHeaders().end() ? "" : req.getHeaders().find("Content-Type")->second;
+//        _tmpEnvCGI["REMOTE_HOST"] = req.getHeaders().find("Referer") == req.getHeaders().end() ? "" : req.getHeaders().find("Content-Type")->second;
         _tmpEnvCGI["REMOTE_ADDR"] = "";
         _tmpEnvCGI["AUTH_TYPE"] = "BASIC";
         _tmpEnvCGI["REMOTE_USER"] = "User";

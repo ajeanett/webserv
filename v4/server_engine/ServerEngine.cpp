@@ -67,22 +67,26 @@ int ServerEngine::servStart(void)
 //	запуск парсера, добавить в структуру класса экземпляр класса конфига
 //	в цикле заполнить порты из конфига
 	std::string configfile = "./ex.conf";
+	_config.getServers().clear();
 	_config.Parser(configfile);
+	_ports.clear();
 	int i = 0;
 
 //	print_servers(_p);
-	while (_config.getServers()[i].getPort())
+
+	std::map<int, ServerData>::iterator it;
+
+	for(it = _config.getServers().begin(); it != _config.getServers().end(); ++it )
 	{
-		_ports.insert(_config.getServers()[i].getPort());
+		_ports.insert(it->second.getPort());
 		i++;
 	}
 	i = 0;
-	while (i < 1000)
-	{
-		// _chunked[i] = false;
-		_buffer[i].clear();
-		i++;
-	}
+//	while (i < 1000)
+//	{
+//		_buffer[i].clear();
+//		i++;
+//	}
 	for (std::set<int>::iterator it = _ports.begin(); it != _ports.end(); ++it) //связываем все порты с fd, которые потом будем слушать
 	{
 		_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -161,27 +165,31 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 	{
 		if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
 		{
+			std::cout << "ft_send" << std::endl;
 			errno = 0;
 			int serverFd = -1;
 			for (std::map<int, ServerData>::iterator it = _config.getServers().begin();
-				 it != _config.getServers().end(); ++it)
+				 it != _config.getServers().end(); ++it) // servers с пустым сервером
 			{
 				if (it->second.getPort() == current_port)
+				{
 					serverFd = it->first;
+					break;
+				}
 			}
 			if (serverFd < 0)
 				throw std::exception();
 			ServerData data = _config.getServers()[serverFd];
 			std::string msg = request.respond(_config, data);
 //			добавить хедеры в результат выполнения cgi
-//			send(*it, msg.c_str(), msg.length(), 0);
+			send(*it, msg.c_str(), msg.length(), 0);
 //			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
-			{
-				CGI cgi;
-				std::string cgi_out = cgi.runCGI(request, data); // для тестирования CGI
-				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
-				send(*it, cgi_msg.c_str(), cgi_msg.length(), 0); // проверка отправки результата выполнения cgi
-			}
+//			{
+//				CGI cgi;
+//				std::string cgi_out = cgi.runCGI(request, data); // для тестирования CGI
+//				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
+//				send(*it, cgi_msg.c_str(), cgi_msg.length(), 0); // проверка отправки результата выполнения cgi
+//			}
 			std::cout << "Respond on " << *it << std::endl;
 			std::cout << "Server name: " << data.getServerName() << std::endl;
 			_clients_recv.insert(*it);
@@ -270,6 +278,7 @@ bool ServerEngine::ft_receive(Request &request)
 		// std::cout << "recv " << *it << std::endl;
 		if (FD_ISSET(*it, &_readset))
 		{
+			std::cout << "ft_receive" << std::endl;
 			bool full_request = false;
 			// std::cout << "RECV" << std::endl;
 			// Поступили данные от клиента, читаем их
@@ -323,6 +332,7 @@ bool ServerEngine::ft_accept(int *mx, int *current_port)
 //		 Определяем тип события и выполняем соответствующие действия
 		if (FD_ISSET(*it, &_readset))
 		{
+			std::cout << "ft_accept" << std::endl;
 			// Поступил новый запрос на соединение, используем accept
 			errno = 0;
 			int sock = accept(*it, NULL, NULL);

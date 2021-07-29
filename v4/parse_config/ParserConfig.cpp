@@ -146,6 +146,7 @@ void    ParserConfig::Parser(std::string name){
 
     server_open = false;
     loc_open = false;
+    _servers.clear();
     std::ifstream configfile(name);
     std::string buffer;
     size_t  next = 0;
@@ -169,8 +170,9 @@ void    ParserConfig::Parser(std::string name){
         if (server_find)
         {
             check_brackets(buffer);
-            if (server_open)
+            if (server_open && serv_num < 4)
             {
+            	std::cout <<"serv_num"  << serv_num << std::endl;
                 _servers.insert(std::pair<int, ServerData>(serv_num, ParseServer(configfile, buffer)));
                 serv_num += 1;
                 server_find = false;
