@@ -74,7 +74,7 @@ int     CGI::clearCGI(){
     _tmpEnvCGI["HTTP_ACCEPT"].clear();
     _tmpEnvCGI["HTTP_USER_AGENT"].clear();
     _current_root.clear();
-
+	return (0);
 }
 
 void    CGI::fillTmpEnvCgi(const Request &req, ServerData & serv){
@@ -83,15 +83,15 @@ void    CGI::fillTmpEnvCgi(const Request &req, ServerData & serv){
     std::vector<LocationData> locs;
     std::vector<LocationData>::iterator it;
 
-    curr_loc_str = req.getStartLine().find("location")->second;
+    curr_loc_str = req.getLocation();
     locs = serv.getLocationData();
 
     _tmpEnvCGI["SERVER_NAME"] = serv.getServerName();
     _tmpEnvCGI["GATEWAY_INTERFACE"] = "CGI/1.1";
-    _tmpEnvCGI["SERVER_PROTOCOL"] = req.getStartLine().find("version")->second;
+    _tmpEnvCGI["SERVER_PROTOCOL"] = req.getVersion();
     _tmpEnvCGI["SERVER_PORT"] = std::to_string(serv.getPort());
-    _tmpEnvCGI["REQUEST_METHOD"] = req.getStartLine().find("method")->second;
-    _tmpEnvCGI["PATH_INFO"] = req.getStartLine().find("location")->second;
+    _tmpEnvCGI["REQUEST_METHOD"] = req.getMethod();
+    _tmpEnvCGI["PATH_INFO"] = req.getLocation();
     for (it = locs.begin(); it != locs.end(); ++it)
     {
         if ((*it).getLocationPath() == curr_loc_str)
@@ -156,60 +156,49 @@ std::string CGI::runCGI(const Request &req, ServerData & serv){
 
     pipe(_fd);
     _pid = fork();
-    
+
     if (_pid == -1)
     {
         perror("error");
     } 
     else if (_pid == 0) {
-      std::cout << "START CHILD PROCESS" << std::endl;
-        dup2(_fd[0], STDIN_FILENO);
-        dup2(_fd[1], STDOUT_FILENO);
-    // chdir(_current_root.c_str());
-    // сохранить текущий fd
-    // dup 2 подменить fd на другие, возможно создать врем файл
-    // записть в файл результат скрипта
-    // считать результат в 
-    char **arg = new char*[3];
-    std::string path = _current_root + _tmpEnvCGI["SCRIPT_NAME"];
-    arg[0] = "/usr/local/bin/python3"; //strdup(path.c_str());
-    arg[1] = "./python/test.py"; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
-    arg[2] = NULL;
-    std::cerr << "path to execve program = " << arg[0] << std::endl; // какую программу выполняем
-    std::cerr << "execve first argument path = " << arg[1] << std::endl; // какой файл\скрипт выполняем с помощью программы
-        if (execve(arg[0], arg, envp) == -1) 
-        {
-            std::cerr << "ERROR CGI" << std::endl;
-        }
-    exit(0);
+		std::cout << "START CHILD PROCESS" << std::endl;
+		dup2(_fd[0], STDIN_FILENO);
+		dup2(_fd[1], STDOUT_FILENO);
+		// chdir(_current_root.c_str());
+		// сохранить текущий fd
+		// dup 2 подменить fd на другие, возможно создать врем файл
+		// записть в файл результат скрипта
+		// считать результат в
+		char **arg = new char*[3];
+		std::string path = _current_root + _tmpEnvCGI["SCRIPT_NAME"];
+		arg[0] = "/usr/local/bin/python3"; //strdup(path.c_str());
+		arg[1] = "./python/test.py"; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+		arg[2] = NULL;
+//		std::cout << "path to execve program = " << arg[0] << std::endl; // какую программу выполняем
+//		std::cout << "execve first argument path = " << arg[1] << std::endl; // какой файл\скрипт выполняем с помощью программы
+		if (execve(arg[0], arg, envp) == -1)
+		{
+			std::cerr << "ERROR CGI" << std::endl;
+		}
+		exit(0);
     }
 
     waitpid(_pid, &_status, 0);
-    std::cout << "PARENT PROCESS1" << std::endl;
     char buf[1000];
     bzero(buf, 1000);
-    int _read;
+    size_t _read;
+    close(_fd[1]);
     while ((_read = read(_fd[0], buf, 1000)) > 0)
     {
-        std::cout << "_READ " << _read << std::endl;
-        std::cout << "READ FD0" << std::endl;
         _ret += buf;
-        std::cout << buf << std::endl;
-        std::cout << "READ FD1" << std::endl;
-        if (_read != 1000)
-            break;
     }
-    std::cout << "READ END" << std::endl;
     close(_fd[0]);
-    close(_fd[1]);
     // FILE* f = fdopen(_fd[1], "r");
     // // std::fstream fstr(f);
     // std::ifstream t(_fd[1]);
     // std::stringstream buffer;
     // buffer << f.rdbuf();
-
-    std::cout << "PARENT PROCESS2" << std::endl;
-    
 
 //     int read_bytes;
 

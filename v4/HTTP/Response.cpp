@@ -2,6 +2,7 @@
 
 Response::Response() : _version("HTTP/1.1")
 {
+	_headers["Server"] = "webserv";
 }
 
 Response::Response(Response const &src)
@@ -33,6 +34,18 @@ std::string Response::str() const
 	return (msg);
 }
 
+std::string Response::error(const std::string &code, const std::string &message)
+{
+	_statusCode = code;
+	_statusMessage = message;
+	std::ifstream ifs("./html_pages/" + code + ".html", std::ifstream::in);
+	std::stringstream html;
+	html << ifs.rdbuf();
+	ifs.close();
+	_body = html.str();
+	return (str());
+}
+
 void Response::setVersion(const std::string &version)
 {
 	_version = version;
@@ -46,7 +59,7 @@ void Response::setStatus(const std::string &statusCode, const std::string &statu
 
 void Response::setBody(const std::string &body)
 {
-	_headers["Content-Length"] = std::to_string(body.length());
+//	_headers["Content-Length"] = std::to_string(body.length());
 	_body = body;
 }
 

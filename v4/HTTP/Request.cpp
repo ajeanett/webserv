@@ -38,14 +38,14 @@ void Request::parse_request(void){
     // ifs , ss
     _linePosition = _currentLine.find_first_of(' ');
     if (_linePosition != std::string::npos)
-        _startLine["method"] = _currentLine.substr(0, _linePosition);
+        _method = _currentLine.substr(0, _linePosition);
     findPosition = _currentLine.find(' ', _linePosition + 1);
     if (_linePosition != std::string::npos)
-        _startLine["location"] = _currentLine.substr(_linePosition + 1, findPosition - _linePosition - 1);
+        _location = _currentLine.substr(_linePosition + 1, findPosition - _linePosition - 1);
     _linePosition = findPosition;
     findPosition = _currentLine.size();
     if (_linePosition != std::string::npos)
-        _startLine["version"] = _currentLine.substr(_linePosition + 1, findPosition - _linePosition - 1);
+        _version = _currentLine.substr(_linePosition + 1, findPosition - _linePosition - 1);
 //         // Печать стартовой строки для проверки
 //         std::map<std::string,std::string>::iterator it;
 //         std::cout << "MAP First Line" << std::endl;
@@ -141,7 +141,7 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 {
 	IResponder *responder;
 
-	if (_startLine.find("method")->second == "GET")
+	if (_method == "GET")
 		responder = new GetResponder();
 //	else if (_startLine.find("method")->second == "POST")
 //		responder = new PostResponder();
@@ -150,18 +150,25 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 //	else if (_startLine.find("method")->second == "PUT")
 //		responder = new PutResponder();
 	else
-	{
-		// Invalid method
-		return ("");
-	}
+		return (Response().error("405", "Method Not Allowed"));
 	std::string response = responder->respond(*this, config, serverData);
 	delete responder;
 	return (response);
 }
 
-const std::map<std::string, std::string> &Request::getStartLine() const
+const std::string &Request::getMethod() const
 {
-	return (_startLine);
+	return (_method);
+}
+
+const std::string &Request::getVersion() const
+{
+	return (_version);
+}
+
+const std::string &Request::getLocation() const
+{
+	return (_location);
 }
 
 const std::map<std::string, std::string> &Request::getHeaders() const

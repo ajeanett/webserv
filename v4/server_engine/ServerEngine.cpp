@@ -162,13 +162,16 @@ bool ServerEngine::ft_send(const Request &request, int current_port) {
 				if (it->second.getPort() == current_port)
 					serverFd = it->first;
 			}
+			if (serverFd < 0)
+				throw std::exception();
 			ServerData data = _config.getServers()[serverFd];
 			std::string msg = request.respond(_config, data);
-            CGI cgi;
-            std::string check_cgi = "HTTP/1.1 OK\r\n\r\n" + cgi.runCGI(request, data); // для тестирования CGI
+			CGI cgi;
+			std::string check_cgi = "HTTP/1.1 OK\r\n\r\n" + cgi.runCGI(request, data); // для тестирования CGI
 			send(*it, msg.c_str(), msg.length(), 0);
-            // send(*it, check_cgi.c_str(), check_cgi.length(), 0); // проверка отправки результата выполнения cgi
-			std::cout << "Respond on " << *it << ": \'" << msg << '\'' << std::endl;
+			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
+//			send(*it, check_cgi.c_str(), check_cgi.length(), 0); // проверка отправки результата выполнения cgi
+			std::cout << "Respond on " << *it << std::endl;
 			std::cout << "Server name: " << data.getServerName() << std::endl;
 			_clients_recv.insert(*it);
 			FD_CLR(*it, &_writeset_master);
@@ -177,9 +180,9 @@ bool ServerEngine::ft_send(const Request &request, int current_port) {
 			_clients_send.erase(*it);
 			ret = true;
 			break;
-        }
-    }
-    return(ret);
+		}
+	}
+	return(ret);
 }
 
 bool    ServerEngine::check_request(std::string buffer){
@@ -273,7 +276,7 @@ bool ServerEngine::ft_receive(Request &request) {
 //                request.parse_headers();
 //                request.parse_body();
 				request.parse(_buffer[*it]);
-                std::cout << request.getStartLine().find("method")->second << ' ' << request.getStartLine().find("location")->second << std::endl << std::endl;
+                std::cout << request.getMethod() << ' ' << request.getLocation() << std::endl << std::endl;
                 _clients_send.insert(*it);
                 FD_SET(*it, &_writeset_master);
                 _clients_recv.erase(*it);
@@ -342,6 +345,7 @@ void		ServerEngine::run(void)
         FD_SET(*it, &_readset_master);
 
     bool    _run = true;
+	int current_port = 0;
     Request request;
     while(_run)
     {
@@ -351,7 +355,6 @@ void		ServerEngine::run(void)
         timeout.tv_sec = 15;
         timeout.tv_usec = 0;
 
-		int current_port;
         bool sel = true;
         while (sel) {
             // Ждём события в одном из сокетов

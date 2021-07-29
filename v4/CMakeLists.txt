@@ -15,8 +15,8 @@ add_executable(webserv
 		parse_config/ServerData.cpp
 		parse_config/ParserConfig.cpp
 		server_engine/Date.cpp
-#		CGI/CGI.cpp
-#		CGI/CGI.hpp
+		CGI/CGI.cpp
+		CGI/CGI.hpp
 		HTTP/Request.cpp
 		HTTP/Request.hpp
 		HTTP/Response.cpp

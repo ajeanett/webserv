@@ -15,15 +15,14 @@
 #include "./server_engine/ServerEngine.hpp"
 #include "./server_engine/Date.hpp"
 
-// class Clients;
-int main(void)
+int main()
 {
-    ServerEngine serv;
-//    Date d;
-//    std::cout << d.get_time() << std::endl;
+	ServerEngine serv;
+//	Date d;
+//	std::cout << d.get_time() << std::endl;
     serv.servStart();
-    // serv.getStartPage();
-    serv.run();
+//	serv.getStartPage();
+	serv.run();
 
-    return (0);
+	return (0);
 }

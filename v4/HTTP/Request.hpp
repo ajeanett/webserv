@@ -20,30 +20,36 @@
 
 class Request
 {
+
 private:
-    /* data */
-    std::string _request;
-    std::string _currentLine;
-    std::map<std::string, std::string> _startLine; // первая строка запроса, три элемента в мапе -  method, location, version of http
-    std::map<std::string, std::string> _headers; // хедеры
-    std::string                        _body; // боди, есть не всегда
-    size_t                             _requestPosition;
+	/* data */
+	std::string _request;
+	std::string _currentLine;
+//	std::map<std::string, std::string> _startLine; // первая строка запроса, три элемента в мапе -  method, location, version of http
+	std::string _method;
+	std::string _location;
+	std::string _version;
+	std::map<std::string, std::string> _headers; // хедеры
+	std::string _body; // боди, есть не всегда
+	size_t _requestPosition;
 	void parse_request();
 	void parse_headers();
 	void parse_body();
 
 public:
-    Request();
-    Request(const std::string &request);
-    virtual ~Request();
+	Request();
+	Request(const std::string &request);
+	virtual ~Request();
 	void parse(std::string const &request_str);
 	std::string respond(ParserConfig const &config, ServerData const &serverData) const;
 
-	const std::map<std::string, std::string> &getStartLine() const;
+	const std::string &getMethod() const;
+	const std::string &getLocation() const;
+	const std::string &getVersion() const;
 	const std::map<std::string, std::string> &getHeaders() const;
 	const std::string &getBody() const;
-};
 
+};
 
 
 #endif
