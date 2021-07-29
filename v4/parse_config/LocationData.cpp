@@ -106,3 +106,19 @@ void					LocationData::setMethods(std::string methods){
 void					LocationData::setAutoindex(bool autoindex){
 		this->_autoindex = autoindex;
 }
+
+
+std::ostream &operator<<(std::ostream& out, const LocationData & ld)
+{ 
+	out << "Location Data Root     :    " << ld.getRoot() << std::endl;
+	out << "Location Data AutoIndex:    "	<< (bool)ld.getAutoindex() << std::endl;
+	out << "Location Data Index:        "	<< ld.getIndex() << std::endl;
+	out << "Location Data LocationPath: "	<< ld.getLocationPath() << std::endl;
+	out << "Location Data FullPath:     "	<< ld.getFullPath() << std::endl;
+	out << "Location Data ClientBSize:  "	<< ld.getClientBufferBodySize() << std::endl;
+	out << "Location Data Redirect:     "	<< ld.getRedirect() << std::endl;
+	out << "Location Data CgiExtension: "	<< ld.getCgiExtension() << std::endl;
+	out << "Location Data CgiPath     : "	<< ld.getCgiPath() << std::endl;
+	out << std::endl;	
+	return (out);
+}

@@ -32,7 +32,8 @@ const std::string                 &ServerData::getServerName() const {
     return (this->_server_name);
 }
 
-int                         ServerData::getPort() const {
+int                         ServerData::getPort() const{
+
     return (this->_port);
 }
 
@@ -60,4 +61,19 @@ void                        ServerData::setPort(int port){
 
 void                        ServerData::setHost(std::string host){
     this->_host = host;
+}
+
+
+std::ostream &operator<<(std::ostream& out, const ServerData & tmp)
+{
+	std::vector<LocationData> loc;
+	loc = tmp.getLocationData();
+
+	out << "ServName: " << tmp.getServerName() << std::endl;
+	out << "Port: " << tmp.getPort() << std::endl;
+	out << "Host: " << tmp.getHost() << std::endl;
+	
+	for (std::vector<LocationData> ::iterator it = loc.begin(); it!= loc.end(); ++it)
+			std::cout << *it << std::endl;
+	return (out);
 }

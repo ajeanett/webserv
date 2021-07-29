@@ -1,4 +1,5 @@
 #include "ParserConfig.hpp"
+#include <iterator>
 
 ParserConfig::ParserConfig()
 {
@@ -122,7 +123,8 @@ LocationData        ParseLocations(std::ifstream &configfile, std::string &buffe
     return (l);
 }
 
-ServerData ParserConfig::ParseServer(std::ifstream &configfile, std::string &buffer){
+ServerData ParserConfig::ParseServer(std::ifstream &configfile, std::string &buffer)
+{
     ServerData s;
     size_t next;
 
@@ -158,7 +160,9 @@ void    ParserConfig::Parser(std::string name){
     while (getline(configfile, buffer))
     {
         next = buffer.find("server ", 0);
-        if (next != std::string::npos)
+		/* Если нашли слово server */
+		/* Если не конец строки*/
+        if (next != std::string::npos) 
         {
             server_find = true;
         }
@@ -173,110 +177,11 @@ void    ParserConfig::Parser(std::string name){
             }
         }
     }
+
+	for (std::map<int, ServerData> ::iterator it = _servers.begin(); it != _servers.end(); ++it)
+	{
+		ServerData &tmp = it->second;
+		std:: cout << tmp << std::endl;
+		std::cout << std::endl;
+	}
 }
-
-// std::ostream & operator<<(std::ostream & o, ParserConfig const & i)
-// {
-    // i.
-    // o << "PARSED CONFIG" << std::endl;
-    // // int m = 0;
-    
-    // // i.getServers()[i].getPort();
-    // // m++;
-    // // o << i.getServers()[0];
-    // return o;
-// }
-
-
-
-// void	ConfigServers::add(std::string fileName) {
-// 	std::string str;
-// 	std::ifstream file(fileName);
-// 	if (file.is_open())
-// 	{
-// 		while (!file.eof())
-// 		{
-// 			getline (file,str);
-// 			trim(str);
-// 			if (str.find("server", 0, 6) != std::string::npos && (!str[6] || isspace(str[6]))) {
-// 				this->_serv.push_back(_parse_server(file, str));
-// 			}
-// 		}
-// 		file.close();
-// 	}
-// }
-
-
-    // while (getline(ifs, content))
-	// {
-	// 	find = content.find(src);
-	// 	if (i)
-	// 		ofs << std::endl;
-	// 	while (find != std::string::npos)
-	// 	{
-	// 		content.replace(content.find(src), src.size(), dst);
-	// 		find = content.find(src, find + src.length());
-	// 	}
-	// 	i++;
-	// 	ofs << content ;
-	// }
-
-
-//     bool    ServerEngine::check_request(std::string buffer, int fd){
-
-
-
-//     // std::string s = "IaFFSjndsUFfE";
-//     // std::transform(s.begin(), s.end(), s.begin(), tolower);
-//     std::transform(buffer.begin(), buffer.end(), buffer.begin(), tolower);
-//     // std::cout << s << std::endl;
-
-
-//     size_t prev = 0;
-//     size_t next = 0;
-//     std::string     tmp;
-
-//     next = buffer.find("\r\n\r\n", prev);
-//     //проверить \r\n\r\n, затем проверяем наличие content-lenght, если число равно боди. Нужно будет актуальный размер боди сравнивать с этим числом.
-//     //Если content-lenght нет, то проверить transfer encoding и равен ли он chunked. Если равен, то дождаться, когда придет "0\r\n\r\n" (неважно, в конце боди или нет, важно, чтобы после первого \r\n\r\n)
-//     // Если нету ни content length или transfer encoding и есть \r\n\r\n, то значит запрос пришел полностью
-//     // std::string buffer;
-
-//     if (next  != std::string::npos)
-//     {
-//         if (buffer.find("0\r\n\r\n", prev) != std::string::npos)
-//                         return (true);
-//         int body_size = atoi((buffer.substr(next + 4)).c_str());
-//         next = buffer.find("content-length: ", prev); //проверяем наличие content-lenght
-//         if (next  != std::string::npos){
-//             prev = next;
-//             next = buffer.find("\r\n", prev);
-//             if (next  != std::string::npos)
-//             {
-//                 tmp = buffer.substr(prev, next - prev);
-//                 int content_lenght = atoi(tmp.c_str());
-//                 return (body_size == content_lenght);
-//             }
-//         }
-//         prev = 0;
-//         next = buffer.find("transfer-encoding: ", prev); // проверяем transfer-encoding, не является ли запрос фрагментированным
-//         if (next  != std::string::npos){
-//             prev = next;
-//             next = buffer.find("\r\n", prev);
-//             if (next  != std::string::npos)
-//             {
-//                 tmp = buffer.substr(prev, next - prev);
-//                 // trim(tmp); //утонить, нужно ли обрезать пробелы и табуляцию по краям. upd. Уточнил - не нужно.
-//                 if (tmp == "chunked")
-//                 {
-//                     _chunked[fd] = true;
-//                     if (buffer.find("0\r\n\r\n", prev) != std::string::npos)
-//                         return (true);
-//                     return (false);
-//                 }
-//             }
-//         }
-//         return (true); // есть \r\n\r\n , нет transfer-encoding и content-lenght, запрос пришел полностью
-//     }
-//     return (false); // проверить ошибки 404, 500, 505
-// }
