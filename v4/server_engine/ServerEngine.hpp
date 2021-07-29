@@ -16,8 +16,13 @@ class ServerEngine{
 	    int                         _fd;
 	    struct sockaddr_in			_addr;
 	    std::set<int>               _ports; //  сет портов, которые будем слушать
-        std::set<int>               _listen_fds;//listen fds, сет fd\сокетов, которые будем слушать, каждый из них связан с портом
-        ParserConfig				_config;
+        
+		/*listen fds, сет fd\сокетов, которые будем слушать, каждый из них связан с портом */
+		std::set<int>               _listen_fds;
+        
+		/*_config Класс содержаший конфигурацию */
+		
+		ParserConfig				_config;
 
         std::string                 _startPage; //стартовая страница, index.html
 

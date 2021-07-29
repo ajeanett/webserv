@@ -64,10 +64,14 @@ ServerEngine::~ServerEngine()
 
 int ServerEngine::servStart(void)
 {
-//	запуск парсера, добавить в структуру класса экземпляр класса конфига
-//	в цикле заполнить порты из конфига
+	/* 
+		запуск парсера, добавить в структуру класса экземпляр класса конфига
+		в цикле заполнить порты из конфига
+		configfile -> Путь до конфига
+	*/
 	std::string configfile = "./ex.conf";
 	_config.Parser(configfile);
+
 	int i = 0;
 
 //	print_servers(_p);
