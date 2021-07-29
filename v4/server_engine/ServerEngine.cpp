@@ -169,7 +169,7 @@ bool ServerEngine::ft_send(const Request &request, int current_port) {
 			CGI cgi;
 			std::string check_cgi = "HTTP/1.1 OK\r\n\r\n" + cgi.runCGI(request, data); // для тестирования CGI
             //добавить хедеры в результат выполнения cgi
-			send(*it, msg.c_str(), msg.length(), 0);
+//			send(*it, msg.c_str(), msg.length(), 0);//bla bla blaß
 			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
 			send(*it, check_cgi.c_str(), check_cgi.length(), 0); // проверка отправки результата выполнения cgi
 			std::cout << "Respond on " << *it << std::endl;
