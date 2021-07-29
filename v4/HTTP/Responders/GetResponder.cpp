@@ -92,12 +92,14 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	std::string content = html.str();
 
 	response.getHeaders()["Content-Type"] = "text/plain";
-	std::string const &requestLocation = request.getLocation();
-	if (requestLocation.find('.'))
+	size_t n = uri.find_last_of('.');
+	if (n != std::string::npos)
 	{
-		size_t n = requestLocation.find_last_of('.');
-		std::string extension = requestLocation.substr(n + 1, requestLocation.length() - n);
-		response.getHeaders()["Content-Type"] = "text/" + extension;
+		std::string type;
+		std::string extension;
+		type = "text";
+		extension = uri.substr(n + 1, uri.length() - n);
+		response.getHeaders()["Content-Type"] = type + '/' + extension;
 		std::cout << "result: " << response.getHeaders()["Content-Type"] << std::endl;
 	}
 	response.getHeaders()["Content-length"] = std::to_string(content.length());
@@ -105,6 +107,5 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	response.setBody(content);
 
 	response.setStatus("200", "OK");
-	response.getHeaders()["Content-Type"] = "text/html";
 	return (response.str());
 }

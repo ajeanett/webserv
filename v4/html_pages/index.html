@@ -1,66 +1,15 @@
 <!DOCTYPE html>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Test page</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script src="/errors/jquery-2.1.1.min.js"></script>
-  <style>
-
-  body {
-    background-color: #2A292F;
-    color: #00bd81;
-    text-align: center;
-    font-family: arial, sans-serif;
-    margin: 0;
-  }
-
-  .logo {
-    position: absolute;
-    left: 1%;
-    top: 2%;
-    width: 5%;
-    height: auto;
-  }
-
-  .title {
-    position: relative;
-    margin: 60px auto;
-
-  }
-
-  .main-image {
-    position: absolute;
-    top: 25px;
-    background-color: rgba(0, 0, 0, 0.5);
-    bottom: 35px;
-    left: 82px;
-    margin: auto;
-    right: 82px;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-    background-size: auto 85%;
-  }
-
-  .screen {
-    position: relative;
-    width: 700px;
-    margin: auto;
-  }
-
-  h1, h2 {
-    font-weight: normal;
-    margin: 50px auto;
-  }
-  </style>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Test Page</title>
+	<link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <h1>Start page!</h1>
-  <script>
-    $(document).ready(function() {
-      var image = "./" + (Math.floor(Math.random() * 100 % 6) + 1) + "-sorry.gif";
-      $(".main-image").css("background-image", "url(" + image + ")");
-    });
-  </script>
 
+<h1>Start Page!</h1>
 
-</body></html>
+</body>
+</html>
