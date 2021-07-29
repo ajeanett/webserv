@@ -13,7 +13,7 @@ class Date
 		struct tm*			_tm;
 		static std::string	_ret;
 
-	public:
+public:
 		Date(){}
 		~Date(){}
 		std::string get_time();

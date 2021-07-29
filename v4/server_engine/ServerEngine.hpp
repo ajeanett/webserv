@@ -52,7 +52,7 @@ class ServerEngine{
         void	getStartPage(void);
         void	run(void);
         void    setAddr(int port);
-        int     ft_select(int mx, timeval timeout);
+        int     ft_select(int mx, timeval *timeout);
         bool    ft_send(Request const &request, int current_port);
         bool    ft_receive(Request &request);
         bool    ft_accept(int *mx, int *current_port);

@@ -64,29 +64,29 @@ ServerEngine::~ServerEngine()
 
 int ServerEngine::servStart(void)
 {
-	/* 
-		запуск парсера, добавить в структуру класса экземпляр класса конфига
-		в цикле заполнить порты из конфига
-		configfile -> Путь до конфига
-	*/
+//	запуск парсера, добавить в структуру класса экземпляр класса конфига
+//	в цикле заполнить порты из конфига
 	std::string configfile = "./ex.conf";
+	_config.getServers().clear();
 	_config.Parser(configfile);
-
+	_ports.clear();
 	int i = 0;
 
 //	print_servers(_p);
-	while (_config.getServers()[i].getPort())
+
+	std::map<int, ServerData>::iterator it;
+
+	for(it = _config.getServers().begin(); it != _config.getServers().end(); ++it )
 	{
-		_ports.insert(_config.getServers()[i].getPort());
+		_ports.insert(it->second.getPort());
 		i++;
 	}
 	i = 0;
-	while (i < 1000)
-	{
-		// _chunked[i] = false;
-		_buffer[i].clear();
-		i++;
-	}
+//	while (i < 1000)
+//	{
+//		_buffer[i].clear();
+//		i++;
+//	}
 	for (std::set<int>::iterator it = _ports.begin(); it != _ports.end(); ++it) //связываем все порты с fd, которые потом будем слушать
 	{
 		_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -137,17 +137,17 @@ void ServerEngine::getStartPage()
 	this->_startPage = "HTTP/1.1 OK\r\n\r\n" + body;
 }
 
-int ServerEngine::ft_select(int mx, timeval timeout)
+int ServerEngine::ft_select(int mx, timeval *timeout)
 {
 	int ret;
 
 	FD_ZERO(&_readset); // всегда обновлять в начале while
 	FD_ZERO(&_writeset); // всегда обновлять в начале while
-
+	std::cout << "ft_select" << std::endl;
 	memcpy(&_readset, &_readset_master, sizeof(_readset_master));
 	memcpy(&_writeset, &_writeset_master, sizeof(_writeset_master));
 	errno = 0;
-	ret = select(mx + 1, &_readset, &_writeset, NULL, &timeout);
+	ret = select(mx + 1, &_readset, &_writeset, NULL, timeout);
 	if (ret < 0)
 	{
 		perror("select");
@@ -165,24 +165,31 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 	{
 		if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
 		{
+			std::cout << "ft_send" << std::endl;
 			errno = 0;
 			int serverFd = -1;
 			for (std::map<int, ServerData>::iterator it = _config.getServers().begin();
-				 it != _config.getServers().end(); ++it)
+				 it != _config.getServers().end(); ++it) // servers с пустым сервером
 			{
 				if (it->second.getPort() == current_port)
+				{
 					serverFd = it->first;
+					break;
+				}
 			}
 			if (serverFd < 0)
 				throw std::exception();
 			ServerData data = _config.getServers()[serverFd];
 			std::string msg = request.respond(_config, data);
-//			CGI cgi;
-//			std::string check_cgi = "HTTP/1.1 OK\r\n\r\n" + cgi.runCGI(request, data); // для тестирования CGI
 //			добавить хедеры в результат выполнения cgi
 			send(*it, msg.c_str(), msg.length(), 0);
 //			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
-//			send(*it, check_cgi.c_str(), check_cgi.length(), 0); // проверка отправки результата выполнения cgi
+//			{
+//				CGI cgi;
+//				std::string cgi_out = cgi.runCGI(request, data); // для тестирования CGI
+//				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
+//				send(*it, cgi_msg.c_str(), cgi_msg.length(), 0); // проверка отправки результата выполнения cgi
+//			}
 			std::cout << "Respond on " << *it << std::endl;
 			std::cout << "Server name: " << data.getServerName() << std::endl;
 			_clients_recv.insert(*it);
@@ -271,6 +278,7 @@ bool ServerEngine::ft_receive(Request &request)
 		// std::cout << "recv " << *it << std::endl;
 		if (FD_ISSET(*it, &_readset))
 		{
+			std::cout << "ft_receive" << std::endl;
 			bool full_request = false;
 			// std::cout << "RECV" << std::endl;
 			// Поступили данные от клиента, читаем их
@@ -317,13 +325,13 @@ bool ServerEngine::ft_accept(int *mx, int *current_port)
 
 	ret = false;
 
-	for (std::set<int>::iterator it = _listen_fds.begin();
-		 it != _listen_fds.end(); ++it)
+	for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
 	{
 //		std::cout << "accept " << *it << std::endl;
-//		 Определяем тип события и выполняем соответствующие действия
+//		Определяем тип события и выполняем соответствующие действия
 		if (FD_ISSET(*it, &_readset))
 		{
+			std::cout << "ft_accept" << std::endl;
 			// Поступил новый запрос на соединение, используем accept
 			errno = 0;
 			int sock = accept(*it, NULL, NULL);
@@ -361,6 +369,9 @@ void ServerEngine::run(void)
 		 it != _listen_fds.end(); ++it)
 		FD_SET(*it, &_readset_master);
 
+	struct timeval timeout;
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;
 	bool _run = true;
 	int current_port = 0;
 	Request request;
@@ -368,15 +379,12 @@ void ServerEngine::run(void)
 	{
 		// std::cout << "start" << std::endl;
 		// Заполняем множество сокетов
-		timeval timeout;
-		timeout.tv_sec = 15;
-		timeout.tv_usec = 0;
 
 		bool sel = true;
 		while (sel)
 		{
 			// Ждём события в одном из сокетов
-			int ret = ft_select(mx, timeout);
+			int ret = ft_select(mx, &timeout);
 			if (ret > 0)
 				sel = false;
 		}

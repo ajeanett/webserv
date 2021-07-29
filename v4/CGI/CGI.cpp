@@ -102,7 +102,7 @@ void    CGI::fillTmpEnvCgi(const Request &req, ServerData & serv){
         }
     }
         _tmpEnvCGI["QUERY_STRING"] = "";
-        _tmpEnvCGI["REMOTE_HOST"] = req.getHeaders().find("Referer") == req.getHeaders().end() ? "" : req.getHeaders().find("Content-Type")->second;
+//        _tmpEnvCGI["REMOTE_HOST"] = req.getHeaders().find("Referer") == req.getHeaders().end() ? "" : req.getHeaders().find("Content-Type")->second;
         _tmpEnvCGI["REMOTE_ADDR"] = "";
         _tmpEnvCGI["AUTH_TYPE"] = "BASIC";
         _tmpEnvCGI["REMOTE_USER"] = "User";
@@ -162,7 +162,7 @@ std::string CGI::runCGI(const Request &req, ServerData & serv){
         perror("error");
     } 
     else if (_pid == 0) {
-		std::cout << "START CHILD PROCESS" << std::endl;
+//		std::cout << "START CHILD PROCESS" << std::endl;
 		dup2(_fd[0], STDIN_FILENO);
 		dup2(_fd[1], STDOUT_FILENO);
 		// chdir(_current_root.c_str());

@@ -13,34 +13,28 @@ class ParserConfig
 private:
 
 	/* Ключ - значение (номер сервера) -> Класс{name, port, host, массив путей } */
-    std::map<int, ServerData>   _servers;
-    
-	/* server open переменная для парсера*/
-	bool    server_open;
+	std::map<int, ServerData> _servers;
+
+	/* server open переменная для парсера */
+	bool _server_open;
 
 	/* открыт ли loc */
-    bool    loc_open;
+	bool _loc_open;
 
 	/* Количсетво серверов */
-    int     serv_num;
-	
-    void    check_brackets(std::string buffer);
-    void    fillServerData(ServerData &s, std::string &buffer);
+	int _serv_num;
+
+	void check_brackets(std::string const &buffer);
+	void fillServerData(ServerData &s, std::string &buffer);
 
 public:
-    ParserConfig();
-    ParserConfig(ParserConfig &cpy);
-    ~ParserConfig();
-    ParserConfig	&operator = (const ParserConfig &cpy);
-    void    Parser(std::string name);
-    ServerData ParseServer(std::ifstream &configfile, std::string &buffer);
+	ParserConfig();
+	ParserConfig(ParserConfig &cpy);
+	~ParserConfig();
+	ParserConfig &operator=(const ParserConfig &cpy);
+	void Parser(std::string const &name);
+	ServerData ParseServer(std::ifstream &configfile, std::string &buffer);
 	std::map<int, ServerData> &getServers();
 };
-
-
-
-
-
-
 
 #endif

@@ -22,8 +22,22 @@ GetResponder &GetResponder::operator=(GetResponder const &src)
 	return (*this);
 }
 
+void displayTimeStamp()
+{
+	char buf[1024];
+	struct timeval _t;
+	struct tm* _tm;
+
+	gettimeofday(&_t, NULL);
+	_tm = localtime(&_t.tv_sec);
+	std::strftime(buf, 1024, "%H:%M:%S", _tm);
+
+	std::cout << '[' << buf << ']' << std::endl;
+}
+
 std::string GetResponder::respond(Request const &request, ParserConfig const &config, ServerData const &serverData) const
 {
+	displayTimeStamp();
 	std::cout << "request: " << request.getMethod() << " " << request.getLocation() << std::endl;
 	Response response;
 

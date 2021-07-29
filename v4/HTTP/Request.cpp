@@ -81,18 +81,18 @@ void Request::parse_headers(void){
     }
     headers_raw.push_back(_currentLine.substr(_linePosition));
 
-    //  Печать хедеров для проверки
-    std::vector<std::string>::iterator it;
-        // std::cout << "Vector Headers" << std::endl;
-        // for (it = headers_raw.begin(); it != headers_raw.end(); it++)
-        //     std::cout << *it << std::endl;
-        // std::cout << "Vector Headers END" << std::endl;
+	//  Печать хедеров для проверки
+	std::vector<std::string>::iterator it;
+	// std::cout << "Vector Headers" << std::endl;
+	// for (it = headers_raw.begin(); it != headers_raw.end(); it++)
+	//     std::cout << *it << std::endl;
+	// std::cout << "Vector Headers END" << std::endl;
 
-    std::string delim = ": ";
-    std::string header_key;
-    std::string header_value;
+	std::string delim = ": ";
+	std::string header_key;
+	std::string header_value;
 
-    
+
     for (it = headers_raw.begin(); it != headers_raw.end(); it++)
     {
         _linePosition = 0;
