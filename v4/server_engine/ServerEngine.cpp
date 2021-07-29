@@ -165,8 +165,9 @@ bool ServerEngine::ft_send(const Request &request, int current_port) {
 			ServerData data = _config.getServers()[serverFd];
 			std::string msg = request.respond(_config, data);
             CGI cgi;
-            cgi.runCGI(request, data); // для тестирования CGI
+            std::string check_cgi = "HTTP/1.1 OK\r\n\r\n" + cgi.runCGI(request, data); // для тестирования CGI
 			send(*it, msg.c_str(), msg.length(), 0);
+            // send(*it, check_cgi.c_str(), check_cgi.length(), 0); // проверка отправки результата выполнения cgi
 			std::cout << "Respond on " << *it << ": \'" << msg << '\'' << std::endl;
 			std::cout << "Server name: " << data.getServerName() << std::endl;
 			_clients_recv.insert(*it);
