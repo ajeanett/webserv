@@ -143,7 +143,7 @@ int ServerEngine::ft_select(int mx, timeval *timeout)
 
 	FD_ZERO(&_readset); // всегда обновлять в начале while
 	FD_ZERO(&_writeset); // всегда обновлять в начале while
-
+	std::cout << "ft_select" << std::endl;
 	memcpy(&_readset, &_readset_master, sizeof(_readset_master));
 	memcpy(&_writeset, &_writeset_master, sizeof(_writeset_master));
 	errno = 0;
@@ -370,7 +370,7 @@ void ServerEngine::run(void)
 		FD_SET(*it, &_readset_master);
 
 	struct timeval timeout;
-	timeout.tv_sec = 15;
+	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
 	bool _run = true;
 	int current_port = 0;
