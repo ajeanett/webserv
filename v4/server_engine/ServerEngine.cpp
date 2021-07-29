@@ -325,11 +325,10 @@ bool ServerEngine::ft_accept(int *mx, int *current_port)
 
 	ret = false;
 
-	for (std::set<int>::iterator it = _listen_fds.begin();
-		 it != _listen_fds.end(); ++it)
+	for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
 	{
 //		std::cout << "accept " << *it << std::endl;
-//		 Определяем тип события и выполняем соответствующие действия
+//		Определяем тип события и выполняем соответствующие действия
 		if (FD_ISSET(*it, &_readset))
 		{
 			std::cout << "ft_accept" << std::endl;

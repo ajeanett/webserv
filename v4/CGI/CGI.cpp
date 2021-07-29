@@ -162,7 +162,7 @@ std::string CGI::runCGI(const Request &req, ServerData & serv){
         perror("error");
     } 
     else if (_pid == 0) {
-		std::cout << "START CHILD PROCESS" << std::endl;
+//		std::cout << "START CHILD PROCESS" << std::endl;
 		dup2(_fd[0], STDIN_FILENO);
 		dup2(_fd[1], STDOUT_FILENO);
 		// chdir(_current_root.c_str());

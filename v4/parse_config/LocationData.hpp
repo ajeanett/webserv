@@ -36,28 +36,27 @@ public:
 
 	/* Getters */
 	bool							getAutoindex() const;
-	std::string const				&getLocationPath(void) const;
-	size_t							getClientBufferBodySize(void) const;
-	const std::string				&getRoot(void) const;
-	const std::string				&getFullPath(void) const;
-	const std::string				&getCgiPath(void) const;
-	const std::string				&getCgiExtension(void) const;
+	std::string const				&getLocationPath() const;
+	size_t							getClientBufferBodySize() const;
+	const std::string				&getRoot() const;
+	const std::string				&getFullPath() const;
+	const std::string				&getCgiPath() const;
+	const std::string				&getCgiExtension() const;
 	const std::string				&getIndex() const;
-	const std::string				&getRedirect(void) const;
-	const std::vector<std::string>	&getMethods(void) const;
+	const std::string				&getRedirect() const;
+	const std::vector<std::string>	&getMethods() const;
 
 	/* Setters */
 	void					setAutoindex(bool autoindex);
-	void					setLocationPath(std:: string location);
-	void					setRoot(std:: string root);
-	void					setFullPath(std:: string s1, std:: string s2); //root + location
-	void					setCgiPath(std:: string cgipath);
-	void					setCgiExtension(std:: string cgiextension);
-	void					setIndex(std:: string index);
-	void					setRedirect(std::string redirect);
-	void					setMethods(std::string methods);
+	void					setLocationPath(std::string const &location);
+	void					setRoot(std::string const &root);
+	void					setFullPath(std::string const &s1, std::string const &s2); //root + location
+	void					setCgiPath(std::string const &cgipath);
+	void					setCgiExtension(std::string const &cgiextension);
+	void					setIndex(std::string const &index);
+	void					setRedirect(std::string const &redirect);
+	void					setMethods(std::string const &methods);
 	void					setClientBufferBodySize(size_t body_size);
-	
 
 //////////////////////////////////////////////
 	// size_t&	getBodySize();
