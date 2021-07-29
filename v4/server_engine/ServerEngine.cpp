@@ -168,9 +168,10 @@ bool ServerEngine::ft_send(const Request &request, int current_port) {
 			std::string msg = request.respond(_config, data);
 			CGI cgi;
 			std::string check_cgi = "HTTP/1.1 OK\r\n\r\n" + cgi.runCGI(request, data); // для тестирования CGI
+            //добавить хедеры в результат выполнения cgi
 			send(*it, msg.c_str(), msg.length(), 0);
 			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
-//			send(*it, check_cgi.c_str(), check_cgi.length(), 0); // проверка отправки результата выполнения cgi
+			send(*it, check_cgi.c_str(), check_cgi.length(), 0); // проверка отправки результата выполнения cgi
 			std::cout << "Respond on " << *it << std::endl;
 			std::cout << "Server name: " << data.getServerName() << std::endl;
 			_clients_recv.insert(*it);
@@ -191,7 +192,7 @@ bool    ServerEngine::check_request(std::string buffer){
     // вырезать из chunked запроса \r\n\r\n\размер в int\r\n\r\n в итоговом запросе этого быть не должно
     // std::string s = "IaFFSjndsUFfE";
     // std::transform(s.begin(), s.end(), s.begin(), tolower);
-    std::transform(buffer.begin(), buffer.end(), buffer.begin(), tolower); // В ответе должен быть верблюжий синтаксис
+    // std::transform(buffer.begin(), buffer.end(), buffer.begin(), tolower); // В ответе должен быть верблюжий синтаксис
     // std::cout << s << std::endl;
 
 
@@ -209,7 +210,7 @@ bool    ServerEngine::check_request(std::string buffer){
         if (buffer.find("0\r\n\r\n", prev) != std::string::npos)
                         return (true);
         int body_size = atoi((buffer.substr(next + 4)).c_str());
-        next = buffer.find("content-length: ", prev); //проверяем наличие content-lenght
+        next = buffer.find("Content-Length: ", prev); //проверяем наличие content-lenght
         if (next  != std::string::npos){
             prev = next + 16;
             next = buffer.find("\r\n", prev);
@@ -221,7 +222,7 @@ bool    ServerEngine::check_request(std::string buffer){
             }
         }
         prev = 0;
-        next = buffer.find("transfer-encoding: ", prev); // проверяем transfer-encoding, не является ли запрос фрагментированным
+        next = buffer.find("Transfer-Encoding: ", prev); // проверяем transfer-encoding, не является ли запрос фрагментированным
         if (next  != std::string::npos){
             prev = next + 19;
             next = buffer.find("\r\n", prev);
