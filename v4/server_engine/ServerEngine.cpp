@@ -64,8 +64,10 @@ ServerEngine::~ServerEngine()
 
 int ServerEngine::servStart(void)
 {
-//	запуск парсера, добавить в структуру класса экземпляр класса конфига
-//	в цикле заполнить порты из конфига
+     /*
+     * запуск парсера, добавить в структуру класса экземпляр класса конфига
+     * * в цикле заполнить порты из конфига
+     */
 	std::string configfile = "./ex.conf";
 	_config.getServers().clear();
 	_config.Parser(configfile);
@@ -76,6 +78,7 @@ int ServerEngine::servStart(void)
 
 	std::map<int, ServerData>::iterator it;
 
+	/* Добавляеям порты */
 	for(it = _config.getServers().begin(); it != _config.getServers().end(); ++it )
 	{
 		_ports.insert(it->second.getPort());
@@ -87,8 +90,13 @@ int ServerEngine::servStart(void)
 //		_buffer[i].clear();
 //		i++;
 //	}
+
+    /* Каждому порту инициалируем сокет(fd) */
 	for (std::set<int>::iterator it = _ports.begin(); it != _ports.end(); ++it) //связываем все порты с fd, которые потом будем слушать
 	{
+
+	    /* Атрибуты сокета домен тип и протокол */
+
 		_fd = socket(AF_INET, SOCK_STREAM, 0);
 		// std::cout << "socket: " << _fd << std::endl;
 		if (_fd < 0)
@@ -97,12 +105,14 @@ int ServerEngine::servStart(void)
 			return (-1);
 		}
 		int a = 1;
+		/* устанавливаем сокету повторное использование локальных адресов  */
 		if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &a, sizeof(int)) < 0)
 			perror("setsockopt(SO_REUSEADDR) failed");
 
 		setAddr(*it);
 		_fdPort[_fd] = *it;
 
+		/* Для явного связывания сокета с некоторым адресом используется функция bind */
 		if (bind(_fd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0)
 		{
 			std::cerr << "ERROR! Could not bind port " << *it << "." << std::endl;
@@ -122,8 +132,12 @@ int ServerEngine::servStart(void)
 void ServerEngine::setAddr(int port)
 {
 	memset((char *)&_addr, 0, sizeof(_addr));
+
+	/* Cемейство адресов (говорим что рабоатет с интернетом) */
 	_addr.sin_family = AF_INET;
-	_addr.sin_addr.s_addr = INADDR_ANY; // htonl(host);
+	/* IP adress */
+	_addr.sin_addr.s_addr = INADDR_ANY;
+	/* Номер порта (host to network)*/
 	_addr.sin_port = htons(port);
 }
 
@@ -207,13 +221,11 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 bool ServerEngine::check_request(std::string buffer)
 {
 
-
 	// вырезать из chunked запроса \r\n\r\n\размер в int\r\n\r\n в итоговом запросе этого быть не должно
 	// std::string s = "IaFFSjndsUFfE";
 	// std::transform(s.begin(), s.end(), s.begin(), tolower);
 	// std::transform(buffer.begin(), buffer.end(), buffer.begin(), tolower); // В ответе должен быть верблюжий синтаксис
 	// std::cout << s << std::endl;
-
 
 	size_t prev = 0;
 	size_t next = 0;

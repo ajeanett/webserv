@@ -13,15 +13,18 @@
 class ServerEngine{
     private:
         // std::map<long, std::string>	_requests;
-	    int                         _fd;
+
+        /* Временные переменные */
+        int                         _fd;
 	    struct sockaddr_in			_addr;
-	    std::set<int>               _ports; //  сет портов, которые будем слушать
+
+	    /* Cет портов, которые будем слушать */
+	    std::set<int>               _ports;
         
-		/*listen fds, сет fd\сокетов, которые будем слушать, каждый из них связан с портом */
+		/*listen fds, сет fd \сокетов, которые будем слушать, каждый из них связан с портом */
 		std::set<int>               _listen_fds;
         
 		/*_config Класс содержаший конфигурацию */
-		
 		ParserConfig				_config;
 
         std::string                 _startPage; //стартовая страница, index.html
@@ -36,6 +39,7 @@ class ServerEngine{
         std::map<int, std::string>  _buffer;// мапа для чтения запросов\request`ов, int -  это фд клиента, string - буффер отдельно для каждого клиента.
         // bool                        _sel; //
         std::map<int, bool>         _chunked; // проверка на фрагментированность каждого запроса. int -  это фд клиента, bool - фрагментирован запрос или нет.
+        /* Ключ-значение fd-port */
         std::map<int, int>			_fdPort;
 
     public:
