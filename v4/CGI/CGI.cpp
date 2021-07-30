@@ -99,6 +99,7 @@ void    CGI::fillTmpEnvCgi(const Request &req, ServerData & serv){
             _tmpEnvCGI["PATH_TRANSLATED"] = (*it).getRoot();
             _current_root = (*it).getRoot();
             _tmpEnvCGI["SCRIPT_NAME"] = !(*it).getCgiPath().empty() ? (*it).getCgiPath() : "" ;
+            _cgi_type = (*it).getCgiExtension();
         }
     }
         _tmpEnvCGI["QUERY_STRING"] = "";
@@ -179,10 +180,25 @@ std::string CGI::runCGI(const Request &req, ServerData & serv){
 		// записть в файл результат скрипта
 		// считать результат в
 		char **arg = new char*[3];
-		std::string path = _current_root + _tmpEnvCGI["SCRIPT_NAME"];
-		arg[0] = const_cast<char *>("/usr/local/bin/python3"); //strdup(path.c_str());
-		arg[1] = const_cast<char *>("./python/test.py"); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
-		arg[2] = NULL;
+		std::string path = _current_root + _tmpEnvCGI["SCRIPT_NAME"]; // испрвить под конкретную реализацию, здесь длолжен быть путь к исполняемому файлу
+		_cgi_type = "php"; // для тестирования
+		if (_cgi_type == "py")
+		{
+			arg[0] = const_cast<char *>("/usr/local/bin/python3"); //strdup(path.c_str());
+			arg[1] = const_cast<char *>("./python/test.py"); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+			arg[2] = NULL;
+		}
+		else if (_cgi_type == "php")
+		{
+			/* Заносим в arg значения для скрипта  php*/
+			arg[0] = const_cast<char *>("/usr/bin/php"); //strdup(path.c_str());
+			arg[1] = const_cast<char *>("./python/test.php"); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+			arg[2] = NULL;
+		}
+		else
+		{
+			/* выполняем cgi_tester */
+		}
 //		std::cout << "path to execve program = " << arg[0] << std::endl; // какую программу выполняем
 //		std::cout << "execve first argument path = " << arg[1] << std::endl; // какой файл\скрипт выполняем с помощью программы
 		if (execve(arg[0], arg, envp) == -1)

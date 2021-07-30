@@ -20,6 +20,7 @@ private:
     std::map<std::string, std::string> _tmpEnvCGI;  // мапа для занесения пар ключ\значение для переменных окружения CGI, перед выполнением execve нужно будет перевести в char**
     char                                **_envp; // переменные окружения для execve;
     std::string                         _current_root;
+    std::string							_cgi_type;
     void    prepareEnvCGI(const Request &req, ServerData & serv, char *** envp);
     int     startCGI(char **envp);
     int     clearCGI();
