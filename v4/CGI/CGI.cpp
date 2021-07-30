@@ -154,6 +154,9 @@ std::string CGI::runCGI(const Request &req, ServerData & serv){
     int _status;
     int _fd[2];
 
+//	std::string cgi_tmp_path_in = _current_root + "/cgi_tmp_in";
+//	std::string cgi_tmp_path_out = _current_root + "/cgi_tmp_out";
+//	int tmp_file_fd = open(cgi_tmp_path.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
     pipe(_fd);
     _pid = fork();
 
@@ -165,7 +168,7 @@ std::string CGI::runCGI(const Request &req, ServerData & serv){
 //		std::cout << "START CHILD PROCESS" << std::endl;
 		dup2(_fd[0], STDIN_FILENO);
 		dup2(_fd[1], STDOUT_FILENO);
-		// chdir(_current_root.c_str());
+		 chdir(_current_root.c_str());
 		// сохранить текущий fd
 		// dup 2 подменить fd на другие, возможно создать врем файл
 		// записть в файл результат скрипта

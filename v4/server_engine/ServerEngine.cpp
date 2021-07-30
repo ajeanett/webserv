@@ -105,10 +105,12 @@ int ServerEngine::servStart(void)
 			return (-1);
 		}
 		int a = 1;
-		/* устанавливаем сокету повторное использование локальных адресов  */
+
+		/* устанавливаем сокету повторное использование локальных адресов (иначе при вовторном запуске будет занято) */
 		if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &a, sizeof(int)) < 0)
 			perror("setsockopt(SO_REUSEADDR) failed");
 
+		/*Настроили данный порт*/
 		setAddr(*it);
 		_fdPort[_fd] = *it;
 
@@ -118,6 +120,7 @@ int ServerEngine::servStart(void)
 			std::cerr << "ERROR! Could not bind port " << *it << "." << std::endl;
 			return (-1);
 		}
+		/* Сколько клиентов слушаем */
 		if (listen(_fd, 1000) < 0)
 		{
 			std::cerr << "Could not listen." << std::endl;
@@ -135,7 +138,7 @@ void ServerEngine::setAddr(int port)
 
 	/* Cемейство адресов (говорим что рабоатет с интернетом) */
 	_addr.sin_family = AF_INET;
-	/* IP adress */
+	/* IP adress (мы можем работать со всеми локальными)*/
 	_addr.sin_addr.s_addr = INADDR_ANY;
 	/* Номер порта (host to network)*/
 	_addr.sin_port = htons(port);
@@ -161,6 +164,7 @@ int ServerEngine::ft_select(int mx, timeval *timeout)
 	memcpy(&_readset, &_readset_master, sizeof(_readset_master));
 	memcpy(&_writeset, &_writeset_master, sizeof(_writeset_master));
 	errno = 0;
+	/* ОТСЛЕЖИВАЕТ ЕСТЬ ЛИ ЗАПРОСЫ НА СОЕДИНЕНИЕ ИЛИ НЕТ*/
 	ret = select(mx + 1, &_readset, &_writeset, NULL, timeout);
 	if (ret < 0)
 	{
@@ -237,7 +241,7 @@ bool ServerEngine::check_request(std::string buffer)
 	{
 		if (buffer.find("0\r\n\r\n", prev) != std::string::npos)
 			return (true);
-		int body_size = atoi((buffer.substr(next + 4)).c_str());
+		int body_size = strtol((buffer.substr(next + 4)).c_str(), 0, 0 );
 		next = buffer.find("Content-Length: ", prev); //проверяем наличие content-lenght
 		if (next != std::string::npos)
 		{
@@ -268,7 +272,7 @@ bool ServerEngine::check_request(std::string buffer)
 					return (false);
 				}
 			}
-		}
+		}https://ru.wikipedia.org/wiki/%D0%90%D0%BF%D0%BF%D0%B0%D1%80%D0%B0%D1%82%D0%BD%D0%B0%D1%8F_%D0%B2%D0%B8%D1%80%D1%82%D1%83%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F
 		return (true); // есть \r\n\r\n , нет transfer-encoding и content-lenght, запрос пришел полностью
 	}
 	return (false); // проверить ошибки 404, 500, 505
@@ -288,7 +292,7 @@ bool ServerEngine::ft_receive(Request &request)
 		if (FD_ISSET(*it, &_readset))
 		{
 			std::cout << "ft_receive" << std::endl;
-			bool full_request = false;
+			bool full_request = true;
 			// std::cout << "RECV" << std::endl;
 			// Поступили данные от клиента, читаем их
 			errno = 0;
@@ -301,7 +305,7 @@ bool ServerEngine::ft_receive(Request &request)
 			// std::string buffer;
 			_buffer[*it] += std::string(_buf);
 			// buffer += std::string(_buf);
-			full_request = check_request(_buffer[*it]);
+//			full_request = check_request(_buffer[*it]);
 			// std::cout << "Read:"<< std::endl << _buffer[*it] << std::endl << "Read END!"<< std::endl;
 			if (full_request)
 			{
@@ -366,9 +370,11 @@ bool ServerEngine::ft_accept(int *mx, int *current_port)
 
 void ServerEngine::run(void)
 {
+	/* Находим максимальный fd */
 	int mx = *max_element(_listen_fds.begin(), _listen_fds.end());
 	_clients_recv.clear();
 	_clients_send.clear();
+	/* Обнуляем set fd */
 	FD_ZERO(&_readset_master);
 	FD_ZERO(&_writeset_master);
 
@@ -376,23 +382,28 @@ void ServerEngine::run(void)
 
 	for (std::set<int>::iterator it = _listen_fds.begin();
 		 it != _listen_fds.end(); ++it)
+	{
+		/* Добавляем в set fd */
 		FD_SET(*it, &_readset_master);
-
+	}
+	/* Cоздаем структуру с задержкой (используется в функции select)*/
 	struct timeval timeout;
-	timeout.tv_sec = 1;
+	timeout.tv_sec = 15;
 	timeout.tv_usec = 0;
+
 	bool _run = true;
+	/* в какой порт нам отправили (чтобы потом сопоставить конфиг сервера)*/
 	int current_port = 0;
 	Request request;
+
 	while (_run)
 	{
 		// std::cout << "start" << std::endl;
-		// Заполняем множество сокетов
 
 		bool sel = true;
 		while (sel)
 		{
-			// Ждём события в одном из сокетов
+			/* Ждём события в одном из сокетов (mx - maxfd)*/
 			int ret = ft_select(mx, &timeout);
 			if (ret > 0)
 				sel = false;
