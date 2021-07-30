@@ -19,5 +19,5 @@
 
 webserv
 v4/cmake-build-debug/
-/.idea/*
-!/.idea/runConfigurations
+.idea/*
+!.idea/runConfigurations
