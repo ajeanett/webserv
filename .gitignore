@@ -16,4 +16,8 @@
 *.exe
 
 .vscode
+
 webserv
+v4/cmake-build-debug/
+/.idea/*
+!/.idea/runConfigurations

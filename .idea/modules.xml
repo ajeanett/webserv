@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/github.iml" filepath="$PROJECT_DIR$/.idea/github.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/webserv.iml" filepath="$PROJECT_DIR$/.idea/webserv.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/our_webserv.iml" filepath="$PROJECT_DIR$/.idea/our_webserv.iml" />
     </modules>
   </component>
 </project>
