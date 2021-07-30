@@ -105,17 +105,17 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	ifs.close();
 	std::string content = html.str();
 
-	response.getHeaders()["Content-Type"] = "text/plain";
-	size_t n = uri.find_last_of('.');
-	if (n != std::string::npos)
-	{
-		std::string type;
-		std::string extension;
-		type = "text";
-		extension = uri.substr(n + 1, uri.length() - n);
-		response.getHeaders()["Content-Type"] = type + '/' + extension;
-		std::cout << "result: " << response.getHeaders()["Content-Type"] << std::endl;
-	}
+//	response.getHeaders()["Content-Type"] = "text/plain";
+//	size_t n = uri.find_last_of('.');
+//	if (n != std::string::npos)
+//	{
+//		std::string type;
+//		std::string extension;
+//		type = "text";
+//		extension = uri.substr(n + 1, uri.length() - n);
+//		response.getHeaders()["Content-Type"] = type + '/' + extension;
+//		std::cout << "result: " << response.getHeaders()["Content-Type"] << std::endl;
+//	}
 	response.getHeaders()["Content-length"] = std::to_string(content.length());
 	response.getHeaders()["Connection"] = "keep-alive";
 	response.setBody(content);

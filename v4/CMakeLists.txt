@@ -3,8 +3,11 @@ project(webserv)
 
 set(CMAKE_CXX_STANDARD 98)
 
-#add_compile_options(-Wall -Wextra -Werror -std=c++98)
-add_compile_options(-Wall -std=c++98)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_compile_options(-Wall -std=c++98)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+	add_compile_options(-Wall -Wextra -Werror -std=c++98)
+endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 #include_directories(srcs)
 
