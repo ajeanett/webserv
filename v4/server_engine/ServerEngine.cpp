@@ -221,11 +221,8 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 bool ServerEngine::check_request(std::string buffer)
 {
 
-	// вырезать из chunked запроса \r\n\r\n\размер в int\r\n\r\n в итоговом запросе этого быть не должно
-	// std::string s = "IaFFSjndsUFfE";
-	// std::transform(s.begin(), s.end(), s.begin(), tolower);
+	// вырезать из chunked запроса "размер в int в шестнадцатеричном формате"\r\n\ в итоговом запросе этого быть не должно
 	// std::transform(buffer.begin(), buffer.end(), buffer.begin(), tolower); // В ответе должен быть верблюжий синтаксис
-	// std::cout << s << std::endl;
 
 	size_t prev = 0;
 	size_t next = 0;
