@@ -152,31 +152,36 @@ std::string CGI::runCGI(const Request &req, ServerData & serv){
 
     pid_t _pid;
     int _status;
-    int _fd[2];
+//    int _fd[2];
 
-//	std::string cgi_tmp_path_in = _current_root + "/cgi_tmp_in";
-//	std::string cgi_tmp_path_out = _current_root + "/cgi_tmp_out";
-//	int tmp_file_fd = open(cgi_tmp_path.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
-    pipe(_fd);
+	std::string cgi_tmp_path_in = "./cgi_tmp_in";
+	std::string cgi_tmp_path_out = "./cgi_tmp_out";
+	/* tmp_file_fd_in - временнй файл для сохранения body запроса, для обработки этих данныхв CGI*/
+	int tmp_file_fd_in = open(cgi_tmp_path_in.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
+	/* tmp_file_fd_out - временнй файл для сохранения результата выполнения CGI*/
+	int tmp_file_fd_out = open(cgi_tmp_path_out.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
+	write(tmp_file_fd_in, req.getBody().c_str(), req.getBody().length());
+	lseek(tmp_file_fd_in, 0, SEEK_SET);
+//    pipe(_fd);
+
     _pid = fork();
 
     if (_pid == -1)
     {
-        perror("error");
+        perror("Fork error\n");
     } 
     else if (_pid == 0) {
 //		std::cout << "START CHILD PROCESS" << std::endl;
-		dup2(_fd[0], STDIN_FILENO);
-		dup2(_fd[1], STDOUT_FILENO);
-		 chdir(_current_root.c_str());
+		dup2(tmp_file_fd_in, STDIN_FILENO);
+		dup2(tmp_file_fd_out, STDOUT_FILENO);
 		// сохранить текущий fd
 		// dup 2 подменить fd на другие, возможно создать врем файл
 		// записть в файл результат скрипта
 		// считать результат в
 		char **arg = new char*[3];
 		std::string path = _current_root + _tmpEnvCGI["SCRIPT_NAME"];
-		arg[0] = "/usr/local/bin/python3"; //strdup(path.c_str());
-		arg[1] = "./python/test.py"; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+		arg[0] = const_cast<char *>("/usr/local/bin/python3"); //strdup(path.c_str());
+		arg[1] = const_cast<char *>("./python/test.py"); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
 		arg[2] = NULL;
 //		std::cout << "path to execve program = " << arg[0] << std::endl; // какую программу выполняем
 //		std::cout << "execve first argument path = " << arg[1] << std::endl; // какой файл\скрипт выполняем с помощью программы
@@ -188,27 +193,27 @@ std::string CGI::runCGI(const Request &req, ServerData & serv){
     }
 
     waitpid(_pid, &_status, 0);
-    char buf[1000];
-    bzero(buf, 1000);
-    size_t _read;
-    close(_fd[1]);
-    while ((_read = read(_fd[0], buf, 1000)) > 0)
-    {
-        _ret += buf;
-    }
-    close(_fd[0]);
-    // FILE* f = fdopen(_fd[1], "r");
-    // // std::fstream fstr(f);
-    // std::ifstream t(_fd[1]);
-    // std::stringstream buffer;
-    // buffer << f.rdbuf();
 
-//     int read_bytes;
+	struct stat file;
+	fstat(tmp_file_fd_out, &file);
+	lseek(tmp_file_fd_out, 0, SEEK_SET);
+	_ret.resize(file.st_size);
+	read(tmp_file_fd_out, const_cast<char *>(_ret.c_str()), _ret.capacity());
+	close(tmp_file_fd_out);
+	close(tmp_file_fd_in);
+	remove(cgi_tmp_path_in.c_str());
+	remove(cgi_tmp_path_out.c_str());
 
-//     FILE* f = fdopen(my_fd, "a");
-// std::fstream fstr(f);
-
-    // dup2(_fd[1], STDIN_FILENO);
+//    char buf[1000];
+//    bzero(buf, 1000);
+//
+//    size_t _read;
+//    close(_fd[1]);
+//    while ((_read = read(_fd[0], buf, 1000)) > 0)
+//    {
+//        _ret += buf;
+//    }
+//    close(_fd[0]);
 
     if (envp) 
     {

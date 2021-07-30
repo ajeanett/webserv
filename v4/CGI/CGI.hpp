@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <cstdio>
+#include <sys/stat.h>
 #include "../HTTP/Request.hpp"
 #include "../parse_config/ParserConfig.hpp"
 
