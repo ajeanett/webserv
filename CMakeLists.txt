@@ -27,4 +27,8 @@ add_executable(webserv
 		srcs/HTTP/Responders/GetResponder.cpp
 		srcs/HTTP/Responders/GetResponder.hpp
 		srcs/HTTP/Responders/IResponder.hpp
+		srcs/HTTP/Errors/HTTPError.cpp
+		srcs/HTTP/Errors/HTTPError.hpp
+		srcs/HTTP/Errors/HTTPNotFound.cpp
+		srcs/HTTP/Errors/HTTPNotFound.hpp
 )

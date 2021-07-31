@@ -236,13 +236,13 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 			ServerData data = _config.getServers()[serverFd];
 			std::string msg = request.respond(_config, data);
 //			добавить хедеры в результат выполнения cgi
-//			send(*it, msg.c_str(), msg.length(), 0);
+			send(*it, msg.c_str(), msg.length(), 0);
 //			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
 //			{
-				CGI cgi(request, data, "./cgi_scripts/test.py", "py");
-				std::string cgi_out = cgi.runCGI(); // для тестирования CGI
-				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
-				send(*it, cgi_msg.c_str(), cgi_msg.length(), 0); // проверка отправки результата выполнения cgi
+//				CGI cgi(request, data, "./cgi_scripts/test.py", "py");
+//				std::string cgi_out = cgi.runCGI(); // для тестирования CGI
+//				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
+//				send(*it, cgi_msg.c_str(), cgi_msg.length(), 0); // проверка отправки результата выполнения cgi
 //			}
 			std::cout << "Respond on " << *it << std::endl;
 			std::cout << "Server name: " << data.getServerName() << std::endl;
@@ -469,9 +469,10 @@ void ServerEngine::run()
 			{
 				sel = ft_receive(request); // получение данные от клиента
 			}
-			catch (...)
+			catch (HTTPError &e)
 			{
-				request.respond()
+				request.setError(e.what());
+				sel = true;
 			}
 		}
 		if (!sel)

@@ -4,6 +4,8 @@
 
 #include "Webserv_main.hpp"
 #include "../HTTP/Request.hpp"
+#include "../HTTP/Errors/HTTPError.hpp"
+#include "../HTTP/Errors/HTTPNotFound.hpp"
 #include "../parse_config/ParserConfig.hpp"
 #include "../CGI/CGI.hpp"
 /* Для inet_addr */
