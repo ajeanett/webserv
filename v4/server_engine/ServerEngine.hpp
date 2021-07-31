@@ -6,6 +6,11 @@
 #include "../HTTP/Request.hpp"
 #include "../parse_config/ParserConfig.hpp"
 #include "../CGI/CGI.hpp"
+/* Для inet_addr */
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <algorithm>
 
 #define TCP_MAX 65535
 
@@ -18,8 +23,8 @@ private:
 	int _fd;
 	struct sockaddr_in _addr;
 
-	/* Cет портов, которые будем слушать */
-	std::set<int> _ports;
+	/* map port - ключ, host - значение*/
+	std::map<int, std::string> _ports_host;
 
 	/*listen fds, сет fd \сокетов, которые будем слушать, каждый из них связан с портом */
 	std::set<int> _listen_fds;
@@ -46,8 +51,8 @@ public:
 	ServerEngine(std::set<int> const &ports);
 	ServerEngine();
 	virtual ~ServerEngine();
-	std::set<int> getPorts() const
-	{ return (this->_ports); }
+	std::map<int, std::string> getPorts() const
+	{ return (this->_ports_host); }
 	int const &getFd() const
 	{ return (this->_fd); }
 	void setFd(int const &src)
@@ -55,7 +60,7 @@ public:
 
 	int servStart();
 	void run();
-	void setAddr(int port);
+	void setAddr(int port, std::string &host);
 	int ft_select(int mx, timeval *timeout);
 	bool ft_send(Request const &request, int current_port);
 	bool ft_receive(Request &request);

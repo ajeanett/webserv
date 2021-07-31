@@ -1,6 +1,6 @@
 #include "ServerEngine.hpp"
 
-ServerEngine::ServerEngine(std::set<int> const &ports) : _ports(ports.begin(), ports.end())
+ServerEngine::ServerEngine(std::set<int> const &ports)
 {
 //	for (std::set<int>::iterator it = ports.begin(); it != ports.end(); ++it)
 //		this->_ports.insert(*it);
@@ -61,6 +61,77 @@ ServerEngine::~ServerEngine()
 //     }
 // }
 
+//int _HostFromStrToInt(std::string& str) {
+//	int ip;
+//	size_t _find;
+//	ip = 0;
+//
+//	if ((_find = str.find(".")) != std::string::npos)
+//	{
+//		ip = atoi(str.substr(0, _find).c_str()) << 8;
+//		str.erase(0, _find + 1);
+//		if ((_find = str.find(".")) != std::string::npos)
+//		{
+//			ip = (ip + atoi(str.substr(0, _find).c_str())) << 8;
+//			str.erase(0, _find + 1);
+//			if ((_find = str.find(".")) != std::string::npos)
+//			{
+//				ip = (ip + atoi(str.substr(0, _find).c_str())) << 8;
+//				str.erase(0, _find + 1);
+//				if (!str.empty())
+//				{
+//					ip = (ip + atoi(str.substr(0).c_str()));
+//					return ip;
+//				}
+//			}
+//		}
+//	}
+//	std::cerr << "Error! Invalid host in configfile" << str << std::endl;
+//}
+
+
+int _hostToInt(std::string& str) {
+	int ip = 0;
+	size_t pos;
+
+	if ((pos = str.find(".")) != std::string::npos) {
+		ip = atoi(str.substr(0, pos).c_str()) << 8;
+		str.erase(0, pos + 1);
+		if ((pos = str.find(".")) != std::string::npos) {
+			ip = (ip + atoi(str.substr(0, pos).c_str())) << 8;
+			str.erase(0, pos + 1);
+			if ((pos = str.find(".")) != std::string::npos) {
+				ip = (ip + atoi(str.substr(0, pos).c_str())) << 8;
+				str.erase(0, pos + 1);
+				if (!str.empty()) {
+					ip = (ip + atoi(str.substr(0).c_str()));
+					return ip;
+				}
+			}
+		}
+	}
+	std::cerr << "Error! Invalid host in configfile" << str << std::endl;
+	return (1);
+}
+
+void ServerEngine::setAddr(int port, std:: string &host)
+{
+	memset((char *)&_addr, 0, sizeof(_addr));
+
+	uint32_t i;
+
+	i = _hostToInt(host);
+	/* Cемейство адресов (говорим что рабоатет с интернетом) */
+	_addr.sin_family = AF_INET;
+	/* IP adress */
+	std::cout << "host is: " << host << std::endl;
+	/* Номер хоста (host to network)*/
+//	inet_aton(host.c_str(), &_addr.sin_addr);
+	_addr.sin_addr.s_addr = htonl(static_cast<uint32_t>(i));;//  inet_addr(host.c_str()); - нерабочий альтернативный вариант  INADDR_ANY; - рабочий альтернативный вариант
+	/* Номер порта (host to network)*/
+	_addr.sin_port = htons(port);
+}
+
 
 int ServerEngine::servStart()
 {
@@ -71,18 +142,18 @@ int ServerEngine::servStart()
 	std::string configfile = "./ex.conf";
 	_config.getServers().clear();
 	_config.Parser(configfile);
-	_ports.clear();
+	_ports_host.clear();
 
 //	print_servers(_p);
 
 	/* Добавляеям порты */
 	for (std::map<int, ServerData>::iterator it = _config.getServers().begin(); it != _config.getServers().end(); ++it)
 	{
-		_ports.insert(it->second.getPort());
+		_ports_host[(it->second.getPort())] = it->second.getHost();
 	}
 
 	/* Каждому порту инициалируем сокет(fd) */
-	for (std::set<int>::iterator it = _ports.begin(); it != _ports.end(); ++it) //связываем все порты с fd, которые потом будем слушать
+	for (std::map<int, std::string>::iterator it = _ports_host.begin(); it != _ports_host.end(); ++it) //связываем все порты и хосты с fd, которые потом будем слушать
 	{
 
 		/* Атрибуты сокета домен тип и протокол */
@@ -99,13 +170,14 @@ int ServerEngine::servStart()
 		if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &a, sizeof(int)) < 0)
 			perror("setsockopt(SO_REUSEADDR) failed");
 
-		setAddr(*it);
-		_fdPort[_fd] = *it;
+
+		setAddr(it->first, it->second);
+		_fdPort[_fd] = (it)->first;
 
 		/* Для явного связывания сокета с некоторым адресом используется функция bind */
 		if (bind(_fd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0)
 		{
-			std::cerr << "ERROR! Could not bind port " << *it << "." << std::endl;
+			std::cerr << "ERROR! Could not bind port " << (it)->first << "." << std::endl;
 			return (-1);
 		}
 		if (listen(_fd, 1000) < 0)
@@ -114,21 +186,9 @@ int ServerEngine::servStart()
 			return (-1);
 		}
 		_listen_fds.insert(_fd);
-		std::cout << "servStart port: " << *it << std::endl;
+		std::cout << "servStart port: " << (it)->first  << std::endl;
 	}
 	return (0);
-}
-
-void ServerEngine::setAddr(int port)
-{
-	memset((char *)&_addr, 0, sizeof(_addr));
-
-	/* Cемейство адресов (говорим что рабоатет с интернетом) */
-	_addr.sin_family = AF_INET;
-	/* IP adress */
-	_addr.sin_addr.s_addr = INADDR_ANY;
-	/* Номер порта (host to network)*/
-	_addr.sin_port = htons(port);
 }
 
 int ServerEngine::ft_select(int mx, timeval *timeout)
@@ -357,8 +417,9 @@ void ServerEngine::run()
 	for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
 		FD_SET(*it, &_readset_master);
 
+	struct timeval tv = {3600, 0};
 	struct timeval timeout;
-	timeout.tv_sec = 1;
+	timeout.tv_sec = 15;
 	timeout.tv_usec = 0;
 	bool _run = true;
 	int current_port = 0;
@@ -372,7 +433,7 @@ void ServerEngine::run()
 		while (sel)
 		{
 			// Ждём события в одном из сокетов
-			int ret = ft_select(mx, &timeout);
+			int ret = ft_select(mx, &tv);
 			if (ret > 0)
 				sel = false;
 		}
