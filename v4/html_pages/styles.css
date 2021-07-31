@@ -12,10 +12,19 @@ body {
 }
 
 .back-img {
-	margin-top: 100px;
+	margin-top: 50px;
 	width: 500px;
-	height: 500px;
+	height: 400px;
 	background-repeat: no-repeat;
 	background-position: center;;
 	background-size: 100%;
+}
+
+.go-home {
+	cursor: pointer;
+	padding: 12px 20px;
+	font-size: 24px;
+	color: #485eff;
+	border: 1px solid #485eff;
+	border-radius: 10px;
 }

@@ -21,3 +21,4 @@ webserv
 **/cmake-build-*/
 .idea/*
 !.idea/runConfigurations/
+!.idea/cmake.xml
