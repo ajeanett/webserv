@@ -236,13 +236,14 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 			ServerData data = _config.getServers()[serverFd];
 			std::string msg = request.respond(_config, data);
 //			добавить хедеры в результат выполнения cgi
-			send(*it, msg.c_str(), msg.length(), 0);
+//			send(*it, msg.c_str(), msg.length(), 0);
 //			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
 //			{
-//				CGI cgi(request, data, "./cgi_scripts/test.py", "py");
-//				std::string cgi_out = cgi.runCGI(); // для тестирования CGI
+//				CGI cgi(request, data, "./testers/cgi_tester", "py");
+				CGI cgi(request, data, "./cgi_scripts/test.py", "py");
+				std::string cgi_out = cgi.runCGI(); // для тестирования CGI
 //				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
-//				send(*it, cgi_msg.c_str(), cgi_msg.length(), 0); // проверка отправки результата выполнения cgi
+				send(*it, cgi_out.c_str(), cgi_out.length(), 0); // проверка отправки результата выполнения cgi
 //			}
 			std::cout << "Respond on " << *it << std::endl;
 			std::cout << "Server name: " << data.getServerName() << std::endl;
@@ -347,7 +348,7 @@ bool ServerEngine::ft_receive(Request &request)
 		if (FD_ISSET(*it, &_readset))
 		{
 			std::cout << "ft_receive" << std::endl;
-			bool full_request = false;
+			bool full_request = true;
 			// std::cout << "RECV" << std::endl;
 			// Поступили данные от клиента, читаем их
 			errno = 0;
@@ -365,7 +366,7 @@ bool ServerEngine::ft_receive(Request &request)
 			// std::string buffer;
 			_buffer[*it] += std::string(_buf);
 			// buffer += std::string(_buf);
-			full_request = check_request(_buffer[*it]);
+//			full_request = check_request(_buffer[*it]);
 			// std::cout << "Read:"<< std::endl << _buffer[*it] << std::endl << "Read END!"<< std::endl;
 			if (full_request)
 			{

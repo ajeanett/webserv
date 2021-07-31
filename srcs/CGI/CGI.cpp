@@ -163,23 +163,45 @@ std::string CGI::runCGI()
 //		_cgi_type = "py"; // для тестирования
 		if (_cgi_type == "py")
 		{
-//			arg[0] = const_cast<char *>("./cgi_scripts/test.py"); //strdup(path.c_str());
-//			arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
-//			arg[2] = NULL;
-			arg[0] = const_cast<char *>("/usr/local/bin/python3"); //strdup(path.c_str());
-			arg[1] = const_cast<char *>(_cgi_path.c_str()); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+			arg[0] = const_cast<char *>(_cgi_path.c_str());//strdup(path.c_str());
+			arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
 			arg[2] = NULL;
+//			arg[0] = const_cast<char *>("/usr/local/bin/python3"); //strdup(path.c_str());
+//			arg[1] = const_cast<char *>(_cgi_path.c_str()); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+//			arg[2] = NULL;
+//			if (execve(arg[0], arg, envp) == -1)
+//			{
+//				std::cerr << "ERROR CGI" << std::endl;
+//			}
+//			exit(0);
 		}
 		else if (_cgi_type == "php")
 		{
 			/* Заносим в arg значения для скрипта  php*/
-			arg[0] = const_cast<char *>("/usr/bin/php"); //strdup(path.c_str());
-			arg[1] = const_cast<char *>(_cgi_path.c_str()); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+//			arg[0] = const_cast<char *>("/usr/bin/php"); //strdup(path.c_str());
+//			arg[1] = const_cast<char *>(_cgi_path.c_str()); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+//			arg[2] = NULL;
+			arg[0] = const_cast<char *>(_cgi_path.c_str()); //strdup(path.c_str());
+			arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
 			arg[2] = NULL;
+//			if (execve(arg[0], arg, envp) == -1)
+//			{
+//				std::cerr << "ERROR CGI" << std::endl;
+//			}
+//			exit(0);
 		}
 		else
 		{
 			/* выполняем cgi_tester */
+			std::cout <<"YA TUT!!!" << std::endl;
+			arg[0] = const_cast<char *>(_cgi_path.c_str()); //strdup(path.c_str());
+			arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+			arg[2] = NULL;
+//			if (execve(const_cast<char *>(_cgi_path.c_str()), NULL, envp) == -1)
+//			{
+//				std::cerr << "ERROR CGI" << std::endl;
+//			}
+//			exit(0);
 		}
 //		std::cout << "path to execve program = " << arg[0] << std::endl; // какую программу выполняем
 //		std::cout << "execve first argument path = " << arg[1] << std::endl; // какой файл\скрипт выполняем с помощью программы
@@ -202,16 +224,29 @@ std::string CGI::runCGI()
 	remove(cgi_tmp_path_in.c_str());
 	remove(cgi_tmp_path_out.c_str());
 
-//    char buf[1000];
-//    bzero(buf, 1000);
-//
-//    size_t _read;
-//    close(_fd[1]);
-//    while ((_read = read(_fd[0], buf, 1000)) > 0)
-//    {
-//        _ret += buf;
-//    }
-//    close(_fd[0]);
+
+	size_t find = _ret.find("Status:");
+	if (find == 0)
+	{
+		_ret.replace(0,  7, "HTTP/1.1");
+	}
+	find = 10;
+	/*Добавляем первую строку и хедеры*/
+	find = _ret.find("HTTP/1.1");
+	if (find == 0)
+	{
+		/*Значит это тестер CGI*/
+		_ret.replace(0,  7, "HTTP/1.1");
+	}
+	else
+	{
+		/*Значит это другие исполяемые файлы - python или php*/
+//		std::string _ret_cgi = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(_ret.length()) + "\r\n\r\n" + _ret;
+		std::string cont_lenght = std::to_string(_ret.length());
+		_ret.insert(0,  "\r\n\r\n");
+		_ret.insert(0, cont_lenght );
+		_ret.insert(0,"HTTP/1.1 200 OK\r\nContent-Length: ");
+	}
 
     if (envp) 
     {

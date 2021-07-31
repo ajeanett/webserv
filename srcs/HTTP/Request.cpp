@@ -127,6 +127,7 @@ void Request::parse_body()
 	}
 	else
 		_body = _request.substr(this->_requestPosition);
+	_body += "hjghghjjhghjdd f dfh dfhh df fd fd fd fd df";
 	//  Печать боди для проверки
 	// std::cout << "BODY" << std::endl << _body<< std::endl << "BODY END" << std::endl;
 }
