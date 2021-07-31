@@ -20,4 +20,4 @@
 webserv
 **/cmake-build-*/
 .idea/*
-!.idea/runConfigurations
+!.idea/runConfigurations/

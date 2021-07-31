@@ -236,13 +236,13 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 			ServerData data = _config.getServers()[serverFd];
 			std::string msg = request.respond(_config, data);
 //			добавить хедеры в результат выполнения cgi
-			send(*it, msg.c_str(), msg.length(), 0);
+//			send(*it, msg.c_str(), msg.length(), 0);
 //			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
 //			{
-//				CGI cgi;
-//				std::string cgi_out = cgi.runCGI(request, data); // для тестирования CGI
-//				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
-//				send(*it, cgi_msg.c_str(), cgi_msg.length(), 0); // проверка отправки результата выполнения cgi
+				CGI cgi(request, data, "./python/test.php", "php");
+				std::string cgi_out = cgi.runCGI(); // для тестирования CGI
+				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
+				send(*it, cgi_msg.c_str(), cgi_msg.length(), 0); // проверка отправки результата выполнения cgi
 //			}
 			std::cout << "Respond on " << *it << std::endl;
 			std::cout << "Server name: " << data.getServerName() << std::endl;
@@ -277,8 +277,8 @@ bool ServerEngine::check_request(std::string const &buffer)
 	{
 		if (buffer.find("0\r\n\r\n", prev) != std::string::npos)
 			return (true);
-//		int body_size = atoi((buffer.substr(next + 4)).c_str());
-		size_t body_size = buffer.length() - next;
+		int body_size = (buffer.substr(next + 4)).length();
+//		size_t body_size = buffer.length() - next;
 		std::cout << "body size (check please): " << body_size << std::endl;
 		next = buffer.find("Content-Length: ", prev); //проверяем наличие content-lenght
 		if (next != std::string::npos)
@@ -315,7 +315,24 @@ bool ServerEngine::check_request(std::string const &buffer)
 	}
 	return (false); // проверить ошибки 404, 500, 505
 }
-
+/*
+ * старт лайн
+ * хедеры
+ * chunked
+ * rnrn
+ * в боди ищу rn substr - strtol - записываем в переменную, чтобы сравнить со следующим отрезком
+ * След отрезок до rn я сохраняю в боди и сверяем со значением strtol - если не совпадает - badrequest
+ * по циклу идем, пока strtol не вернет 0 и след отрезок не будет пустым
+ *
+ * Для response обязательно Content-Lenght - размер боди
+ * Content-Type - тип , если не определяешь, то text/plain
+ * Date
+ * Connection
+ *
+ * Если среди хедеров запроса есть хедер, в котором присутствует слово secret, то этот хедер нужно преобразовать и записать в переменные среды для cgi (все тире заменяем на нижнее подчеркивание, все символы переводишь в верхний регистр
+ * и в начало добавляешь HTTP_)
+ *
+ */
 bool ServerEngine::ft_receive(Request &request)
 {
 
@@ -334,9 +351,14 @@ bool ServerEngine::ft_receive(Request &request)
 			// std::cout << "RECV" << std::endl;
 			// Поступили данные от клиента, читаем их
 			errno = 0;
-			size_t bytes_read;
+			ssize_t bytes_read;
 			bzero(_buf, TCP_MAX + 1); // 65536 - максим размер пакета tcp
 			bytes_read = recv(*it, _buf, TCP_MAX, 0);
+			/*
+			 * Если recv возвращает 0 или -1 то закрываем сокет удаляем из сета write и read
+			 * Добавить обработку сигнала в main sig_int и в функции обработки изменить значение булевой глоб переменной на false
+			 * Очистка структур, очистка классов, закрытие сокетов
+			 * */
 			//проверить \r\n\r\n, затем проверяем наличие content-lenght, если число равно боди. Нужно будет актуальный размер боди сравнивать с этим числом.
 			//Если content-lenght нет, то проверить transfer encoding и равен ли он chunked. Если равен, то дождаться, когда придет "0\r\n\r\n" (неважно, в конце боди или нет, важно, чтобы после первого \r\n\r\n)
 			// Если нету ни content length или transfer encoding и есть \r\n\r\n, то значит запрос пришел полностью

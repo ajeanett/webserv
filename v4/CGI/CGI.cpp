@@ -1,30 +1,6 @@
 #include "CGI.hpp"
 
-CGI::CGI(/* args */)
-{
-    /* environment variables for CGI */
-    _tmpEnvCGI["SERVER_SOFTWARE"] = "Webserv by kfriese and ajeanett";
-    _tmpEnvCGI["SERVER_NAME"];
-    _tmpEnvCGI["GATEWAY_INTERFACE"];
-    _tmpEnvCGI["SERVER_PROTOCOL"];
-    _tmpEnvCGI["SERVER_PORT"];
-    _tmpEnvCGI["REQUEST_METHOD"];
-    _tmpEnvCGI["PATH_INFO"];
-    _tmpEnvCGI["PATH_TRANSLATED"];
-    _tmpEnvCGI["SCRIPT_NAME"];
-    _tmpEnvCGI["QUERY_STRING"];
-    _tmpEnvCGI["REMOTE_HOST"];
-    _tmpEnvCGI["REMOTE_ADDR"];
-    _tmpEnvCGI["AUTH_TYPE"];
-    _tmpEnvCGI["REMOTE_USER"];
-    _tmpEnvCGI["REMOTE_IDENT"];
-    _tmpEnvCGI["CONTENT_TYPE"];
-    _tmpEnvCGI["CONTENT_LENGTH"];
-    _tmpEnvCGI["HTTP_ACCEPT"];
-    _tmpEnvCGI["HTTP_USER_AGENT"];
-}
-
-CGI::CGI(Request &req){
+CGI::CGI(const Request &req, const ServerData & serv, const std::string &cgi_real_path,const  std::string &cgi_type) : _req(req), _serv(serv), _cgi_type(cgi_type) , _cgi_path(cgi_real_path){
      /* environment variables for CGI */
     _tmpEnvCGI["SERVER_SOFTWARE"] = "Webserv by kfriese and ajeanett";
     _tmpEnvCGI["SERVER_NAME"];
@@ -77,7 +53,7 @@ int     CGI::clearCGI(){
 	return (0);
 }
 
-void    CGI::fillTmpEnvCgi(const Request &req, ServerData & serv){
+void    CGI::fillTmpEnvCgi(const Request &req, const ServerData & serv){
 
     std::string curr_loc_str;
     std::vector<LocationData> locs;
@@ -91,15 +67,14 @@ void    CGI::fillTmpEnvCgi(const Request &req, ServerData & serv){
     _tmpEnvCGI["SERVER_PROTOCOL"] = req.getVersion();
     _tmpEnvCGI["SERVER_PORT"] = std::to_string(serv.getPort());
     _tmpEnvCGI["REQUEST_METHOD"] = req.getMethod();
-    _tmpEnvCGI["PATH_INFO"] = req.getLocation();
+    _tmpEnvCGI["PATH_INFO"] = req.getLocation(); // target
     for (it = locs.begin(); it != locs.end(); ++it)
     {
         if ((*it).getLocationPath() == curr_loc_str)
         {
-            _tmpEnvCGI["PATH_TRANSLATED"] = (*it).getRoot();
+            _tmpEnvCGI["PATH_TRANSLATED"] = (*it).getRoot(); //
             _current_root = (*it).getRoot();
             _tmpEnvCGI["SCRIPT_NAME"] = !(*it).getCgiPath().empty() ? (*it).getCgiPath() : "" ;
-            _cgi_type = (*it).getCgiExtension();
         }
     }
         _tmpEnvCGI["QUERY_STRING"] = "";
@@ -131,7 +106,7 @@ void    CGI::fillEnvp(char *** envp){
     return ;
 }
 
-void    CGI::prepareEnvCGI(const Request &req, ServerData & serv, char *** envp){
+void    CGI::prepareEnvCGI(const Request &req, const ServerData & serv, char *** envp){
 
     clearCGI(); //очищаем предыдущие данные перед повторным использованием;
     fillTmpEnvCgi(req, serv);
@@ -142,12 +117,16 @@ void    CGI::prepareEnvCGI(const Request &req, ServerData & serv, char *** envp)
 
 // }
 
+/*
+ * cgi_real_path - путь к исполяемому файлу CGI = root + cgi_path из конфига
+ * cgi_type -  тип из конфига
+ * */
+std::string CGI::runCGI()
+{
 
-std::string CGI::runCGI(const Request &req, ServerData & serv){
-
-    char **envp = nullptr;
+    char **envp = NULL;
     std::string _ret; // возвращаемая строка;
-    prepareEnvCGI(req, serv, &envp);
+    prepareEnvCGI(_req, _serv, &envp);
     // startCGI(&envp);
 
 
@@ -161,7 +140,7 @@ std::string CGI::runCGI(const Request &req, ServerData & serv){
 	int tmp_file_fd_in = open(cgi_tmp_path_in.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
 	/* tmp_file_fd_out - временнй файл для сохранения результата выполнения CGI*/
 	int tmp_file_fd_out = open(cgi_tmp_path_out.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
-	write(tmp_file_fd_in, req.getBody().c_str(), req.getBody().length());
+	write(tmp_file_fd_in, _req.getBody().c_str(), _req.getBody().length());
 	lseek(tmp_file_fd_in, 0, SEEK_SET);
 //    pipe(_fd);
 
@@ -181,18 +160,21 @@ std::string CGI::runCGI(const Request &req, ServerData & serv){
 		// считать результат в
 		char **arg = new char*[3];
 		std::string path = _current_root + _tmpEnvCGI["SCRIPT_NAME"]; // испрвить под конкретную реализацию, здесь длолжен быть путь к исполняемому файлу
-		_cgi_type = "php"; // для тестирования
+//		_cgi_type = "py"; // для тестирования
 		if (_cgi_type == "py")
 		{
+//			arg[0] = const_cast<char *>("./python/test.py"); //strdup(path.c_str());
+//			arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+//			arg[2] = NULL;
 			arg[0] = const_cast<char *>("/usr/local/bin/python3"); //strdup(path.c_str());
-			arg[1] = const_cast<char *>("./python/test.py"); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+			arg[1] = const_cast<char *>(_cgi_path.c_str()); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
 			arg[2] = NULL;
 		}
 		else if (_cgi_type == "php")
 		{
 			/* Заносим в arg значения для скрипта  php*/
 			arg[0] = const_cast<char *>("/usr/bin/php"); //strdup(path.c_str());
-			arg[1] = const_cast<char *>("./python/test.php"); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+			arg[1] = const_cast<char *>(_cgi_path.c_str()); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
 			arg[2] = NULL;
 		}
 		else
