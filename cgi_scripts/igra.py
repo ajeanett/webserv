@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env cgi_scripts
 # run with python3! (not python2) Ex. /usr/local/bin/python3 igra.py
 koloda = [6,7,8,9,10,2,3,4,11] * 4 
 

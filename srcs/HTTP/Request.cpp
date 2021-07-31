@@ -57,7 +57,6 @@ void Request::parse_request(void){
 void Request::parse_headers(void){
 
     // Ищем хедеры и заносим их в мапу
-
     size_t	findPosition = _request.find("\r\n\r\n", this->_requestPosition);
 
     if (findPosition  != std::string::npos)
@@ -129,12 +128,25 @@ void Request::parse_body(void){ //
 
 }
 
+class HTTPException : public std::exception
+{
+public:
+	void respond();
+};
+
 void Request::parse(const std::string &request_str)
 {
 	_request = request_str;
-	parse_request();
-	parse_headers();
-	parse_body();
+	try
+	{
+		parse_request();
+		parse_headers();
+		parse_body();
+	}
+	catch(HTTPException &e)
+	{
+		e.respond();
+	}
 }
 
 std::string Request::respond(ParserConfig const &config, ServerData const &serverData) const

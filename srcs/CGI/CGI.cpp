@@ -163,7 +163,7 @@ std::string CGI::runCGI()
 //		_cgi_type = "py"; // для тестирования
 		if (_cgi_type == "py")
 		{
-//			arg[0] = const_cast<char *>("./python/test.py"); //strdup(path.c_str());
+//			arg[0] = const_cast<char *>("./cgi_scripts/test.py"); //strdup(path.c_str());
 //			arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
 //			arg[2] = NULL;
 			arg[0] = const_cast<char *>("/usr/local/bin/python3"); //strdup(path.c_str());
@@ -292,4 +292,4 @@ std::string CGI::runCGI()
 // HTTP_USER_AGENT
 // The browser the client is using to send the request. General format: software/version library/version.
 
-// /usr/bin/python
+// /usr/bin/cgi_scripts

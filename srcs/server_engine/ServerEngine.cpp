@@ -127,7 +127,7 @@ void ServerEngine::setAddr(int port, std:: string &host)
 	std::cout << "host is: " << host << std::endl;
 	/* Номер хоста (host to network)*/
 //	inet_aton(host.c_str(), &_addr.sin_addr);
-	_addr.sin_addr.s_addr = htonl(static_cast<uint32_t>(i));;//  inet_addr(host.c_str()); - нерабочий альтернативный вариант  INADDR_ANY; - рабочий альтернативный вариант
+	_addr.sin_addr.s_addr = htonl(static_cast<uint32_t>(i));//  inet_addr(host.c_str()); - нерабочий альтернативный вариант  INADDR_ANY; - рабочий альтернативный вариант
 	/* Номер порта (host to network)*/
 	_addr.sin_port = htons(port);
 }
@@ -239,7 +239,7 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 //			send(*it, msg.c_str(), msg.length(), 0);
 //			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
 //			{
-				CGI cgi(request, data, "./python/test.php", "php");
+				CGI cgi(request, data, "./cgi_scripts/test.py", "py");
 				std::string cgi_out = cgi.runCGI(); // для тестирования CGI
 				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
 				send(*it, cgi_msg.c_str(), cgi_msg.length(), 0); // проверка отправки результата выполнения cgi
@@ -465,7 +465,14 @@ void ServerEngine::run()
 		}
 		if (!sel)
 		{
-			sel = ft_receive(request); // получение данные от клиента
+			try
+			{
+				sel = ft_receive(request); // получение данные от клиента
+			}
+			catch (...)
+			{
+				request.respond()
+			}
 		}
 		if (!sel)
 		{
