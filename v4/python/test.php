@@ -1,4 +1,4 @@
-< ?php
+<?php
 $str = <<<EOD
 Example of string
 Hello world!
@@ -8,4 +8,4 @@ $name = 'Vova';
 echo <<<EOT
 My name is "$name".
 EOT;
-? >
+?>
