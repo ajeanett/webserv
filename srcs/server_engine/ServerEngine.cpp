@@ -90,7 +90,7 @@ ServerEngine::~ServerEngine()
 //}
 
 
-int _hostToInt(std::string& str) {
+int _hostToInt(std::string str) {
 	int ip = 0;
 	size_t pos;
 
@@ -119,7 +119,7 @@ void ServerEngine::setAddr(int port, std:: string &host)
 	memset((char *)&_addr, 0, sizeof(_addr));
 
 	uint32_t i;
-
+//	std::cout << "host is: " << host << std::endl;
 	i = _hostToInt(host);
 	/* Cемейство адресов (говорим что рабоатет с интернетом) */
 	_addr.sin_family = AF_INET;
@@ -222,7 +222,7 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 			std::cout << "ft_send" << std::endl;
 			errno = 0;
 			int serverFd = -1;
-			for (std::map<int, ServerData>::iterator it_data = _config.getServers().begin(); it_data != _config.getServers().end(); ++it) // servers с пустым сервером
+			for (std::map<int, ServerData>::iterator it_data = _config.getServers().begin(); it_data != _config.getServers().end(); ++it_data) // servers с пустым сервером
 			{
 				if (it_data->second.getPort() == current_port)
 				{
@@ -359,6 +359,7 @@ bool ServerEngine::ft_receive(Request &request)
 				close(*it);
 				_buffer[*it].clear();
 				_clients_recv.erase(*it);
+				ret = true;
 				break;
 			}
 			/*
