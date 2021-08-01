@@ -303,7 +303,7 @@ bool ServerEngine::ft_receive(Request &request)
 			// buffer += std::string(_buf);
 			full_request = check_request(_buffer[*it]);
 			// std::cout << "Read:"<< std::endl << _buffer[*it] << std::endl << "Read END!"<< std::endl;
-			if (full_request || true)
+			if (full_request)
 			{
 				request.clear();
 				if (_buffer.find(*it) != _buffer.end() && _buffer[*it].empty())

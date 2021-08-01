@@ -125,7 +125,16 @@ void Request::parse_body()
 	}
 	else
 		_body = _request.substr(this->_requestPosition);
+//	_body = _request.erase(0, this->_requestPosition); альтернативный вариант получения body, посмотреть потом, что быстрее - substr или erase
+
+//	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
+//	{
+//		chunked_body_handler();
+//	}
+
+
 //	_body += "hjghghjjhghjdd f dfh dfhh df fd fd fd fd df";
+
 	//  Печать боди для проверки
 	// std::cout << "BODY" << std::endl << _body<< std::endl << "BODY END" << std::endl;
 }
