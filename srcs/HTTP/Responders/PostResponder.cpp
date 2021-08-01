@@ -23,8 +23,6 @@ PostResponder &PostResponder::operator = (PostResponder const &src)
 	return (*this);
 }
 
-void displayTimeStamp();
-
 std::string PostResponder::respond(const Request &request, const ParserConfig &config, const ServerData &serverData) const
 {
 	displayTimeStamp();
@@ -97,6 +95,9 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 	html << ifs.rdbuf();
 	ifs.close();
 	std::string content = html.str();
+
+	displayTimeStamp();
+	std::cout << "Post body: '" << request.getBody() << '\'' << std::endl;
 
 //	response.getHeaders()["Content-Type"] = "text/plain";
 //	size_t n = uri.find_last_of('.');

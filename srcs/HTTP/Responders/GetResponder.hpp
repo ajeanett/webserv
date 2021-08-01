@@ -3,6 +3,7 @@
 
 #include "IResponder.hpp"
 #include "CGI/CGI.hpp"
+#include "logging.hpp"
 
 class GetResponder : public IResponder
 {

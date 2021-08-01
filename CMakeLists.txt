@@ -10,6 +10,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 include_directories(srcs)
+include_directories(includes)
 
 add_executable(webserv
 		srcs/main.cpp
@@ -33,4 +34,6 @@ add_executable(webserv
 		srcs/HTTP/Errors/HTTPNotFound.hpp
 		srcs/HTTP/Responders/PostResponder.cpp
 		srcs/HTTP/Responders/PostResponder.hpp
+		includes/logging.hpp
+		srcs/Utils/logging.cpp
 )

@@ -5,6 +5,7 @@ ServerEngine::ServerEngine(std::set<int> const &ports)
 //	for (std::set<int>::iterator it = ports.begin(); it != ports.end(); ++it)
 //		this->_ports.insert(*it);
 	_listen_fds.clear();
+	displayTimeStamp();
 	std::cout << "WebServer created.\n";
 }
 
@@ -14,6 +15,7 @@ ServerEngine::ServerEngine()
 	// this->_ports.insert(81);
 	// в конфиге пройтись по всем серверам и загнать все прты из серверов в _ports/ не здесь а в start_server
 	_listen_fds.clear();
+	displayTimeStamp();
 	std::cout << "Default WebServer created.\n";
 }
 
@@ -22,75 +24,7 @@ ServerEngine::~ServerEngine()
 	std::cout << "WebServer destroyed!\n";
 }
 
-// static void        print_servers(ParserConfig & i){
-//     std::cout << "PARSER CONFIG" << std::endl;
-//     // std::cout << i.getServers()[0].getPort();
-//     size_t index = 0;
-//     size_t i_loc;
-//     size_t i_vect;
-//     while (index < i.getServers().size())
-//     {
-//         i_loc = 0;
-
-//         std::cout << "Server: " << index <<  std::endl;
-//         std::cout << "Port: " << i.getServers()[index].getPort() <<  std::endl;
-//         std::cout << "Host: " << i.getServers()[index].getHost() <<  std::endl;
-//         std::cout << "Server_name: " << i.getServers()[index].getServerName() <<  std::endl;
-//         while (i_loc < i.getServers()[index].getLocationData().size())
-//         {
-//             i_vect = 0;
-//             if (!i.getServers()[index].getLocationData()[i_loc].getLocationPath().empty())
-//                 std::cout << "LocationPath: " << i.getServers()[index].getLocationData()[i_loc].getLocationPath() <<  std::endl;
-//             if (!i.getServers()[index].getLocationData()[i_loc].getRoot().empty())
-//                 std::cout << "Root: " << i.getServers()[index].getLocationData()[i_loc].getRoot() <<  std::endl;
-//             if (!i.getServers()[index].getLocationData()[i_loc].getFullPath().empty())
-//                 std::cout << "FullPath: " << i.getServers()[index].getLocationData()[i_loc].getFullPath() <<  std::endl;
-//             while (i_vect < i.getServers()[index].getLocationData()[i_loc].getMethods().size())
-//             {
-//                 std::cout << "Method: " << i_vect << " "<< i.getServers()[index].getLocationData()[i_loc].getMethods()[i_vect] <<  std::endl;
-//                 ++i_vect;
-//             }
-//             if (!i.getServers()[index].getLocationData()[i_loc].getIndex().empty())
-//                 std::cout << "Index " << i.getServers()[index].getLocationData()[i_loc].getIndex() <<  std::endl;
-//             i_loc++;
-//         }
-//         // std::cout << "LocationPath: " << i.getServers()[index].getLocationData()[0].getLocationPath() <<  std::endl;
-
-//         ++index;
-//         std::cout << "SERV END" << std::endl <<std::endl;
-//     }
-// }
-
-//int _HostFromStrToInt(std::string& str) {
-//	int ip;
-//	size_t _find;
-//	ip = 0;
-//
-//	if ((_find = str.find(".")) != std::string::npos)
-//	{
-//		ip = atoi(str.substr(0, _find).c_str()) << 8;
-//		str.erase(0, _find + 1);
-//		if ((_find = str.find(".")) != std::string::npos)
-//		{
-//			ip = (ip + atoi(str.substr(0, _find).c_str())) << 8;
-//			str.erase(0, _find + 1);
-//			if ((_find = str.find(".")) != std::string::npos)
-//			{
-//				ip = (ip + atoi(str.substr(0, _find).c_str())) << 8;
-//				str.erase(0, _find + 1);
-//				if (!str.empty())
-//				{
-//					ip = (ip + atoi(str.substr(0).c_str()));
-//					return ip;
-//				}
-//			}
-//		}
-//	}
-//	std::cerr << "Error! Invalid host in configfile" << str << std::endl;
-//}
-
-
-int _hostToInt(std::string str) {
+int _hostToInt(std::string& str) {
 	int ip = 0;
 	size_t pos;
 
@@ -114,7 +48,7 @@ int _hostToInt(std::string str) {
 	return (1);
 }
 
-void ServerEngine::setAddr(int port, std:: string &host)
+void ServerEngine::setAddr(int port, std::string &host)
 {
 	memset((char *)&_addr, 0, sizeof(_addr));
 
@@ -124,14 +58,12 @@ void ServerEngine::setAddr(int port, std:: string &host)
 	/* Cемейство адресов (говорим что рабоатет с интернетом) */
 	_addr.sin_family = AF_INET;
 	/* IP adress */
-	std::cout << "host is: " << host << std::endl;
 	/* Номер хоста (host to network)*/
 //	inet_aton(host.c_str(), &_addr.sin_addr);
 	_addr.sin_addr.s_addr = htonl(static_cast<uint32_t>(i));//  inet_addr(host.c_str()); - нерабочий альтернативный вариант  INADDR_ANY; - рабочий альтернативный вариант
 	/* Номер порта (host to network)*/
 	_addr.sin_port = htons(port);
 }
-
 
 int ServerEngine::servStart()
 {
@@ -144,8 +76,6 @@ int ServerEngine::servStart()
 	_config.Parser(configfile);
 	_ports_host.clear();
 
-//	print_servers(_p);
-
 	/* Добавляеям порты */
 	for (std::map<int, ServerData>::iterator it = _config.getServers().begin(); it != _config.getServers().end(); ++it)
 	{
@@ -155,11 +85,8 @@ int ServerEngine::servStart()
 	/* Каждому порту инициалируем сокет(fd) */
 	for (std::map<int, std::string>::iterator it = _ports_host.begin(); it != _ports_host.end(); ++it) //связываем все порты и хосты с fd, которые потом будем слушать
 	{
-
 		/* Атрибуты сокета домен тип и протокол */
-
 		_fd = socket(AF_INET, SOCK_STREAM, 0);
-		// std::cout << "socket: " << _fd << std::endl;
 		if (_fd < 0)
 		{
 			std::cerr << "ERROR! Could not create server." << std::endl;
@@ -169,7 +96,6 @@ int ServerEngine::servStart()
 		/* устанавливаем сокету повторное использование локальных адресов  */
 		if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &a, sizeof(int)) < 0)
 			perror("setsockopt(SO_REUSEADDR) failed");
-
 
 		setAddr(it->first, it->second);
 		_fdPort[_fd] = (it)->first;
@@ -186,6 +112,7 @@ int ServerEngine::servStart()
 			return (-1);
 		}
 		_listen_fds.insert(_fd);
+		displayTimeStamp();
 		std::cout << "servStart port: " << (it)->first  << std::endl;
 	}
 	return (0);
@@ -197,7 +124,8 @@ int ServerEngine::ft_select(int mx, timeval *timeout)
 
 	FD_ZERO(&_readset); // всегда обновлять в начале while
 	FD_ZERO(&_writeset); // всегда обновлять в начале while
-	std::cout << "ft_select" << std::endl;
+	displayTimeStamp();
+	std::cout << "ft_select, mx = " << mx << std::endl;
 	memcpy(&_readset, &_readset_master, sizeof(_readset_master));
 	memcpy(&_writeset, &_writeset_master, sizeof(_writeset_master));
 	errno = 0;
@@ -214,11 +142,11 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 {
 	bool ret = false;
 
-	for (std::set<int>::iterator it = _clients_send.begin();
-		 it != _clients_send.end(); ++it)
+	for (std::set<int>::iterator it = _clients_send.begin(); it != _clients_send.end(); ++it)
 	{
 		if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
 		{
+			displayTimeStamp();
 			std::cout << "ft_send" << std::endl;
 			errno = 0;
 			int serverFd = -1;
@@ -244,8 +172,6 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 //				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
 //				send(*it, cgi_out.c_str(), cgi_out.length(), 0); // проверка отправки результата выполнения cgi
 //			}
-			std::cout << "Respond on " << *it << std::endl;
-			std::cout << "Server name: " << data.getServerName() << std::endl;
 			_clients_recv.insert(*it);
 			FD_CLR(*it, &_writeset_master);
 			FD_CLR(*it, &_readset_master);
@@ -278,7 +204,6 @@ bool ServerEngine::check_request(std::string const &buffer)
 		if (buffer.find("0\r\n\r\n", prev) != std::string::npos)
 			return (true);
 		size_t body_size = buffer.length() - next - 4;
-		std::cout << "body size (check please): " << body_size << std::endl;
 		next = buffer.find("Content-Length: ", prev); //проверяем наличие content-lenght
 		if (next != std::string::npos)
 		{
@@ -339,25 +264,28 @@ bool ServerEngine::ft_receive(Request &request)
 
 	ret = false;
 
-	for (std::set<int>::iterator it = _clients_recv.begin();
-		 it != _clients_recv.end(); it++)
+	for (std::set<int>::iterator it = _clients_recv.begin(); it != _clients_recv.end(); ++it)
 	{
 		// std::cout << "recv " << *it << std::endl;
 		if (FD_ISSET(*it, &_readset))
 		{
-			std::cout << "ft_receive" << std::endl;
 			bool full_request = true;
 			// std::cout << "RECV" << std::endl;
 			// Поступили данные от клиента, читаем их
 			errno = 0;
 			ssize_t bytes_read;
-			bzero(_buf, TCP_MAX + 1); // 65536 - максим размер пакета tcp
 			bytes_read = recv(*it, _buf, TCP_MAX, 0);
-			if (bytes_read < 0) // was <= 0
+			if (bytes_read >= 0)
+				_buf[bytes_read] = '\0';
+			displayTimeStamp();
+			std::cout << "ft_receive, bytes_read = " << bytes_read << ", *it = " << *it << std::endl;
+			if (bytes_read <= 0) // was <= 0
 			{
 				// удаляем сокет из множества
 				close(*it);
-				_buffer[*it].clear();
+//				if (_buffer.find(*it) != _buffer.end())
+//					_buffer[*it].clear();
+				_buffer.erase(*it);
 				_clients_recv.erase(*it);
 				ret = true;
 				break;
@@ -377,22 +305,21 @@ bool ServerEngine::ft_receive(Request &request)
 			// std::cout << "Read:"<< std::endl << _buffer[*it] << std::endl << "Read END!"<< std::endl;
 			if (full_request || true)
 			{
+				request.clear();
+				if (_buffer.find(*it) != _buffer.end() && _buffer[*it].empty())
+				{
+					displayTimeStamp();
+					std::cout << "shit" << std::endl;
+				}
 				request.parse(_buffer[*it]);
-				std::cout << request.getMethod() << ' ' << request.getLocation()
-						  << std::endl << std::endl;
+				displayTimeStamp();
+				std::cout << request.getMethod() << ' ' << request.getLocation() << std::endl;
 				_clients_send.insert(*it);
 				FD_SET(*it, &_writeset_master);
 				_clients_recv.erase(*it);
 				_buffer[*it].clear();
 			}
 			ret = true;
-//			 if(bytes_read <= 0)
-//			 {
-//			     // Соединение разорвано, удаляем сокет из множества
-//			     close(*it);
-//			     clients.erase(*it);
-//			     continue;
-//			 }
 			break;
 		}
 	}
@@ -412,6 +339,7 @@ bool ServerEngine::ft_accept(int *mx, int *current_port)
 //		Определяем тип события и выполняем соответствующие действия
 		if (FD_ISSET(*it, &_readset))
 		{
+			displayTimeStamp();
 			std::cout << "ft_accept" << std::endl;
 			// Поступил новый запрос на соединение, используем accept
 			errno = 0;
@@ -447,7 +375,7 @@ void ServerEngine::run()
 	for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
 		FD_SET(*it, &_readset_master);
 
-	struct timeval tv = {3600, 0};
+	struct timeval tv = {1, 0};
 	struct timeval timeout;
 	timeout.tv_sec = 15;
 	timeout.tv_usec = 0;
@@ -456,9 +384,7 @@ void ServerEngine::run()
 	Request request;
 	while (_run)
 	{
-		// std::cout << "start" << std::endl;
 		// Заполняем множество сокетов
-
 		bool sel = true;
 		while (sel)
 		{
@@ -488,6 +414,5 @@ void ServerEngine::run()
 			sel = ft_accept(&mx, &current_port); // проверяем запросы на соединение
 		}
 		sel = true;
-		// std::cout << "end" << std::endl;
 	}
 }

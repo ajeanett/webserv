@@ -190,7 +190,6 @@ void ParserConfig::Parser(std::string const &name)
 			check_brackets(buffer);
 			if (_server_open && _serv_num < 4)
 			{
-				std::cout << "serv_num" << _serv_num << std::endl;
 				_servers.insert(std::pair<int, ServerData>(_serv_num, ParseServer(configfile, buffer)));
 				_serv_num += 1;
 				server_find = false;
@@ -198,10 +197,10 @@ void ParserConfig::Parser(std::string const &name)
 		}
 	}
 
-	for (std::map<int, ServerData>::iterator it = _servers.begin(); it != _servers.end(); ++it)
-	{
-		ServerData &tmp = it->second;
-		std::cout << tmp << std::endl;
-		std::cout << std::endl;
-	}
+//	for (std::map<int, ServerData>::iterator it = _servers.begin(); it != _servers.end(); ++it)
+//	{
+//		ServerData &tmp = it->second;
+//		std::cout << tmp << std::endl;
+//		std::cout << std::endl;
+//	}
 }

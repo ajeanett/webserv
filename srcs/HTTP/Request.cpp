@@ -114,8 +114,7 @@ void Request::parse_headers()
 }
 
 void Request::parse_body()
-{ //
-
+{
 	// заносим боди. В get его не будет. Get - body нет. Put - body тут.
 	// если длина боди больше, чем длина content-lenght, то заносим только content-lenght
 	// взять из мапы хедеров
@@ -175,6 +174,19 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 	std::string response = responder->respond(*this, config, serverData);
 	delete responder;
 	return (response);
+}
+
+void Request::clear()
+{
+	_request.clear();
+	_currentLine.clear();
+	_method.clear();
+	_location.clear();
+	_version.clear();
+	_headers.clear();
+	_body.clear();
+	_requestPosition = 0;
+	_error.clear();
 }
 
 const std::string &Request::getMethod() const

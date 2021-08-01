@@ -8,6 +8,7 @@
 #include "../HTTP/Errors/HTTPNotFound.hpp"
 #include "../parse_config/ParserConfig.hpp"
 #include "../CGI/CGI.hpp"
+#include "logging.hpp"
 /* Для inet_addr */
 #include <sys/socket.h>
 #include <netinet/in.h>
