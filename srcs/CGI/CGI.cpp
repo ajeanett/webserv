@@ -150,59 +150,17 @@ void CGI::runCGI()
     {
         perror("Fork error\n");
     } 
-    else if (_pid == 0) {
+    else if (_pid == 0)
+	{
 //		std::cout << "START CHILD PROCESS" << std::endl;
 		dup2(tmp_file_fd_in, STDIN_FILENO);
 		dup2(tmp_file_fd_out, STDOUT_FILENO);
-		// сохранить текущий fd
-		// dup 2 подменить fd на другие, возможно создать врем файл
-		// записть в файл результат скрипта
-		// считать результат в
-		char **arg = new char*[3];
-		std::string path = _current_root + _tmpEnvCGI["SCRIPT_NAME"]; // испрвить под конкретную реализацию, здесь длолжен быть путь к исполняемому файлу
-//		_cgi_type = "py"; // для тестирования
-		if (_cgi_type == "py")
-		{
-			arg[0] = const_cast<char *>(_cgi_path.c_str());//strdup(path.c_str());
-			arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
-			arg[2] = NULL;
-//			arg[0] = const_cast<char *>("/usr/local/bin/python3"); //strdup(path.c_str());
-//			arg[1] = const_cast<char *>(_cgi_path.c_str()); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
-//			arg[2] = NULL;
-//			if (execve(arg[0], arg, envp) == -1)
-//			{
-//				std::cerr << "ERROR CGI" << std::endl;
-//			}
-//			exit(0);
-		}
-		else if (_cgi_type == "php")
-		{
-			/* Заносим в arg значения для скрипта  php*/
-//			arg[0] = const_cast<char *>("/usr/bin/php"); //strdup(path.c_str());
-//			arg[1] = const_cast<char *>(_cgi_path.c_str()); //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
-//			arg[2] = NULL;
-			arg[0] = const_cast<char *>(_cgi_path.c_str()); //strdup(path.c_str());
-			arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
-			arg[2] = NULL;
-//			if (execve(arg[0], arg, envp) == -1)
-//			{
-//				std::cerr << "ERROR CGI" << std::endl;
-//			}
-//			exit(0);
-		}
-		else
-		{
-			/* выполняем cgi_tester */
-			std::cout <<"YA TUT!!!" << std::endl;
-			arg[0] = const_cast<char *>(_cgi_path.c_str()); //strdup(path.c_str());
-			arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
-			arg[2] = NULL;
-//			if (execve(const_cast<char *>(_cgi_path.c_str()), NULL, envp) == -1)
-//			{
-//				std::cerr << "ERROR CGI" << std::endl;
-//			}
-//			exit(0);
-		}
+		char **arg = new char *[3];
+		/* выполняем cgi_tester */
+//			std::cout << "YA TUT!!!" << std::endl;
+		arg[0] = const_cast<char *>(_cgi_path.c_str()); //strdup(path.c_str());
+		arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+		arg[2] = NULL;
 //		std::cout << "path to execve program = " << arg[0] << std::endl; // какую программу выполняем
 //		std::cout << "execve first argument path = " << arg[1] << std::endl; // какой файл\скрипт выполняем с помощью программы
 		if (execve(arg[0], arg, envp) == -1)
@@ -210,69 +168,72 @@ void CGI::runCGI()
 			std::cerr << "ERROR CGI" << std::endl;
 		}
 		exit(0);
-    }
 
-    waitpid(_pid, &_status, 0);
-
-	struct stat file;
-	fstat(tmp_file_fd_out, &file);
-	lseek(tmp_file_fd_out, 0, SEEK_SET);
-	_ret.resize(file.st_size);
-	read(tmp_file_fd_out, const_cast<char *>(_ret.c_str()), _ret.capacity());
-	close(tmp_file_fd_out);
-	close(tmp_file_fd_in);
-	remove(cgi_tmp_path_in.c_str());
-	remove(cgi_tmp_path_out.c_str());
-
-	// Ищем хедеры и заносим их в мапу
-	size_t prev = 0;
-	size_t next = _ret.find("\r\n\r\n", 0);
-
-	if (next != std::string::npos)
+	} else
 	{
-		_headers_all = _ret.substr(0, next);
-		_ret.erase(0, next + 4);
-	}
-	else
-	{
-		perror("ERROR 500. Internal server error!. No headers in CGI data.");
-	}
+		waitpid(_pid, &_status, 0);
 
-	std::vector<std::string> headers_raw;
+		struct stat file;
+		fstat(tmp_file_fd_out, &file);
+		lseek(tmp_file_fd_out, 0, SEEK_SET);
+		_ret.resize(file.st_size);
+		read(tmp_file_fd_out, const_cast<char *>(_ret.c_str()),
+			 _ret.capacity());
+		close(tmp_file_fd_out);
+		close(tmp_file_fd_in);
+		remove(cgi_tmp_path_in.c_str());
+		remove(cgi_tmp_path_out.c_str());
 
-	while ((next = _headers_all.find("\r\n", prev)) != std::string::npos)
-	{
-		headers_raw.push_back(_headers_all.substr(prev, next - prev));
-		prev = next + 2;
-	}
-	headers_raw.push_back(_headers_all.substr(prev));
+		// Ищем хедеры и заносим их в мапу
+		size_t prev = 0;
+		size_t next = _ret.find("\r\n\r\n", 0);
 
-	//  Печать хедеров для проверки
-	std::vector<std::string>::iterator it;
-	// std::cout << "Vector Headers" << std::endl;
-	// for (it = headers_raw.begin(); it != headers_raw.end(); it++)
-	//     std::cout << *it << std::endl;
-	// std::cout << "Vector Headers END" << std::endl;
-
-	std::string delim = ": ";
-	std::string header_key;
-	std::string header_value;
-
-	for (it = headers_raw.begin(); it != headers_raw.end(); it++)
-	{
-		prev = 0;
-		if ((next= (*it).find(delim, prev)) != std::string::npos)
+		if (next != std::string::npos)
 		{
-			header_key = (*it).substr(prev,
-									  next - prev);
+			_headers_all = _ret.substr(0, next);
+			_ret.erase(0, next + 4);
+		} else
+		{
+			perror("ERROR 500. Internal server error!. No headers in CGI data.");
+			// exception 500
+		}
+
+		std::vector<std::string> headers_raw;
+
+		while ((next = _headers_all.find("\r\n", prev)) != std::string::npos)
+		{
+			headers_raw.push_back(_headers_all.substr(prev, next - prev));
 			prev = next + 2;
 		}
-		header_value = (*it).substr(prev);
-		_headers[header_key] = header_value;
-	}
+		headers_raw.push_back(_headers_all.substr(prev));
 
-	_body = _ret;
-	_headers["Content-Length"]= std::to_string(_body.length());
+		//  Печать хедеров для проверки
+		std::vector<std::string>::iterator it;
+		// std::cout << "Vector Headers" << std::endl;
+		// for (it = headers_raw.begin(); it != headers_raw.end(); it++)
+		//     std::cout << *it << std::endl;
+		// std::cout << "Vector Headers END" << std::endl;
+
+		std::string delim = ": ";
+		std::string header_key;
+		std::string header_value;
+
+		for (it = headers_raw.begin(); it != headers_raw.end(); it++)
+		{
+			prev = 0;
+			if ((next = (*it).find(delim, prev)) != std::string::npos)
+			{
+				header_key = (*it).substr(prev,
+										  next - prev);
+				prev = next + 2;
+			}
+			header_value = (*it).substr(prev);
+			_headers[header_key] = header_value;
+		}
+
+		_body = _ret;
+		_headers["Content-Length"] = std::to_string(_body.length());
+	}
 
 //	 std::map<std::string,std::string>::iterator itm;
 //	 std::cout << "HEADERS in MAP" << std::endl;
@@ -290,44 +251,42 @@ void CGI::runCGI()
 		   "Random number: 100\n"
 		   "time: 2021-08-01 11:06:57.250976";
 	*/
-	if (envp)
-	{
-		for (int i = 0; envp[i] != NULL; ++i)
+		if (envp)
 		{
-			delete[] envp[i];
+			for (int i = 0; envp[i] != NULL; ++i)
+			{
+				delete[] envp[i];
+			}
+			delete[] envp;
+			envp = NULL;
 		}
-		delete[] envp;
-		envp = NULL;
-	}
-	return ;
+		return;
 
-	/*Добавляем первую строку и хедеры*/
-	size_t find = _ret.find("Status:");
-	if (find == 0)
-	{
-		_ret.replace(0,  7, "HTTP/1.1");
-	}
-	if ((find = _ret.find("HTTP/1.1")) != 0)
-	{
-		/*Значит это другие исполяемые файлы - python или php*/
+		/*Добавляем первую строку и хедеры*/
+		size_t find = _ret.find("Status:");
+		if (find == 0)
+		{
+			_ret.replace(0, 7, "HTTP/1.1");
+		}
+		if ((find = _ret.find("HTTP/1.1")) != 0)
+		{
+			/*Значит это другие исполяемые файлы - python или php*/
 //		std::string _ret_cgi = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(_ret.length()) + "\r\n\r\n" + _ret;
-		std::string cont_length = std::to_string(_ret.length());
-		_ret.insert(0,  "\r\n\r\n");
-		if (!_tmpEnvCGI["CONTENT_TYPE"].empty())
-		{
-			_ret.insert(0,_tmpEnvCGI["CONTENT_TYPE"]);
-			_ret.insert(0,"\r\nContent-Type: ");
-			_ret.insert(0, d.get_time());
-			_ret.insert(0,"\r\nDate: ");
+			std::string cont_length = std::to_string(_ret.length());
+			_ret.insert(0, "\r\n\r\n");
+			if (!_tmpEnvCGI["CONTENT_TYPE"].empty())
+			{
+				_ret.insert(0, _tmpEnvCGI["CONTENT_TYPE"]);
+				_ret.insert(0, "\r\nContent-Type: ");
+				_ret.insert(0, d.get_time());
+				_ret.insert(0, "\r\nDate: ");
+			} else
+			{
+				_ret.insert(0, "\r\nContent-Type: text/plain");
+			}
+			_ret.insert(0, cont_length);
+			_ret.insert(0, "HTTP/1.1 200 OK\r\nContent-Length: ");
 		}
-		else
-		{
-			_ret.insert(0,"\r\nContent-Type: text/plain");
-		}
-		_ret.insert(0, cont_length );
-		_ret.insert(0,"HTTP/1.1 200 OK\r\nContent-Length: ");
-	}
-
 //	find = _ret.find("HTTP/1.1");
 //	if (find == 0)
 //	{
@@ -337,14 +296,12 @@ void CGI::runCGI()
 //	else
 //	{
 //		/*Значит это другие исполяемые файлы - python или php*/
-////		std::string _ret_cgi = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(_ret.length()) + "\r\n\r\n" + _ret;
+//		std::string _ret_cgi = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(_ret.length()) + "\r\n\r\n" + _ret;
 //		std::string cont_lenght = std::to_string(_ret.length());
 //		_ret.insert(0,  "\r\n\r\n");
 //		_ret.insert(0, cont_lenght );
 //		_ret.insert(0,"HTTP/1.1 200 OK\r\nContent-Length: ");
 //	}
-
-
 //    return _ret;
 }
 
