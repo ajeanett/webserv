@@ -227,12 +227,11 @@ void CGI::runCGI()
 	// Ищем хедеры и заносим их в мапу
 	size_t prev = 0;
 	size_t next = _ret.find("\r\n\r\n", 0);
-	size_t body_position;
 
 	if (next != std::string::npos)
 	{
 		_headers_all = _ret.substr(0, next);
-		body_position = next + 4;
+		_ret.erase(0, next + 4);
 	}
 	else
 	{
@@ -272,7 +271,7 @@ void CGI::runCGI()
 		_headers[header_key] = header_value;
 	}
 
-	_body = _ret.substr(body_position);
+	_body = _ret;
 	_headers["Content-Length"]= std::to_string(_body.length());
 
 //	 std::map<std::string,std::string>::iterator itm;
