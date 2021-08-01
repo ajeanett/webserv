@@ -27,6 +27,12 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 {
 	Response response;
 
+//	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
+//	{
+//		std::cout << std::setw(30) << it->first << ": " << it->second << std::endl;
+//	}
+//	std::cout << "'" << request.getBody() << "'" << std::endl;
+
 	LocationData const *currentLocation = nullptr;
 
 	const std::vector<LocationData> &locations = serverData.getLocationData();
@@ -72,6 +78,11 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 //	}
 
 	std::string content;
+	struct stat s;
+	if (stat(uri.c_str(), &s) < 0)
+		return (response.error("404", "Not Found"));
+	else
+		response.setStatus("200", "OK");
 	if (!currentLocation->getCgiExtension().empty())
 	{
 		CGI cgi(request, serverData, currentLocation->getCgiPath(), currentLocation->getCgiExtension());
@@ -80,19 +91,11 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 	}
 	else
 	{
-		struct stat s;
-		if (stat(uri.c_str(), &s) < 0)
-			return (response.error("404", "Not Found"));
-		else
-			response.setStatus("200", "OK");
 		if (s.st_mode & S_IFDIR)
 		{
 			if (uri.length() != 0 && uri[uri.length() - 1] != '/')
 				uri += '/';
-			std::string index = currentLocation->getIndex();
-			while (!index.empty() && index[0] == ' ')
-				index.erase(index.begin());
-			uri += index;
+			uri += currentLocation->getIndex();
 		}
 		if (stat(uri.c_str(), &s) < 0)
 			return (response.error("404", "Not Found"));

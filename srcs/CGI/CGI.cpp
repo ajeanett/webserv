@@ -1,27 +1,32 @@
 #include "CGI.hpp"
 
-CGI::CGI(const Request &req, const ServerData & serv, const std::string &cgi_real_path,const  std::string &cgi_type) : _req(req), _serv(serv), _cgi_type(cgi_type) , _cgi_path(cgi_real_path){
-     /* environment variables for CGI */
-    _tmpEnvCGI["SERVER_SOFTWARE"] = "Webserv by kfriese and ajeanett";
-    _tmpEnvCGI["SERVER_NAME"];
-    _tmpEnvCGI["GATEWAY_INTERFACE"];
-    _tmpEnvCGI["SERVER_PROTOCOL"];
-    _tmpEnvCGI["SERVER_PORT"];
-    _tmpEnvCGI["REQUEST_METHOD"];
-    _tmpEnvCGI["PATH_INFO"];
-    _tmpEnvCGI["PATH_TRANSLATED"];
-    _tmpEnvCGI["SCRIPT_NAME"];
-    _tmpEnvCGI["QUERY_STRING"];
-    _tmpEnvCGI["REMOTE_HOST"];
-    _tmpEnvCGI["REMOTE_ADDR"];
-    _tmpEnvCGI["AUTH_TYPE"];
-    _tmpEnvCGI["REMOTE_USER"];
-    _tmpEnvCGI["REMOTE_IDENT"];
-    _tmpEnvCGI["CONTENT_TYPE"];
-    _tmpEnvCGI["CONTENT_LENGTH"];
-    _tmpEnvCGI["HTTP_ACCEPT"];
-    _tmpEnvCGI["HTTP_USER_AGENT"];
-    _current_root = "";
+CGI::CGI(const Request &req, const ServerData & serv, const std::string &cgi_path, const  std::string &cgi_type) :
+	_req(req),
+	_serv(serv),
+	_cgi_type(cgi_type),
+	_cgi_path(cgi_path)
+{
+	 /* environment variables for CGI */
+	_tmpEnvCGI["SERVER_SOFTWARE"] = "Webserv by kfriese and ajeanett";
+	_tmpEnvCGI["SERVER_NAME"];
+	_tmpEnvCGI["GATEWAY_INTERFACE"];
+	_tmpEnvCGI["SERVER_PROTOCOL"];
+	_tmpEnvCGI["SERVER_PORT"];
+	_tmpEnvCGI["REQUEST_METHOD"];
+	_tmpEnvCGI["PATH_INFO"];
+	_tmpEnvCGI["PATH_TRANSLATED"];
+	_tmpEnvCGI["SCRIPT_NAME"];
+	_tmpEnvCGI["QUERY_STRING"];
+	_tmpEnvCGI["REMOTE_HOST"];
+	_tmpEnvCGI["REMOTE_ADDR"];
+	_tmpEnvCGI["AUTH_TYPE"];
+	_tmpEnvCGI["REMOTE_USER"];
+	_tmpEnvCGI["REMOTE_IDENT"];
+	_tmpEnvCGI["CONTENT_TYPE"];
+	_tmpEnvCGI["CONTENT_LENGTH"];
+	_tmpEnvCGI["HTTP_ACCEPT"];
+	_tmpEnvCGI["HTTP_USER_AGENT"];
+	_current_root = "";
 }
 
 CGI::~CGI()
@@ -87,7 +92,6 @@ void    CGI::fillTmpEnvCgi(const Request &req, const ServerData & serv){
         _tmpEnvCGI["CONTENT_LENGTH"] = std::to_string(req.getBody().size());
         _tmpEnvCGI["HTTP_ACCEPT"] =  req.getHeaders().find("Accept") == req.getHeaders().end() ? "" : req.getHeaders().find("Accept")->second;
         _tmpEnvCGI["HTTP_USER_AGENT"] = req.getHeaders().find("User-Agent") == req.getHeaders().end() ? "" : req.getHeaders().find("User-Agent")->second;
-    
 }
 
 void    CGI::fillEnvp(char *** envp){

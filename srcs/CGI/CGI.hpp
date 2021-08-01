@@ -38,7 +38,7 @@ private:
     std::string _body;
 
 public:
-    CGI(const Request &req, const ServerData & serv, const std::string &cgi_real_path, const std::string &cgi_type);
+    CGI(const Request &req, const ServerData & serv, const std::string &cgi_path, const std::string &cgi_type);
     void runCGI();
     ~CGI();
 

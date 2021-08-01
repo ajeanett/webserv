@@ -28,6 +28,12 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 
 	LocationData const *currentLocation = nullptr;
 
+	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
+	{
+		std::cout << std::setw(30) << it->first << ": " << it->second << std::endl;
+	}
+	std::cout << "'" << request.getBody() << "'" << std::endl;
+
 	const std::vector<LocationData> &locations = serverData.getLocationData();
 	for (std::vector<LocationData>::const_reverse_iterator it = locations.rbegin(); it != locations.rend(); ++it)
 	{
@@ -43,7 +49,10 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	std::vector<std::string> const &locationMethods = currentLocation->getMethods();
 	if (!locationMethods.empty() && std::find(locationMethods.begin(), locationMethods.end(), request.getMethod()) == locationMethods.end())
 		return (response.error("405", "Method Not Allowed"));
+	std::string requestLocation = request.getLocation();
+	requestLocation.erase(0, currentLocation->getRoot().length());
 	std::string uri = currentLocation->getRoot() + request.getLocation();
+	std::cout << "uri: " << uri << std::endl;
 
 	if (uri.empty())
 		return (response.error("404", "Not Found"));
@@ -71,6 +80,11 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 //	}
 
 	std::string content;
+	struct stat s;
+	if (stat(uri.c_str(), &s) < 0)
+		return (response.error("404", "Not Found"));
+	else
+		response.setStatus("200", "OK");
 	if (!currentLocation->getCgiExtension().empty())
 	{
 		CGI cgi(request, serverData, currentLocation->getCgiPath(), currentLocation->getCgiExtension());
@@ -79,19 +93,11 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	}
 	else
 	{
-		struct stat s;
-		if (stat(uri.c_str(), &s) < 0)
-			return (response.error("404", "Not Found"));
-		else
-			response.setStatus("200", "OK");
 		if (s.st_mode & S_IFDIR)
 		{
 			if (uri.length() != 0 && uri[uri.length() - 1] != '/')
 				uri += '/';
-			std::string index = currentLocation->getIndex();
-			while (!index.empty() && index[0] == ' ')
-				index.erase(index.begin());
-			uri += index;
+			uri += currentLocation->getIndex();
 		}
 		if (stat(uri.c_str(), &s) < 0)
 			return (response.error("404", "Not Found"));
