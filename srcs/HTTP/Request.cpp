@@ -164,14 +164,14 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 
 	if (_method == "GET")
 		responder = new GetResponder();
-//	else if (_startLine.find("method")->second == "POST")
-//		responder = new PostResponder();
+	else if (_method == "POST")
+		responder = new PostResponder();
 //	else if (_startLine.find("method")->second == "DELETE")
 //		responder = new DeleteResponder();
 //	else if (_startLine.find("method")->second == "PUT")
 //		responder = new PutResponder();
 	else
-		return (Response().error("405", "Method Not Allowed"));
+		return (Response().error("400", "Bad Request"));
 	std::string response = responder->respond(*this, config, serverData);
 	delete responder;
 	return (response);

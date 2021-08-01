@@ -2,10 +2,13 @@
 #define WEBSERV_IRESPONDER_HPP
 
 #include <iostream>
-#include "../../parse_config/ParserConfig.hpp"
-#include "../Response.hpp"
-#include "../Request.hpp"
+//#include "../../parse_config/ParserConfig.hpp"
+//#include "../Response.hpp"
+//#include "../Request.hpp"
+#include "parse_config/ServerData.hpp"
 
+class ParserConfig;
+class Response;
 class Request;
 
 class IResponder

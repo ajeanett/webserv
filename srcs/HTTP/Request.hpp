@@ -17,6 +17,7 @@
 #include "../parse_config/ParserConfig.hpp"
 #include "Response.hpp"
 #include "Responders/GetResponder.hpp"
+#include "Responders/PostResponder.hpp"
 #include "HTTP/Errors/HTTPError.hpp"
 #include "HTTP/Errors/HTTPNotFound.hpp"
 

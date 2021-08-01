@@ -205,7 +205,7 @@ int ServerEngine::ft_select(int mx, timeval *timeout)
 	if (ret < 0)
 	{
 		perror("select");
-		// exit(3);
+		exit(1);
 	}
 	return (ret);
 }
@@ -222,18 +222,17 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 			std::cout << "ft_send" << std::endl;
 			errno = 0;
 			int serverFd = -1;
-			for (std::map<int, ServerData>::iterator it = _config.getServers().begin();
-				 it != _config.getServers().end(); ++it) // servers с пустым сервером
+			for (std::map<int, ServerData>::iterator it_data = _config.getServers().begin(); it_data != _config.getServers().end(); ++it) // servers с пустым сервером
 			{
-				if (it->second.getPort() == current_port)
+				if (it_data->second.getPort() == current_port)
 				{
-					serverFd = it->first;
+					serverFd = it_data->first;
 					break;
 				}
 			}
-			if (serverFd < 0)
-				throw std::exception();
-			ServerData data = _config.getServers()[serverFd];
+//			if (serverFd < 0)
+//				throw std::exception();
+			ServerData const &data = _config.getServers()[serverFd];
 			std::string msg = request.respond(_config, data);
 //			добавить хедеры в результат выполнения cgi
 			send(*it, msg.c_str(), msg.length(), 0);

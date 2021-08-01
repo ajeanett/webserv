@@ -1,20 +1,21 @@
-#include <sys/stat.h>
-#include "GetResponder.hpp"
+#include "PostResponder.hpp"
+#include "HTTP/Response.hpp"
+#include "HTTP/Request.hpp"
 
-GetResponder::GetResponder()
+PostResponder::PostResponder()
 {
 }
 
-GetResponder::GetResponder(GetResponder const &src)
+PostResponder::PostResponder(PostResponder const &src)
 {
 	*this = src;
 }
 
-GetResponder::~GetResponder()
+PostResponder::~PostResponder()
 {
 }
 
-GetResponder &GetResponder::operator=(GetResponder const &src)
+PostResponder &PostResponder::operator = (PostResponder const &src)
 {
 	if (this != &src)
 	{
@@ -22,20 +23,9 @@ GetResponder &GetResponder::operator=(GetResponder const &src)
 	return (*this);
 }
 
-void displayTimeStamp()
-{
-	char buf[1024];
-	struct timeval t;
-	struct tm* tm;
+void displayTimeStamp();
 
-	gettimeofday(&t, NULL);
-	tm = localtime(&t.tv_sec);
-	std::strftime(buf, 1024, "%H:%M:%S", tm);
-
-	std::cout << '[' << buf << ']' << std::endl;
-}
-
-std::string GetResponder::respond(Request const &request, ParserConfig const &config, ServerData const &serverData) const
+std::string PostResponder::respond(const Request &request, const ParserConfig &config, const ServerData &serverData) const
 {
 	displayTimeStamp();
 	std::cout << "request: " << request.getMethod() << " " << request.getLocation() << std::endl;
