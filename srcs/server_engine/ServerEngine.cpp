@@ -282,11 +282,13 @@ bool ServerEngine::ft_receive(Request &request)
 			if (bytes_read <= 0) // was <= 0
 			{
 				// удаляем сокет из множества
+				FD_CLR(*it, &_readset_master);
+				FD_CLR(*it, &_writeset_master);
 				close(*it);
 //				if (_buffer.find(*it) != _buffer.end())
 //					_buffer[*it].clear();
 				_buffer.erase(*it);
-				_clients_recv.erase(*it);
+				_clients_send.erase(*it);
 				ret = true;
 				break;
 			}
@@ -317,6 +319,7 @@ bool ServerEngine::ft_receive(Request &request)
 				_clients_send.insert(*it);
 				FD_SET(*it, &_writeset_master);
 				_clients_recv.erase(*it);
+				FD_CLR(*it, &_readset_master);
 				_buffer[*it].clear();
 			}
 			ret = true;
