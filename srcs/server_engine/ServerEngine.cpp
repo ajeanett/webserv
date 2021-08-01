@@ -325,7 +325,7 @@ bool ServerEngine::check_request(std::string const &buffer)
  * След отрезок до rn я сохраняю в боди и сверяем со значением strtol - если не совпадает - badrequest
  * по циклу идем, пока strtol не вернет 0 и след отрезок не будет пустым
  *
- * Для response обязательно Content-Lenght - размер боди
+ * Для response обязательно Content-Length - размер боди
  * Content-Type - тип , если не определяешь, то text/plain
  * Date
  * Connection
@@ -355,6 +355,14 @@ bool ServerEngine::ft_receive(Request &request)
 			ssize_t bytes_read;
 			bzero(_buf, TCP_MAX + 1); // 65536 - максим размер пакета tcp
 			bytes_read = recv(*it, _buf, TCP_MAX, 0);
+			if(bytes_read <= 0)
+			{
+				// удаляем сокет из множества
+				close(*it);
+				_buffer[*it].clear();
+				_clients_recv.erase(*it);
+				break;
+			}
 			/*
 			 * Если recv возвращает 0 или -1 то закрываем сокет удаляем из сета write и read
 			 * Добавить обработку сигнала в main sig_int и в функции обработки изменить значение булевой глоб переменной на false
@@ -379,13 +387,13 @@ bool ServerEngine::ft_receive(Request &request)
 				_buffer[*it].clear();
 			}
 			ret = true;
-			// if(bytes_read <= 0)
-			// {
-			//     // Соединение разорвано, удаляем сокет из множества
-			//     close(*it);
-			//     clients.erase(*it);
-			//     continue;
-			// }
+//			 if(bytes_read <= 0)
+//			 {
+//			     // Соединение разорвано, удаляем сокет из множества
+//			     close(*it);
+//			     clients.erase(*it);
+//			     continue;
+//			 }
 			break;
 		}
 	}

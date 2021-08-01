@@ -224,29 +224,48 @@ std::string CGI::runCGI()
 	remove(cgi_tmp_path_in.c_str());
 	remove(cgi_tmp_path_out.c_str());
 
-
+	/*Добавляем первую строку и хедеры*/
 	size_t find = _ret.find("Status:");
 	if (find == 0)
 	{
 		_ret.replace(0,  7, "HTTP/1.1");
 	}
-	find = 10;
-	/*Добавляем первую строку и хедеры*/
-	find = _ret.find("HTTP/1.1");
-	if (find == 0)
-	{
-		/*Значит это тестер CGI*/
-		_ret.replace(0,  7, "HTTP/1.1");
-	}
-	else
+	if ((find = _ret.find("HTTP/1.1")) != 0)
 	{
 		/*Значит это другие исполяемые файлы - python или php*/
 //		std::string _ret_cgi = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(_ret.length()) + "\r\n\r\n" + _ret;
-		std::string cont_lenght = std::to_string(_ret.length());
+		std::string cont_length = std::to_string(_ret.length());
 		_ret.insert(0,  "\r\n\r\n");
-		_ret.insert(0, cont_lenght );
+		if (!_tmpEnvCGI["CONTENT_TYPE"].empty())
+		{
+			_ret.insert(0,_tmpEnvCGI["CONTENT_TYPE"]);
+			_ret.insert(0,"\r\nContent-Type: ");
+			_ret.insert(0, d.get_time());
+			_ret.insert(0,"\r\nDate: ");
+		}
+		else
+		{
+			_ret.insert(0,"\r\nContent-Type: text/plain");
+		}
+		_ret.insert(0, cont_length );
 		_ret.insert(0,"HTTP/1.1 200 OK\r\nContent-Length: ");
 	}
+
+//	find = _ret.find("HTTP/1.1");
+//	if (find == 0)
+//	{
+//		/*Значит это тестер CGI*/
+//		_ret.replace(0,  7, "HTTP/1.1");
+//	}
+//	else
+//	{
+//		/*Значит это другие исполяемые файлы - python или php*/
+////		std::string _ret_cgi = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(_ret.length()) + "\r\n\r\n" + _ret;
+//		std::string cont_lenght = std::to_string(_ret.length());
+//		_ret.insert(0,  "\r\n\r\n");
+//		_ret.insert(0, cont_lenght );
+//		_ret.insert(0,"HTTP/1.1 200 OK\r\nContent-Length: ");
+//	}
 
     if (envp) 
     {
