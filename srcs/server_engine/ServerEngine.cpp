@@ -174,7 +174,7 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 //			}
 			_clients_recv.insert(*it);
 			FD_CLR(*it, &_writeset_master);
-			FD_CLR(*it, &_readset_master);
+			FD_CLR(*it, &_readset_master); // на чтение
 			close(*it);
 			_clients_send.erase(*it);
 			ret = true;
