@@ -47,31 +47,4 @@ public:
 
 };
 
-
-
-
 #endif
-
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-#include <string>
-
-//using namespace std;
-
-// int main()
-// {
-//     ofstream ofs("test.txt");
-//     ofs << "Writing to a basic_ofstream object..." << endl;
-//     ofs.close();
-
-//     int posix_handle = ::_fileno(::fopen("test.txt", "r"));
-
-//     ifstream ifs(::_fdopen(posix_handle, "r")); // 1
-
-//     string line;
-//     getline(ifs, line);
-//     ifs.close();
-//     cout << "line: " << line << endl;
-//     return 0;
-// }

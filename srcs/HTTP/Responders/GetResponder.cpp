@@ -28,11 +28,11 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 
 	LocationData const *currentLocation = nullptr;
 
-	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
-	{
-		std::cout << std::setw(30) << it->first << ": " << it->second << std::endl;
-	}
-	std::cout << "'" << request.getBody() << "'" << std::endl;
+//	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
+//	{
+//		std::cout << std::setw(30) << it->first << ": " << it->second << std::endl;
+//	}
+//	std::cout << "'" << request.getBody() << "'" << std::endl;
 
 	const std::vector<LocationData> &locations = serverData.getLocationData();
 	for (std::vector<LocationData>::const_reverse_iterator it = locations.rbegin(); it != locations.rend(); ++it)
@@ -52,7 +52,6 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	std::string requestLocation = request.getLocation();
 	requestLocation.erase(0, currentLocation->getRoot().length());
 	std::string uri = currentLocation->getRoot() + request.getLocation();
-	std::cout << "uri: " << uri << std::endl;
 
 	if (uri.empty())
 		return (response.error("404", "Not Found"));
@@ -124,6 +123,5 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	response.getHeaders()["Connection"] = "keep-alive";
 	response.setBody(content);
 
-	response.setStatus("200", "OK");
 	return (response.str());
 }

@@ -122,6 +122,5 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 	response.getHeaders()["Connection"] = "keep-alive";
 	response.setBody(content);
 
-	response.setStatus("200", "OK");
 	return (response.str());
 }
