@@ -25,7 +25,8 @@ private:
 	const ServerData							&_serv;
     const std::string							&_cgi_type;
     const std::string 							&_cgi_path;
-    Date										d;
+	std::string 								_headers_all;
+	Date										d;
 
 
     void    prepareEnvCGI(const Request &req, const ServerData & serv, char *** envp);

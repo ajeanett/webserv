@@ -224,11 +224,82 @@ void CGI::runCGI()
 	remove(cgi_tmp_path_in.c_str());
 	remove(cgi_tmp_path_out.c_str());
 
+	// Ищем хедеры и заносим их в мапу
+	size_t prev = 0;
+	size_t next = _ret.find("\r\n\r\n", 0);
+	size_t body_position;
+
+	if (next != std::string::npos)
+	{
+		_headers_all = _ret.substr(0, next);
+		body_position = next + 4;
+	}
+	else
+	{
+		perror("ERROR 500. Internal server error!. No headers in CGI data.");
+	}
+
+	std::vector<std::string> headers_raw;
+
+	while ((next = _headers_all.find("\r\n", prev)) != std::string::npos)
+	{
+		headers_raw.push_back(_headers_all.substr(prev, next - prev));
+		prev = next + 2;
+	}
+	headers_raw.push_back(_headers_all.substr(prev));
+
+	//  Печать хедеров для проверки
+	std::vector<std::string>::iterator it;
+	// std::cout << "Vector Headers" << std::endl;
+	// for (it = headers_raw.begin(); it != headers_raw.end(); it++)
+	//     std::cout << *it << std::endl;
+	// std::cout << "Vector Headers END" << std::endl;
+
+	std::string delim = ": ";
+	std::string header_key;
+	std::string header_value;
+
+	for (it = headers_raw.begin(); it != headers_raw.end(); it++)
+	{
+		prev = 0;
+		if ((next= (*it).find(delim, prev)) != std::string::npos)
+		{
+			header_key = (*it).substr(prev,
+									  next - prev);
+			prev = next + 2;
+		}
+		header_value = (*it).substr(prev);
+		_headers[header_key] = header_value;
+	}
+
+	_body = _ret.substr(body_position);
+	_headers["Content-Length"]= std::to_string(_body.length());
+
+//	 std::map<std::string,std::string>::iterator itm;
+//	 std::cout << "HEADERS in MAP" << std::endl;
+//	 for (itm = _headers.begin(); itm != _headers.end(); itm++)
+//	     std::cout <<"Key: " <<itm->first << " Value: " << itm->second << std::endl;
+//	 std::cout << "HEADERS in MAP END" << std::endl;
+//	 std::cout << "BODY: " << std::endl;
+//	std::cout << _body << std::endl;
+//	std::cout << "BODY END" << std::endl;
+
+/*
 	_headers["Content-Type"] = "text/plain"; // example
 	_body ="It's Python! (test.py)\n"
 		   "\n"
 		   "Random number: 100\n"
 		   "time: 2021-08-01 11:06:57.250976";
+	*/
+	if (envp)
+	{
+		for (int i = 0; envp[i] != NULL; ++i)
+		{
+			delete[] envp[i];
+		}
+		delete[] envp;
+		envp = NULL;
+	}
 	return ;
 
 	/*Добавляем первую строку и хедеры*/
@@ -274,15 +345,6 @@ void CGI::runCGI()
 //		_ret.insert(0,"HTTP/1.1 200 OK\r\nContent-Length: ");
 //	}
 
-    if (envp) 
-    {
-        for (int i = 0; envp[i] != NULL; ++i) 
-        {
-          delete[] envp[i];
-        }
-        delete[] envp;
-        envp = NULL;
-    }
 
 //    return _ret;
 }

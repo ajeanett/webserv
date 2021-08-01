@@ -241,7 +241,7 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 //			{
 //				CGI cgi(request, data, "./testers/cgi_tester", "py");
 //				CGI cgi(request, data, "./cgi_scripts/test.py", "py");
-//				std::string cgi_out = cgi.runCGI(); // для тестирования CGI
+//				cgi.runCGI(); // для тестирования CGI
 //				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
 //				send(*it, cgi_out.c_str(), cgi_out.length(), 0); // проверка отправки результата выполнения cgi
 //			}
