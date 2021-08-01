@@ -82,28 +82,32 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 //		}
 //	}
 
-	struct stat s;
-	if (stat(uri.c_str(), &s) < 0)
-		return (response.error("404", "Not Found"));
-	else
-		response.setStatus("200", "OK");
-	if (s.st_mode & S_IFDIR)
-	{
-		if (uri.length() != 0 && uri[uri.length() - 1] != '/')
-			uri += '/';
-		std::string index = currentLocation->getIndex();
-		while (!index.empty() && index[0] == ' ')
-			index.erase(index.begin());
-		uri += index;
-	}
-	if (stat(uri.c_str(), &s) < 0)
-		return (response.error("404", "Not Found"));
+//	struct stat s;
+//	if (stat(uri.c_str(), &s) < 0)
+//		return (response.error("404", "Not Found"));
+//	else
+//		response.setStatus("200", "OK");
+//	if (s.st_mode & S_IFDIR)
+//	{
+//		if (uri.length() != 0 && uri[uri.length() - 1] != '/')
+//			uri += '/';
+//		std::string index = currentLocation->getIndex();
+//		while (!index.empty() && index[0] == ' ')
+//			index.erase(index.begin());
+//		uri += index;
+//	}
+//	if (stat(uri.c_str(), &s) < 0)
+//		return (response.error("404", "Not Found"));
+//
+//	std::ifstream ifs(uri, std::ifstream::in);
+//	std::stringstream html;
+//	html << ifs.rdbuf();
+//	ifs.close();
+//	std::string content = html.str();
 
-	std::ifstream ifs(uri, std::ifstream::in);
-	std::stringstream html;
-	html << ifs.rdbuf();
-	ifs.close();
-	std::string content = html.str();
+	CGI cgi(nullptr, nullptr, "", "");
+	cgi.runCGI();
+
 
 //	response.getHeaders()["Content-Type"] = "text/plain";
 //	size_t n = uri.find_last_of('.');

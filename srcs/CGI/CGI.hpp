@@ -29,16 +29,20 @@ private:
 
 
     void    prepareEnvCGI(const Request &req, const ServerData & serv, char *** envp);
-    int     startCGI(char **envp);
     int     clearCGI();
     void    fillTmpEnvCgi(const Request &req, const ServerData & serv);
     void    fillEnvp(char *** envp);
     void    startCGI(char *** envp);
+    std::map<std::string, std::string> _headers;
+    std::string _body;
 
 public:
     CGI(const Request &req, const ServerData & serv, const std::string &cgi_real_path, const std::string &cgi_type);
-    std::string runCGI();
+    void runCGI();
     ~CGI();
+
+    std::map<std::string, std::string> const &getHeaders() const;
+    std::string const &getBody() const;
 
 };
 

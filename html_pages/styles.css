@@ -28,4 +28,10 @@ body {
 	border: 1px solid #485eff;
 	border-radius: 10px;
 	text-decoration: none;
+	transition: all 0.1s ease-in;
+}
+
+.go-home:hover {
+	background: #485eff;
+	color: #2A292F;
 }

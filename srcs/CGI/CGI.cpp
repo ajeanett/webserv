@@ -121,7 +121,7 @@ void    CGI::prepareEnvCGI(const Request &req, const ServerData & serv, char ***
  * cgi_real_path - путь к исполяемому файлу CGI = root + cgi_path из конфига
  * cgi_type -  тип из конфига
  * */
-std::string CGI::runCGI()
+void CGI::runCGI()
 {
 
     char **envp = NULL;
@@ -224,6 +224,13 @@ std::string CGI::runCGI()
 	remove(cgi_tmp_path_in.c_str());
 	remove(cgi_tmp_path_out.c_str());
 
+	_headers["Content-Type"] = "text/plain"; // example
+	_body ="It's Python! (test.py)\n"
+		   "\n"
+		   "Random number: 100\n"
+		   "time: 2021-08-01 11:06:57.250976";
+	return ;
+
 	/*Добавляем первую строку и хедеры*/
 	size_t find = _ret.find("Status:");
 	if (find == 0)
@@ -277,7 +284,17 @@ std::string CGI::runCGI()
         envp = NULL;
     }
 
-    return _ret;
+//    return _ret;
+}
+
+const std::map<std::string, std::string> &CGI::getHeaders() const
+{
+	return (_headers);
+}
+
+const std::string &CGI::getBody() const
+{
+	return (_body);
 }
 
 // Specification

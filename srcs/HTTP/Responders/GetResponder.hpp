@@ -2,6 +2,7 @@
 #define WEBSERV_GETRESPONDER_HPP
 
 #include "IResponder.hpp"
+#include "CGI/CGI.hpp"
 
 class GetResponder : public IResponder
 {
