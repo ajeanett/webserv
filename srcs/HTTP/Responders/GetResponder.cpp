@@ -25,12 +25,12 @@ GetResponder &GetResponder::operator=(GetResponder const &src)
 void displayTimeStamp()
 {
 	char buf[1024];
-	struct timeval _t;
-	struct tm* _tm;
+	struct timeval t;
+	struct tm* tm;
 
-	gettimeofday(&_t, NULL);
-	_tm = localtime(&_t.tv_sec);
-	std::strftime(buf, 1024, "%H:%M:%S", _tm);
+	gettimeofday(&t, NULL);
+	tm = localtime(&t.tv_sec);
+	std::strftime(buf, 1024, "%H:%M:%S", tm);
 
 	std::cout << '[' << buf << ']' << std::endl;
 }
@@ -55,6 +55,9 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	}
 	if (currentLocation == nullptr)
 		return (response.error("404", "Not Found"));
+	std::vector<std::string> const &locationMethods = currentLocation->getMethods();
+	if (!locationMethods.empty() && std::find(locationMethods.begin(), locationMethods.end(), request.getMethod()) == locationMethods.end())
+		return (response.error("405", "Method Not Allowed"));
 	std::string uri = currentLocation->getRoot() + request.getLocation();
 
 	if (uri.empty())

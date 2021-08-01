@@ -1,6 +1,7 @@
 body {
 	/*height: 100vh;*/
-	width: 100vw;
+	width: calc(100vw - 200px);
+	padding: 0 100px;
 	background-color: #2A292F;
 	color: #00bd81;
 	display: flex;
@@ -12,12 +13,10 @@ body {
 }
 
 .back-img {
-	margin-top: 50px;
-	width: 500px;
-	height: 400px;
+	height: 500px;
 	background-repeat: no-repeat;
-	background-position: center;;
-	background-size: 100%;
+	background-position: center;
+	background-size: contain;
 }
 
 .go-home {
@@ -32,6 +31,68 @@ body {
 }
 
 .go-home:hover {
+	background: #485eff;
+	color: #2A292F;
+}
+
+section {
+	width: 100%;
+	margin: 25px 0;
+}
+
+.section-title {
+	color: white;
+	font-size: 36px;
+	width: calc(100% - 40px);
+	border-bottom: 1px solid #00bd81;
+	padding: 10px 20px;
+}
+
+.section-content {
+	margin-top: 25px;
+	display: flex;
+	justify-content: center;
+	padding: 25px;
+}
+
+.post-section > form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+}
+
+.post-input {
+	color: white;
+	padding: 12px 20px;
+	font-size: 20px;
+	border: 1px solid transparent;
+	outline: none;
+	background: #33323b;
+	border-radius: 10px;
+	margin: 10px 0;
+	width: 100%;
+	transition: all 0.1s ease-in;
+}
+
+.post-input:focus, .post-input:hover {
+	border: 1px solid #485eff;
+}
+
+.post-button {
+	padding: 12px 60px;
+	font-size: 20px;
+	border-radius: 10px;
+	outline: none;
+	border: 1px solid #485eff;
+	color: #485eff;
+	background: transparent;
+	cursor: pointer;
+	width: fit-content;
+	transition: all 0.1s ease-in;
+}
+
+.post-button:hover {
 	background: #485eff;
 	color: #2A292F;
 }

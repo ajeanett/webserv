@@ -99,8 +99,7 @@ void Request::parse_headers(void)
 		_linePosition = 0;
 		if ((findPosition = (*it).find(delim, _linePosition)) != std::string::npos)
 		{
-			header_key = (*it).substr(_linePosition,
-									  findPosition - _linePosition);
+			header_key = (*it).substr(_linePosition, findPosition - _linePosition);
 			_linePosition = findPosition + 2;
 		}
 		header_value = (*it).substr(_linePosition);
@@ -127,7 +126,7 @@ void Request::parse_body()
 	}
 	else
 		_body = _request.substr(this->_requestPosition);
-	_body += "hjghghjjhghjdd f dfh dfhh df fd fd fd fd df";
+//	_body += "hjghghjjhghjdd f dfh dfhh df fd fd fd fd df";
 	//  Печать боди для проверки
 	// std::cout << "BODY" << std::endl << _body<< std::endl << "BODY END" << std::endl;
 }
