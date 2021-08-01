@@ -1,5 +1,8 @@
 #!/usr/bin/php
 <?php
+echo "Content-Type: text/plain\r\n";
+echo "\r\n";
+
 $str = <<<EOD
 Example of string
 Hello world!
