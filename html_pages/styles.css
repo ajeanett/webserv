@@ -53,6 +53,8 @@ section {
 	display: flex;
 	justify-content: center;
 	padding: 25px;
+	font-size: 26px;
+	color: white;
 }
 
 .post-section > form {

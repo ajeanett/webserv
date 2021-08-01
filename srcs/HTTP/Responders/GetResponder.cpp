@@ -24,8 +24,6 @@ GetResponder &GetResponder::operator=(GetResponder const &src)
 
 std::string GetResponder::respond(Request const &request, ParserConfig const &config, ServerData const &serverData) const
 {
-	displayTimeStamp();
-	std::cout << "request: " << request.getMethod() << " " << request.getLocation() << std::endl;
 	Response response;
 
 	LocationData const *currentLocation = nullptr;
@@ -72,28 +70,38 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 //		}
 //	}
 
-	struct stat s;
-	if (stat(uri.c_str(), &s) < 0)
-		return (response.error("404", "Not Found"));
-	else
-		response.setStatus("200", "OK");
-	if (s.st_mode & S_IFDIR)
+	std::string content;
+	if (!currentLocation->getCgiExtension().empty())
 	{
-		if (uri.length() != 0 && uri[uri.length() - 1] != '/')
-			uri += '/';
-		std::string index = currentLocation->getIndex();
-		while (!index.empty() && index[0] == ' ')
-			index.erase(index.begin());
-		uri += index;
+		CGI cgi(request, serverData, currentLocation->getCgiPath(), currentLocation->getCgiExtension());
+		cgi.runCGI();
+		content = cgi.getBody();
 	}
-	if (stat(uri.c_str(), &s) < 0)
-		return (response.error("404", "Not Found"));
+	else
+	{
+		struct stat s;
+		if (stat(uri.c_str(), &s) < 0)
+			return (response.error("404", "Not Found"));
+		else
+			response.setStatus("200", "OK");
+		if (s.st_mode & S_IFDIR)
+		{
+			if (uri.length() != 0 && uri[uri.length() - 1] != '/')
+				uri += '/';
+			std::string index = currentLocation->getIndex();
+			while (!index.empty() && index[0] == ' ')
+				index.erase(index.begin());
+			uri += index;
+		}
+		if (stat(uri.c_str(), &s) < 0)
+			return (response.error("404", "Not Found"));
 
-	std::ifstream ifs(uri, std::ifstream::in);
-	std::stringstream html;
-	html << ifs.rdbuf();
-	ifs.close();
-	std::string content = html.str();
+		std::ifstream ifs(uri, std::ifstream::in);
+		std::stringstream content_stream;
+		content_stream << ifs.rdbuf();
+		ifs.close();
+		content = content_stream.str();
+	}
 
 //	response.getHeaders()["Content-Type"] = "text/plain";
 //	size_t n = uri.find_last_of('.');

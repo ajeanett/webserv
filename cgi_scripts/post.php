@@ -2,6 +2,8 @@
 
 <?php
 
-	echo "12345\n";
+	echo "Content-Type: text/plain\r\n";
+	echo "\r\n";
+	echo $_POST;
 
 ?>

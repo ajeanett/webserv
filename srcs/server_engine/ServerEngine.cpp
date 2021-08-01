@@ -53,7 +53,6 @@ void ServerEngine::setAddr(int port, std::string &host)
 	memset((char *)&_addr, 0, sizeof(_addr));
 
 	uint32_t i;
-//	std::cout << "host is: " << host << std::endl;
 	i = _hostToInt(host);
 	/* Cемейство адресов (говорим что рабоатет с интернетом) */
 	_addr.sin_family = AF_INET;
@@ -79,7 +78,7 @@ int ServerEngine::servStart()
 	/* Добавляеям порты */
 	for (std::map<int, ServerData>::iterator it = _config.getServers().begin(); it != _config.getServers().end(); ++it)
 	{
-		_ports_host[(it->second.getPort())] = it->second.getHost();
+		_ports_host[it->second.getPort()] = it->second.getHost();
 	}
 
 	/* Каждому порту инициалируем сокет(fd) */
@@ -98,7 +97,7 @@ int ServerEngine::servStart()
 			perror("setsockopt(SO_REUSEADDR) failed");
 
 		setAddr(it->first, it->second);
-		_fdPort[_fd] = (it)->first;
+		_fdPort[_fd] = it->first;
 
 		/* Для явного связывания сокета с некоторым адресом используется функция bind */
 		if (bind(_fd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0)
@@ -112,8 +111,8 @@ int ServerEngine::servStart()
 			return (-1);
 		}
 		_listen_fds.insert(_fd);
-		displayTimeStamp();
-		std::cout << "servStart port: " << (it)->first  << std::endl;
+//		displayTimeStamp();
+//		std::cout << "servStart port: " << (it)->first  << std::endl;
 	}
 	return (0);
 }
@@ -124,8 +123,8 @@ int ServerEngine::ft_select(int mx, timeval *timeout)
 
 	FD_ZERO(&_readset); // всегда обновлять в начале while
 	FD_ZERO(&_writeset); // всегда обновлять в начале while
-	displayTimeStamp();
-	std::cout << "ft_select, mx = " << mx << std::endl;
+//	displayTimeStamp();
+//	std::cout << "ft_select, mx = " << mx << std::endl;
 	memcpy(&_readset, &_readset_master, sizeof(_readset_master));
 	memcpy(&_writeset, &_writeset_master, sizeof(_writeset_master));
 	errno = 0;
@@ -146,8 +145,8 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 	{
 		if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
 		{
-			displayTimeStamp();
-			std::cout << "ft_send" << std::endl;
+//			displayTimeStamp();
+//			std::cout << "ft_send" << std::endl;
 			errno = 0;
 			int serverFd = -1;
 			for (std::map<int, ServerData>::iterator it_data = _config.getServers().begin(); it_data != _config.getServers().end(); ++it_data) // servers с пустым сервером
@@ -158,11 +157,10 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 					break;
 				}
 			}
-//			if (serverFd < 0)
-//				throw std::exception();
-			ServerData const &data = _config.getServers()[serverFd];
+			if (serverFd < 0)
+				throw std::exception();
+			ServerData const &data = _config.getServers().find(serverFd)->second;
 			std::string msg = request.respond(_config, data);
-//			добавить хедеры в результат выполнения cgi
 			send(*it, msg.c_str(), msg.length(), 0);
 //			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
 //			{
@@ -239,6 +237,7 @@ bool ServerEngine::check_request(std::string const &buffer)
 	}
 	return (false); // проверить ошибки 404, 500, 505
 }
+
 /*
  * старт лайн
  * хедеры
@@ -257,6 +256,7 @@ bool ServerEngine::check_request(std::string const &buffer)
  * и в начало добавляешь HTTP_)
  *
  */
+
 bool ServerEngine::ft_receive(Request &request)
 {
 
@@ -266,27 +266,23 @@ bool ServerEngine::ft_receive(Request &request)
 
 	for (std::set<int>::iterator it = _clients_recv.begin(); it != _clients_recv.end(); ++it)
 	{
-		// std::cout << "recv " << *it << std::endl;
 		if (FD_ISSET(*it, &_readset))
 		{
 			bool full_request = true;
-			// std::cout << "RECV" << std::endl;
 			// Поступили данные от клиента, читаем их
 			errno = 0;
 			ssize_t bytes_read;
 			bytes_read = recv(*it, _buf, TCP_MAX, 0);
 			if (bytes_read >= 0)
 				_buf[bytes_read] = '\0';
-			displayTimeStamp();
-			std::cout << "ft_receive, bytes_read = " << bytes_read << ", *it = " << *it << std::endl;
+//			displayTimeStamp();
+//			std::cout << "ft_receive, bytes_read = " << bytes_read << ", *it = " << *it << std::endl;
 			if (bytes_read <= 0) // was <= 0
 			{
 				// удаляем сокет из множества
 				FD_CLR(*it, &_readset_master);
 				FD_CLR(*it, &_writeset_master);
 				close(*it);
-//				if (_buffer.find(*it) != _buffer.end())
-//					_buffer[*it].clear();
 				_buffer.erase(*it);
 				_clients_send.erase(*it);
 				ret = true;
@@ -296,23 +292,16 @@ bool ServerEngine::ft_receive(Request &request)
 			 * Если recv возвращает 0 или -1 то закрываем сокет удаляем из сета write и read
 			 * Добавить обработку сигнала в main sig_int и в функции обработки изменить значение булевой глоб переменной на false
 			 * Очистка структур, очистка классов, закрытие сокетов
-			 * */
-			//проверить \r\n\r\n, затем проверяем наличие content-lenght, если число равно боди. Нужно будет актуальный размер боди сравнивать с этим числом.
-			//Если content-lenght нет, то проверить transfer encoding и равен ли он chunked. Если равен, то дождаться, когда придет "0\r\n\r\n" (неважно, в конце боди или нет, важно, чтобы после первого \r\n\r\n)
-			// Если нету ни content length или transfer encoding и есть \r\n\r\n, то значит запрос пришел полностью
-			// std::string buffer;
-			_buffer[*it] += std::string(_buf);
-			// buffer += std::string(_buf);
+			 *
+			 * проверить \r\n\r\n, затем проверяем наличие content-lenght, если число равно боди. Нужно будет актуальный размер боди сравнивать с этим числом.
+			 * Если content-lenght нет, то проверить transfer encoding и равен ли он chunked. Если равен, то дождаться, когда придет "0\r\n\r\n" (неважно, в конце боди или нет, важно, чтобы после первого \r\n\r\n)
+			 * Если нету ни content length или transfer encoding и есть \r\n\r\n, то значит запрос пришел полностью
+			 */
+			_buffer[*it] += _buf;
 			full_request = check_request(_buffer[*it]);
-			// std::cout << "Read:"<< std::endl << _buffer[*it] << std::endl << "Read END!"<< std::endl;
 			if (full_request)
 			{
 				request.clear();
-				if (_buffer.find(*it) != _buffer.end() && _buffer[*it].empty())
-				{
-					displayTimeStamp();
-					std::cout << "shit" << std::endl;
-				}
 				request.parse(_buffer[*it]);
 				displayTimeStamp();
 				std::cout << request.getMethod() << ' ' << request.getLocation() << std::endl;
@@ -320,7 +309,7 @@ bool ServerEngine::ft_receive(Request &request)
 				FD_SET(*it, &_writeset_master);
 				_clients_recv.erase(*it);
 				FD_CLR(*it, &_readset_master);
-				_buffer[*it].clear();
+				_buffer.erase(*it);
 			}
 			ret = true;
 			break;
@@ -331,29 +320,24 @@ bool ServerEngine::ft_receive(Request &request)
 
 bool ServerEngine::ft_accept(int *mx, int *current_port)
 {
-
-	bool ret;
-
-	ret = false;
+	bool ret = false;
 
 	for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
 	{
-//		std::cout << "accept " << *it << std::endl;
 //		Определяем тип события и выполняем соответствующие действия
 		if (FD_ISSET(*it, &_readset))
 		{
-			displayTimeStamp();
-			std::cout << "ft_accept" << std::endl;
+//			displayTimeStamp();
+//			std::cout << "ft_accept" << std::endl;
 			// Поступил новый запрос на соединение, используем accept
 			errno = 0;
 			int sock = accept(*it, NULL, NULL);
-//			std::cout << "accept complete " << sock << std::endl;
 			if (sock < 0)
 			{
 				perror("accept");
 				exit(3);
 			}
-			*current_port = _fdPort[*it];
+			*current_port = _fdPort.find(*it)->second;
 			if (*mx < sock)
 				*mx = sock;
 			fcntl(sock, F_SETFL, O_NONBLOCK);
@@ -363,7 +347,6 @@ bool ServerEngine::ft_accept(int *mx, int *current_port)
 			break;
 		}
 	}
-
 	return (ret);
 }
 
@@ -378,7 +361,7 @@ void ServerEngine::run()
 	for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
 		FD_SET(*it, &_readset_master);
 
-	struct timeval tv = {1, 0};
+	struct timeval tv = {10, 0};
 	struct timeval timeout;
 	timeout.tv_sec = 15;
 	timeout.tv_usec = 0;
@@ -387,11 +370,9 @@ void ServerEngine::run()
 	Request request;
 	while (_run)
 	{
-		// Заполняем множество сокетов
 		bool sel = true;
 		while (sel)
 		{
-			// Ждём события в одном из сокетов
 			int ret = ft_select(mx, &tv);
 			if (ret > 0)
 				sel = false;

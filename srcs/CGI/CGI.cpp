@@ -123,16 +123,12 @@ void    CGI::prepareEnvCGI(const Request &req, const ServerData & serv, char ***
  * */
 void CGI::runCGI()
 {
-
     char **envp = NULL;
     std::string _ret; // возвращаемая строка;
     prepareEnvCGI(_req, _serv, &envp);
-    // startCGI(&envp);
-
 
     pid_t _pid;
     int _status;
-//    int _fd[2];
 
 	std::string cgi_tmp_path_in = "./cgi_tmp_in";
 	std::string cgi_tmp_path_out = "./cgi_tmp_out";
@@ -142,7 +138,6 @@ void CGI::runCGI()
 	int tmp_file_fd_out = open(cgi_tmp_path_out.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
 	write(tmp_file_fd_in, _req.getBody().c_str(), _req.getBody().length());
 	lseek(tmp_file_fd_in, 0, SEEK_SET);
-//    pipe(_fd);
 
     _pid = fork();
 
@@ -152,24 +147,20 @@ void CGI::runCGI()
     } 
     else if (_pid == 0)
 	{
-//		std::cout << "START CHILD PROCESS" << std::endl;
 		dup2(tmp_file_fd_in, STDIN_FILENO);
 		dup2(tmp_file_fd_out, STDOUT_FILENO);
 		char **arg = new char *[3];
 		/* выполняем cgi_tester */
-//			std::cout << "YA TUT!!!" << std::endl;
 		arg[0] = const_cast<char *>(_cgi_path.c_str()); //strdup(path.c_str());
 		arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
 		arg[2] = NULL;
-//		std::cout << "path to execve program = " << arg[0] << std::endl; // какую программу выполняем
-//		std::cout << "execve first argument path = " << arg[1] << std::endl; // какой файл\скрипт выполняем с помощью программы
 		if (execve(arg[0], arg, envp) == -1)
 		{
 			std::cerr << "ERROR CGI" << std::endl;
 		}
 		exit(0);
-
-	} else
+	}
+    else
 	{
 		waitpid(_pid, &_status, 0);
 
@@ -177,8 +168,7 @@ void CGI::runCGI()
 		fstat(tmp_file_fd_out, &file);
 		lseek(tmp_file_fd_out, 0, SEEK_SET);
 		_ret.resize(file.st_size);
-		read(tmp_file_fd_out, const_cast<char *>(_ret.c_str()),
-			 _ret.capacity());
+		read(tmp_file_fd_out, const_cast<char *>(_ret.c_str()), _ret.capacity());
 		close(tmp_file_fd_out);
 		close(tmp_file_fd_in);
 		remove(cgi_tmp_path_in.c_str());
@@ -192,7 +182,8 @@ void CGI::runCGI()
 		{
 			_headers_all = _ret.substr(0, next);
 			_ret.erase(0, next + 4);
-		} else
+		}
+		else
 		{
 			perror("ERROR 500. Internal server error!. No headers in CGI data.");
 			// exception 500
