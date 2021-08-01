@@ -55,7 +55,7 @@ void Request::parse_request()
 //         std::cout << "END of MAP First Line" << std::endl;
 }
 
-void Request::parse_headers(void)
+void Request::parse_headers()
 {
 
 	// Ищем хедеры и заносим их в мапу
@@ -119,9 +119,9 @@ void Request::parse_body()
 	// заносим боди. В get его не будет. Get - body нет. Put - body тут.
 	// если длина боди больше, чем длина content-lenght, то заносим только content-lenght
 	// взять из мапы хедеров
-	if (_headers.find("content-lenght") != _headers.end())
+	if (_headers.find("Content-Length") != _headers.end())
 	{
-		int i = std::stoi(_headers["content-lenght"]);
+		int i = std::stoi(_headers["Content-Length"]);
 		_body = _request.substr(this->_requestPosition, i);
 	}
 	else

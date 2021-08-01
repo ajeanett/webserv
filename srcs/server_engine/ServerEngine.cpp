@@ -277,8 +277,7 @@ bool ServerEngine::check_request(std::string const &buffer)
 	{
 		if (buffer.find("0\r\n\r\n", prev) != std::string::npos)
 			return (true);
-		int body_size = (buffer.substr(next + 4)).length();
-//		size_t body_size = buffer.length() - next;
+		size_t body_size = buffer.length() - next - 4;
 		std::cout << "body size (check please): " << body_size << std::endl;
 		next = buffer.find("Content-Length: ", prev); //проверяем наличие content-lenght
 		if (next != std::string::npos)
@@ -354,7 +353,7 @@ bool ServerEngine::ft_receive(Request &request)
 			ssize_t bytes_read;
 			bzero(_buf, TCP_MAX + 1); // 65536 - максим размер пакета tcp
 			bytes_read = recv(*it, _buf, TCP_MAX, 0);
-			if(bytes_read <= 0)
+			if (bytes_read < 0) // was <= 0
 			{
 				// удаляем сокет из множества
 				close(*it);
@@ -373,9 +372,9 @@ bool ServerEngine::ft_receive(Request &request)
 			// std::string buffer;
 			_buffer[*it] += std::string(_buf);
 			// buffer += std::string(_buf);
-//			full_request = check_request(_buffer[*it]);
+			full_request = check_request(_buffer[*it]);
 			// std::cout << "Read:"<< std::endl << _buffer[*it] << std::endl << "Read END!"<< std::endl;
-			if (full_request)
+			if (full_request || true)
 			{
 				request.parse(_buffer[*it]);
 				std::cout << request.getMethod() << ' ' << request.getLocation()
