@@ -64,7 +64,7 @@ void ServerEngine::setAddr(int port, std::string &host)
 	_addr.sin_port = htons(port);
 }
 
-int ServerEngine::servStart()
+int ServerEngine::setup()
 {
 	/*
 	* запуск парсера, добавить в структуру класса экземпляр класса конфига
@@ -112,7 +112,7 @@ int ServerEngine::servStart()
 		}
 		_listen_fds.insert(_fd);
 //		displayTimeStamp();
-//		std::cout << "servStart port: " << (it)->first  << std::endl;
+//		std::cout << "setup port: " << (it)->first  << std::endl;
 	}
 	return (0);
 }

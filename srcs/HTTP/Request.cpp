@@ -1,7 +1,6 @@
 #include "Request.hpp"
-#include "Responders/IResponder.hpp"
+#include "Responders/AResponder.hpp"
 #include <vector>
-#include "Autoindex.h"
 
 Request::Request(const std::string &request) :
 	_request(request),
@@ -167,7 +166,7 @@ void Request::parse_body()
 	size_t	start_body = 0;
 	size_t	end_body = 0;
 	size_t	chunk_size;
-	char  **tmp = nullptr;
+	char	**tmp = nullptr;
 
 	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
 	{
@@ -217,7 +216,7 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 			return (Response().error(_error, "Internal Server Error"));
 	}
 
-	IResponder *responder;
+	AResponder *responder;
 
 	if (_method == "GET")
 		responder = new GetResponder();
@@ -227,8 +226,6 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 		responder = new PutResponder();
 //	else if (_startLine.find("method")->second == "DELETE")
 //		responder = new DeleteResponder();
-	else if (_method == "HEAD")
-		return (Response().error("405", "Method Not Allowed"));
 	else
 		return (Response().error("405", "Method Not Allowed"));
 	std::string response = responder->respond(*this, config, serverData);

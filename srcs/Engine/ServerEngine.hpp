@@ -19,8 +19,6 @@
 class ServerEngine
 {
 private:
-	// std::map<long, std::string>	_requests;
-
 	/* Временные переменные */
 	int _fd;
 	struct sockaddr_in _addr;
@@ -42,7 +40,6 @@ private:
 	fd_set _writeset; // нужны четыре сета, два читающих, два слушающих, для select
 	char _buf[TCP_MAX + 1]; // максимальный размер пакета http
 	std::map<int, std::string> _buffer;// мапа для чтения запросов\request`ов, int -  это фд клиента, string - буффер отдельно для каждого клиента.
-	// bool                        _sel; //
 	std::map<int, bool> _chunked; // проверка на фрагментированность каждого запроса. int -  это фд клиента, bool - фрагментирован запрос или нет.
 	/* Ключ-значение fd-port */
 	std::map<int, int>	_fdPort; // map связывающий присвоенный fd сервера (ключ) c его портом (значение)
@@ -50,13 +47,22 @@ private:
 	int 				_serverFd; //текущий номер используемого сервера из конфига
 	LocationData		_currentLocation;
 
-
 public:
 	ServerEngine(ServerEngine const &src);
 	ServerEngine &operator=(ServerEngine const &src);
 	ServerEngine(std::set<int> const &ports);
 	ServerEngine();
 	virtual ~ServerEngine();
+
+	int setup();
+	void run();
+	int ft_select(int mx, timeval *timeout);
+	bool ft_send(Request const &request);
+	bool ft_receive(Request &request);
+	bool ft_accept(int *mx);
+	bool check_request(std::string const &buffer);
+
+	void setAddr(int port, std::string &host);
 	std::map<int, std::string> getPorts() const
 	{ return (this->_ports_host); }
 	int const &getFd() const
@@ -64,14 +70,6 @@ public:
 	void setFd(int const &src)
 	{ this->_fd = src; }
 
-	int servStart();
-	void run();
-	void setAddr(int port, std::string &host);
-	int ft_select(int mx, timeval *timeout);
-	bool ft_send(Request const &request);
-	bool ft_receive(Request &request);
-	bool ft_accept(int *mx);
-	bool check_request(std::string const &buffer);
 
 };
 

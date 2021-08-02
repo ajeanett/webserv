@@ -1,9 +1,9 @@
 #ifndef WEBSERV_POSTRESPONDER_HPP
 #define WEBSERV_POSTRESPONDER_HPP
 
-#include "HTTP/Responders/IResponder.hpp"
+#include "HTTP/Responders/AResponder.hpp"
 
-class PostResponder : public IResponder
+class PostResponder : public AResponder
 {
 
 public:

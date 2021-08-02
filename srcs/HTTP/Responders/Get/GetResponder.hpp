@@ -1,12 +1,12 @@
 #ifndef WEBSERV_GETRESPONDER_HPP
 #define WEBSERV_GETRESPONDER_HPP
 
-#include "HTTP/Responders/IResponder.hpp"
+#include "HTTP/Responders/AResponder.hpp"
 #include "HTTP/Autoindex.h"
 #include "CGI/CGI.hpp"
 #include "logging.hpp"
 
-class GetResponder : public IResponder
+class GetResponder : public AResponder
 {
 
 public:

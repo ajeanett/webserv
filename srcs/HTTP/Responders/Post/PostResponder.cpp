@@ -2,11 +2,11 @@
 #include "HTTP/Response.hpp"
 #include "HTTP/Request.hpp"
 
-PostResponder::PostResponder()
+PostResponder::PostResponder() : AResponder()
 {
 }
 
-PostResponder::PostResponder(PostResponder const &src)
+PostResponder::PostResponder(PostResponder const &src) : AResponder()
 {
 	*this = src;
 }
@@ -34,20 +34,8 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 //	}
 //	std::cout << "'" << request.getBody() << "'" << std::endl;
 
-	LocationData const *currentLocation = nullptr;
+	LocationData const *currentLocation = AResponder::getCurrentLocation(serverData.getLocationData(), request.getLocation(), "POST");
 
-	const std::vector<LocationData> &locations = serverData.getLocationData();
-	for (std::vector<LocationData>::const_reverse_iterator it = locations.rbegin(); it != locations.rend(); ++it)
-	{
-		std::string location = it->getLocationPath();
-		if (location.length() != 0 && location[0] != '/')
-			location.insert(0, "/");
-		if (location.compare(0, location.length(), request.getLocation(), 0, location.length()) == 0)
-		{
-			currentLocation = &(*it);
-			break;
-		}
-	}
 	if (currentLocation == nullptr)
 		return (response.error("404", "Not Found"));
 	std::vector<std::string> const &locationMethods = currentLocation->getMethods();

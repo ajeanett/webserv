@@ -1,11 +1,11 @@
 #ifndef WEBSERV_PUTRESPONDER_HPP
 #define WEBSERV_PUTRESPONDER_HPP
 
-#include "HTTP/Responders/IResponder.hpp"
+#include "HTTP/Responders/AResponder.hpp"
 #include "CGI/CGI.hpp"
 #include "logging.hpp"
 
-class PutResponder : public IResponder
+class PutResponder : public AResponder
 {
 
 public:

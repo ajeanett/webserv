@@ -27,7 +27,6 @@ add_executable(webserv
 		srcs/HTTP/Response.hpp
 		srcs/HTTP/Responders/Get/GetResponder.cpp
 		srcs/HTTP/Responders/Get/GetResponder.hpp
-		srcs/HTTP/Responders/IResponder.hpp
 		srcs/HTTP/Errors/HTTPError.cpp
 		srcs/HTTP/Errors/HTTPError.hpp
 		srcs/HTTP/Errors/HTTPNotFound.cpp
@@ -38,4 +37,10 @@ add_executable(webserv
 		srcs/Utils/logging.cpp
 		srcs/HTTP/Responders/Put/PutResponder.cpp
 		srcs/HTTP/Responders/Put/PutResponder.hpp
-		srcs/HTTP/Errors/HTTPBadRequest.cpp srcs/HTTP/Errors/HTTPBadRequest.hpp srcs/HTTP/Autoindex.cpp srcs/HTTP/Autoindex.h)
+		srcs/HTTP/Errors/HTTPBadRequest.cpp
+		srcs/HTTP/Errors/HTTPBadRequest.hpp
+		srcs/HTTP/Autoindex.cpp
+		srcs/HTTP/Autoindex.h
+		srcs/HTTP/Responders/AResponder.cpp
+		srcs/HTTP/Responders/AResponder.hpp
+)

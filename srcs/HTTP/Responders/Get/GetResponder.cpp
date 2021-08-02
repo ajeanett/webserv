@@ -26,7 +26,7 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 {
 	Response response;
 
-	LocationData const *currentLocation = nullptr;
+	LocationData const *currentLocation = AResponder::getCurrentLocation(serverData.getLocationData(), request.getLocation(), "GET");
 
 //	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
 //	{
@@ -34,16 +34,6 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 //	}
 //	std::cout << "'" << request.getBody() << "'" << std::endl;
 
-	const std::vector<LocationData> &locations = serverData.getLocationData();
-	for (std::vector<LocationData>::const_reverse_iterator it = locations.rbegin(); it != locations.rend(); ++it)
-	{
-		std::string const &location = it->getLocationPath();
-		if (location.compare(0, location.length(), request.getLocation(), 0, location.length()) == 0)
-		{
-			currentLocation = &(*it);
-			break;
-		}
-	}
 	if (currentLocation == nullptr)
 		return (response.error("404", "Not Found"));
 	if (currentLocation->getIndex().empty() && currentLocation->getAutoindex() && request.getLocation()[request.getLocation().length() - 1] == '/')
