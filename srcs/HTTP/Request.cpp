@@ -183,8 +183,6 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 		responder = new PutResponder();
 //	else if (_startLine.find("method")->second == "DELETE")
 //		responder = new DeleteResponder();
-//	else if (_startLine.find("method")->second == "PUT")
-//		responder = new PutResponder();
 	else if (_method == "HEAD")
 		return (Response().error("405", "Method Not Allowed"));
 	else

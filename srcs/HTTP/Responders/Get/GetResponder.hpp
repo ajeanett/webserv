@@ -2,6 +2,7 @@
 #define WEBSERV_GETRESPONDER_HPP
 
 #include "HTTP/Responders/IResponder.hpp"
+#include "HTTP/Autoindex.h"
 #include "CGI/CGI.hpp"
 #include "logging.hpp"
 

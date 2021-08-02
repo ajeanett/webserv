@@ -46,6 +46,16 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	}
 	if (currentLocation == nullptr)
 		return (response.error("404", "Not Found"));
+	if (currentLocation->getIndex().empty() && currentLocation->getAutoindex())
+	{
+		Autoindex autoIndex(currentLocation->getFullPath());
+		std::string content = autoIndex.get_html();
+		response.setStatus("200", "OK");
+		response.getHeaders()["Content-Type"] = "text/html";
+		response.getHeaders()["Content-length"] = std::to_string(content.length());
+		response.setBody(content);
+		return (response.str());
+	}
 	std::vector<std::string> const &locationMethods = currentLocation->getMethods();
 	if (!locationMethods.empty() && std::find(locationMethods.begin(), locationMethods.end(), request.getMethod()) == locationMethods.end())
 		return (response.error("405", "Method Not Allowed"));

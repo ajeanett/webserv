@@ -11,7 +11,7 @@ class Autoindex{
 public:
     std::string directory;
 
-    Autoindex(char *dir);
+    Autoindex(std::string const &dir);
     std::string get_html();
 private:
     Autoindex();

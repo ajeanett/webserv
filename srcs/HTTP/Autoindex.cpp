@@ -5,11 +5,8 @@
 #include "Autoindex.h"
 #include <dirent.h>
 
-Autoindex::Autoindex(char *dir)
+Autoindex::Autoindex(std::string const &dir) : directory(dir)
 {
-
-    std::string tmp(dir);
-    directory = tmp;
 }
 
 std::string Autoindex::get_html()
