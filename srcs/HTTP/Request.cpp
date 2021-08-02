@@ -123,7 +123,8 @@ void Request::parse_body()
 	size_t	start_chunk_size = 0;
 	size_t	start_body = 0;
 	size_t	end_body = 0;
-	size_t	size_body = 0;
+//	size_t	size_body = 0;
+	size_t 	last_chunk;
 
 	size_t	chunk_size_length;
 	size_t	chunk_size;
@@ -133,6 +134,11 @@ void Request::parse_body()
 	{
 		while ((start_body = _body.find("\r\n", start_chunk_size)) != std::string::npos)
 		{
+			if ((last_chunk = _body.find("0\r\n\r\n", start_chunk_size)) != std::string::npos)
+			{
+				_body.erase(0,5);
+				break;
+			}
 //			chunk_size = strtol(_body.substr(start_chunk_size, start_body - start_chunk_size).c_str());
 //			std::string s = "3e8";
 			chunk_size = std::strtol(_body.substr(start_chunk_size, start_body - start_chunk_size).c_str(), tmp, 16);
