@@ -46,9 +46,9 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	}
 	if (currentLocation == nullptr)
 		return (response.error("404", "Not Found"));
-	if (currentLocation->getIndex().empty() && currentLocation->getAutoindex())
+	if (currentLocation->getIndex().empty() && currentLocation->getAutoindex() && request.getLocation()[request.getLocation().length() - 1] == '/')
 	{
-		Autoindex autoIndex(currentLocation->getFullPath());
+		Autoindex autoIndex(currentLocation->getRoot() + request.getLocation());
 		std::string content = autoIndex.get_html();
 		response.setStatus("200", "OK");
 		response.getHeaders()["Content-Type"] = "text/html";

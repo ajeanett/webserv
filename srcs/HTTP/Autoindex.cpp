@@ -50,7 +50,7 @@ std::string Autoindex::get_html()
             file_name = dir_point->d_name;
             file_name += "/";
         }
-        str+="     <a href=\"";
+        str+="     <a href=\"./";
         str+=file_name;
         str+="\">";
         str+=file_name;
