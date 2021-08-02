@@ -27,11 +27,11 @@ std::string PutResponder::respond(const Request &request, const ParserConfig &co
 
 	LocationData const *currentLocation = nullptr;
 
-	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
-	{
-		std::cout << std::setw(30) << it->first << ": " << it->second << std::endl;
-	}
-	std::cout << "'" << request.getBody() << "'" << std::endl;
+//	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
+//	{
+//		std::cout << std::setw(30) << it->first << ": " << it->second << std::endl;
+//	}
+//	std::cout << "'" << request.getBody() << "'" << std::endl;
 
 	const std::vector<LocationData> &locations = serverData.getLocationData();
 	for (std::vector<LocationData>::const_reverse_iterator it = locations.rbegin(); it != locations.rend(); ++it)
@@ -55,9 +55,18 @@ std::string PutResponder::respond(const Request &request, const ParserConfig &co
 	if (uri.empty())
 		return (response.error("404", "Not Found"));
 
-//	response.getHeaders()["Content-length"] = std::to_string(content.length());
-//	response.getHeaders()["Connection"] = "keep-alive";
-//	response.setBody(content);
+	response.getHeaders()["Content-Location"] = uri;
+
+	struct stat s;
+	if (stat(uri.c_str(), &s) < 0)
+		response.setStatus("201", "Created");
+	else
+		response.setStatus("204", "No Content");
+	std::ofstream ofs(uri, std::ios::trunc);
+	if (!ofs.is_open())
+		return (response.error("403", "Forbidden"));
+	ofs << request.getBody();
+	ofs.close();
 
 	return (response.str());
 }

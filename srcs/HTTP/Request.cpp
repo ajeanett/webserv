@@ -128,30 +128,25 @@ void Request::parse_body()
 
 	size_t	chunk_size_length;
 	size_t	chunk_size;
-	char  **tmp = NULL;
-//	std::string new_body = "";
+	char  **tmp = nullptr;
+
 	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
 	{
 		while ((start_body = _body.find("\r\n", start_chunk_size)) != std::string::npos)
 		{
-			if ((last_chunk = _body.find("0\r\n\r\n", start_chunk_size)) != std::string::npos)
-			{
-				_body.erase(0,5);
-				break;
-			}
-//			chunk_size = strtol(_body.substr(start_chunk_size, start_body - start_chunk_size).c_str());
-//			std::string s = "3e8";
+//			if ((last_chunk = _body.find("0\r\n\r\n", start_chunk_size)) != std::string::npos)
+//			{
+//				_body.erase(last_chunk, 5);
+////				break;
+//			}
 			chunk_size = std::strtol(_body.substr(start_chunk_size, start_body - start_chunk_size).c_str(), tmp, 16);
-			std::cout << chunk_size << std::endl;
 			start_body += 2;
-			_body.erase(0, start_body);
+			_body.erase(end_body, start_body - end_body);
 			end_body = _body.find("\r\n", 0);
-			if (chunk_size != end_body)
-			{
-				_error = "400";
-				return;
-			}
+			if (chunk_size != end_body && chunk_size != 0)
+				throw HTTPBadRequest();
 			_body.erase(end_body, 2);
+			start_chunk_size += chunk_size;
 		}
 	}
 }

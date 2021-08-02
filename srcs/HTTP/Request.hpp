@@ -21,6 +21,7 @@
 #include "HTTP/Responders/Put/PutResponder.hpp"
 #include "HTTP/Errors/HTTPError.hpp"
 #include "HTTP/Errors/HTTPNotFound.hpp"
+#include "HTTP/Errors/HTTPBadRequest.hpp"
 
 class Request
 {
