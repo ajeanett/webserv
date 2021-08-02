@@ -67,7 +67,7 @@ void    CGI::fillTmpEnvCgi(const Request &req, const ServerData & serv){
     locs = serv.getLocationData();
 
     _tmpEnvCGI["SERVER_NAME"] = serv.getServerName();
-    _tmpEnvCGI["HTTP_X_SECRET_HEADER_FOR_TEST"] = "1";
+//    _tmpEnvCGI["HTTP_X_SECRET_HEADER_FOR_TEST"] = "1";
     _tmpEnvCGI["GATEWAY_INTERFACE"] = "CGI/1.1";
     _tmpEnvCGI["SERVER_PROTOCOL"] = req.getVersion();
     _tmpEnvCGI["SERVER_PORT"] = std::to_string(serv.getPort());
@@ -164,7 +164,7 @@ void CGI::runCGI()
 		}
 		exit(0);
 	}
-    else
+	else
 	{
 		waitpid(_pid, &_status, 0);
 
@@ -216,17 +216,17 @@ void CGI::runCGI()
 		for (it = headers_raw.begin(); it != headers_raw.end(); it++)
 		{
 			prev = 0;
-			if ((next = (*it).find(delim, prev)) != std::string::npos)
+			if ((next = it->find(delim, prev)) != std::string::npos)
 			{
-				header_key = (*it).substr(prev, next - prev);
+				header_key = it->substr(prev, next - prev);
 				prev = next + 2;
 			}
-			header_value = (*it).substr(prev);
+			header_value = it->substr(prev);
 			_headers[header_key] = header_value;
 		}
 
 		_body = _ret;
-		_headers["Content-Length"] = std::to_string(_body.length());
+//		_headers["Content-Length"] = std::to_string(_body.length());
 	}
 
 //	 std::map<std::string,std::string>::iterator itm;

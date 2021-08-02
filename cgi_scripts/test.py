@@ -4,7 +4,7 @@ import random
 import datetime
 
 headers = {
-	"Content-Type": "text/plain"
+	"Content-Type": "text/html"
 }
 
 data = ""
@@ -13,7 +13,7 @@ try:
 except EOFError:
 	pass
 
-html = f"""
+html = f"""\
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,5 +64,5 @@ html = f"""
 
 for header in headers:
 	print(header + ": " + headers[header], end="\r\n")
-print("\r\n")
-print(html)
+print("", end="\r\n")
+print(html, end="")

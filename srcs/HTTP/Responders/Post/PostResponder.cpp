@@ -70,7 +70,7 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 			response.setStatus(code, status);
 		}
 		for (std::map<std::string, std::string>::const_iterator it = cgi.getHeaders().begin(); it != cgi.getHeaders().end(); ++it)
-			response.getHeaders()[it->first] = it->second;
+			responseHeaders[it->first] = it->second;
 	}
 	else
 	{
