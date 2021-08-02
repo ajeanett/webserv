@@ -38,4 +38,4 @@ add_executable(webserv
 		srcs/Utils/logging.cpp
 		srcs/HTTP/Responders/Put/PutResponder.cpp
 		srcs/HTTP/Responders/Put/PutResponder.hpp
-		srcs/HTTP/Errors/HTTPBadRequest.cpp srcs/HTTP/Errors/HTTPBadRequest.hpp)
+		srcs/HTTP/Errors/HTTPBadRequest.cpp srcs/HTTP/Errors/HTTPBadRequest.hpp srcs/HTTP/Autoindex.cpp srcs/HTTP/Autoindex.h)

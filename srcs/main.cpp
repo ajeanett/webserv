@@ -13,7 +13,7 @@
 #include "HTTP/Request.hpp"
 #include "./Engine//ServerEngine.hpp"
 #include "Utils/Date.hpp"
-
+#include "HTTP/Autoindex.h"
 #include <dirent.h>
 
 
@@ -81,12 +81,16 @@ std::string get_dir_files(char* dir)
 
 int main()
 {
-	ServerEngine serv;
+    ServerEngine serv;
 //	Date _d;
 //	std::cout << _d.get_time() << std::endl;
-    serv.servStart();
+  serv.servStart();
 //	serv.getStartPage();
 	serv.run();
+
+//    Autoindex a = Autoindex("/Users/bmarilli/Desktop/team_web/srcs/HTTP");
+//    std::cout << a.get_html();
+
 
 	return (0);
 }

@@ -1,6 +1,7 @@
 #include "Request.hpp"
 #include "Responders/IResponder.hpp"
 #include <vector>
+#include "Autoindex.h"
 
 Request::Request(const std::string &request) :
 	_request(request),

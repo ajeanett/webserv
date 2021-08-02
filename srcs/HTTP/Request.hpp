@@ -22,6 +22,7 @@
 #include "HTTP/Errors/HTTPError.hpp"
 #include "HTTP/Errors/HTTPNotFound.hpp"
 #include "HTTP/Errors/HTTPBadRequest.hpp"
+#include "Autoindex.h"
 
 class Request
 {
