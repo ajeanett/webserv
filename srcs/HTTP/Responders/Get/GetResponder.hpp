@@ -1,7 +1,7 @@
 #ifndef WEBSERV_GETRESPONDER_HPP
 #define WEBSERV_GETRESPONDER_HPP
 
-#include "IResponder.hpp"
+#include "HTTP/Responders/IResponder.hpp"
 #include "CGI/CGI.hpp"
 #include "logging.hpp"
 

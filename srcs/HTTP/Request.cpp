@@ -57,7 +57,6 @@ void Request::parse_request()
 
 void Request::parse_headers()
 {
-
 	// Ищем хедеры и заносим их в мапу
 	size_t findPosition = _request.find("\r\n\r\n", _requestPosition);
 
@@ -93,7 +92,6 @@ void Request::parse_headers()
 	std::string header_key;
 	std::string header_value;
 
-
 	for (it = headers_raw.begin(); it != headers_raw.end(); it++)
 	{
 		_linePosition = 0;
@@ -105,12 +103,6 @@ void Request::parse_headers()
 		header_value = (*it).substr(_linePosition);
 		_headers[header_key] = header_value;
 	}
-
-	// std::map<std::string,std::string>::iterator itm;
-	// std::cout << "HEADERS in MAP" << std::endl;
-	// for (itm = _headers.begin(); itm != _headers.end(); itm++)
-	//     std::cout <<"Key: " <<itm->first << " Value: " << itm->second << std::endl;
-	// std::cout << "HEADERS in MAP END" << std::endl;
 }
 
 void Request::parse_body()
@@ -128,27 +120,19 @@ void Request::parse_body()
 
 //	_body = _request.erase(0, this->_requestPosition); альтернативный вариант получения body, посмотреть потом, что быстрее - substr или erase
 
-	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
-	{
-		size_t next = _body.find("0\r\n\r\n", 0);
-		if (next != std::string::npos)
-		{
-			_body = "";
-		}
-//		chunked_body_handler();
-	}
-
-
-//	_body += "hjghghjjhghjdd f dfh dfhh df fd fd fd fd df";
-
-	//  Печать боди для проверки
-	// std::cout << "BODY" << std::endl << _body<< std::endl << "BODY END" << std::endl;
+//	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
+//	{
+//		size_t next = _body.find("0\r\n\r\n", 0);
+//		if (next != std::string::npos)
+//		{
+//			_body = "";
+//		}
+//	}
 }
 
 void Request::parse(const std::string &request_str)
 {
 	_request = request_str;
-	std::cout << request_str << std::endl;
 	try
 	{
 		parse_request();
@@ -181,15 +165,16 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 		responder = new GetResponder();
 	else if (_method == "POST")
 		responder = new PostResponder();
+	else if (_method == "PUT")
+		responder = new PutResponder();
 //	else if (_startLine.find("method")->second == "DELETE")
 //		responder = new DeleteResponder();
 //	else if (_startLine.find("method")->second == "PUT")
 //		responder = new PutResponder();
 	else
-		return (Response().error("400", "Bad Request"));
+		return (Response().error("405", "Method Not Allowed"));
 	std::string response = responder->respond(*this, config, serverData);
 	delete responder;
-	std::cout << response << std::endl;
 	return (response);
 }
 

@@ -25,15 +25,17 @@ add_executable(webserv
 		srcs/HTTP/Request.hpp
 		srcs/HTTP/Response.cpp
 		srcs/HTTP/Response.hpp
-		srcs/HTTP/Responders/GetResponder.cpp
-		srcs/HTTP/Responders/GetResponder.hpp
+		srcs/HTTP/Responders/Get/GetResponder.cpp
+		srcs/HTTP/Responders/Get/GetResponder.hpp
 		srcs/HTTP/Responders/IResponder.hpp
 		srcs/HTTP/Errors/HTTPError.cpp
 		srcs/HTTP/Errors/HTTPError.hpp
 		srcs/HTTP/Errors/HTTPNotFound.cpp
 		srcs/HTTP/Errors/HTTPNotFound.hpp
-		srcs/HTTP/Responders/PostResponder.cpp
-		srcs/HTTP/Responders/PostResponder.hpp
+		srcs/HTTP/Responders/Post/PostResponder.cpp
+		srcs/HTTP/Responders/Post/PostResponder.hpp
 		includes/logging.hpp
 		srcs/Utils/logging.cpp
+		srcs/HTTP/Responders/Put/PutResponder.cpp
+		srcs/HTTP/Responders/Put/PutResponder.hpp
 )

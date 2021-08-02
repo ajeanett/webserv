@@ -50,8 +50,8 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 	if (!locationMethods.empty() && std::find(locationMethods.begin(), locationMethods.end(), request.getMethod()) == locationMethods.end())
 		return (response.error("405", "Method Not Allowed"));
 	std::string requestLocation = request.getLocation();
-	requestLocation.erase(0, currentLocation->getRoot().length());
-	std::string uri = currentLocation->getRoot() + request.getLocation();
+	requestLocation.erase(0, currentLocation->getLocationPath().length());
+	std::string uri = currentLocation->getRoot() + requestLocation;
 
 	if (uri.empty())
 		return (response.error("404", "Not Found"));
