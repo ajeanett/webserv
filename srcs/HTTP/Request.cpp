@@ -120,14 +120,34 @@ void Request::parse_body()
 
 //	_body = _request.erase(0, this->_requestPosition); альтернативный вариант получения body, посмотреть потом, что быстрее - substr или erase
 
-//	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
-//	{
-//		size_t next = _body.find("0\r\n\r\n", 0);
-//		if (next != std::string::npos)
-//		{
-//			_body = "";
-//		}
-//	}
+	size_t	start_chunk_size = 0;
+	size_t	start_body = 0;
+	size_t	end_body = 0;
+	size_t	size_body = 0;
+
+	size_t	chunk_size_length;
+	size_t	chunk_size;
+	char  **tmp = NULL;
+//	std::string new_body = "";
+	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
+	{
+		while ((start_body = _body.find("\r\n", start_chunk_size)) != std::string::npos)
+		{
+//			chunk_size = strtol(_body.substr(start_chunk_size, start_body - start_chunk_size).c_str());
+//			std::string s = "3e8";
+			chunk_size = std::strtol(_body.substr(start_chunk_size, start_body - start_chunk_size).c_str(), tmp, 16);
+			std::cout << chunk_size << std::endl;
+			start_body += 2;
+			_body.erase(0, start_body);
+			end_body = _body.find("\r\n", 0);
+			if (chunk_size != end_body)
+			{
+				_error = "400";
+				return;
+			}
+			_body.erase(end_body, 2);
+		}
+	}
 }
 
 void Request::parse(const std::string &request_str)
@@ -171,6 +191,8 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 //		responder = new DeleteResponder();
 //	else if (_startLine.find("method")->second == "PUT")
 //		responder = new PutResponder();
+	else if (_method == "HEAD")
+		return (Response().error("405", "Method Not Allowed"));
 	else
 		return (Response().error("405", "Method Not Allowed"));
 	std::string response = responder->respond(*this, config, serverData);
