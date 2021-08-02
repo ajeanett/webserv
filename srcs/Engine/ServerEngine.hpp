@@ -2,11 +2,10 @@
 #ifndef SERVERENGINE_HPP
 #define SERVERENGINE_HPP
 
-#include "Webserv_main.hpp"
 #include "../HTTP/Request.hpp"
 #include "../HTTP/Errors/HTTPError.hpp"
 #include "../HTTP/Errors/HTTPNotFound.hpp"
-#include "../parse_config/ParserConfig.hpp"
+#include "../Parse/ParserConfig.hpp"
 #include "../CGI/CGI.hpp"
 #include "logging.hpp"
 /* Для inet_addr */

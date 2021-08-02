@@ -1,6 +1,6 @@
 #include "CGI.hpp"
 
-CGI::CGI(const Request &req, const ServerData & serv, const std::string &cgi_path, const  std::string &cgi_type) :
+CGI::CGI(const Request &req, const ServerData & serv, const std::string &cgi_path, const std::string &cgi_type) :
 	_req(req),
 	_serv(serv),
 	_cgi_type(cgi_type),
@@ -218,8 +218,7 @@ void CGI::runCGI()
 			prev = 0;
 			if ((next = (*it).find(delim, prev)) != std::string::npos)
 			{
-				header_key = (*it).substr(prev,
-										  next - prev);
+				header_key = (*it).substr(prev, next - prev);
 				prev = next + 2;
 			}
 			header_value = (*it).substr(prev);
@@ -248,12 +247,12 @@ void CGI::runCGI()
 	*/
 		if (envp)
 		{
-			for (int i = 0; envp[i] != NULL; ++i)
+			for (int i = 0; envp[i] != nullptr; ++i)
 			{
 				delete[] envp[i];
 			}
 			delete[] envp;
-			envp = NULL;
+			envp = nullptr;
 		}
 		return;
 
@@ -273,7 +272,7 @@ void CGI::runCGI()
 			{
 				_ret.insert(0, _tmpEnvCGI["CONTENT_TYPE"]);
 				_ret.insert(0, "\r\nContent-Type: ");
-				_ret.insert(0, d.get_time());
+				_ret.insert(0, _d.get_time());
 				_ret.insert(0, "\r\nDate: ");
 			} else
 			{

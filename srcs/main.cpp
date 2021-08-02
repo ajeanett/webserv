@@ -10,10 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./server_engine/Webserv_main.hpp"
 #include "HTTP/Request.hpp"
-#include "./server_engine/ServerEngine.hpp"
-#include "./server_engine/Date.hpp"
+#include "./Engine//ServerEngine.hpp"
+#include "Utils/Date.hpp"
 
 #include <dirent.h>
 
@@ -83,8 +82,8 @@ std::string get_dir_files(char* dir)
 int main()
 {
 	ServerEngine serv;
-//	Date d;
-//	std::cout << d.get_time() << std::endl;
+//	Date _d;
+//	std::cout << _d.get_time() << std::endl;
     serv.servStart();
 //	serv.getStartPage();
 	serv.run();

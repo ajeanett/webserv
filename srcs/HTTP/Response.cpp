@@ -38,7 +38,7 @@ std::string Response::error(const std::string &code, const std::string &message)
 {
 	_statusCode = code;
 	_statusMessage = message;
-	std::ifstream ifs("./html_pages/" + code + ".html", std::ifstream::in);
+	std::ifstream ifs("./www/" + code + ".html", std::ifstream::in);
 	std::stringstream html;
 	html << ifs.rdbuf();
 	ifs.close();

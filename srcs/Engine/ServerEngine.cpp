@@ -3,7 +3,7 @@
 ServerEngine::ServerEngine(std::set<int> const &ports)
 {
 //	for (std::set<int>::iterator it = ports.begin(); it != ports.end(); ++it)
-//		this->_ports.insert(*it);
+//		this->_ports.insert(*it); // where is _ports ??
 	_listen_fds.clear();
 	displayTimeStamp();
 	std::cout << "WebServer created.\n";
@@ -72,7 +72,7 @@ int ServerEngine::servStart()
 	*/
 	std::string configfile = "./ex.conf";
 	_config.getServers().clear();
-	_config.Parser(configfile);
+	_config.parse(configfile);
 	_ports_host.clear();
 
 	/* Добавляеям порты */
@@ -210,7 +210,7 @@ bool ServerEngine::check_request(std::string const &buffer)
 			if (next != std::string::npos)
 			{
 				tmp = buffer.substr(prev, next - prev);
-				int content_length = std::stoi(tmp);
+				size_t content_length = std::stoi(tmp);
 				return (body_size == content_length);
 			}
 		}

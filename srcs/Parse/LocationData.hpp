@@ -1,5 +1,6 @@
 #ifndef LOCATIONDATA_HPP
 #define LOCATIONDATA_HPP
+
 #include <iostream>
 #include <vector>
 #include <set>
@@ -21,7 +22,7 @@ private:
 	std::string 			_index;
 	std::string 			_redirect;
 	std::vector<std::string>	_methods;
-	
+
 	/*  
 		Сравниваем размер тела из запроса для ответа.
 		Если тело в запросе request больше, чем 100 символов, то в ответе возвращается ошибка - посмотреть номер в http

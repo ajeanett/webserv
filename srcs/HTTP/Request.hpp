@@ -14,7 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
-#include "../parse_config/ParserConfig.hpp"
+#include "../Parse//ParserConfig.hpp"
 #include "Response.hpp"
 #include "Responders/GetResponder.hpp"
 #include "Responders/PostResponder.hpp"

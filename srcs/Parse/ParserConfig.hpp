@@ -1,4 +1,3 @@
-#pragma once
 #ifndef PARSERCONFIG_HPP
 #define PARSERCONFIG_HPP
 
@@ -7,20 +6,16 @@
 #include "ServerData.hpp"
 #include <fstream>
 
-
 class ParserConfig
 {
-private:
 
+private:
 	/* Ключ - значение (номер сервера) -> Класс{name, port, host, массив путей } */
 	std::map<int, ServerData> _servers;
-
 	/* server open переменная для парсера */
 	bool _server_open;
-
 	/* открыт ли loc */
 	bool _loc_open;
-
 	/* Количсетво серверов */
 	int _serv_num;
 
@@ -32,9 +27,10 @@ public:
 	ParserConfig(ParserConfig &cpy);
 	~ParserConfig();
 	ParserConfig &operator=(const ParserConfig &cpy);
-	void Parser(std::string const &name);
-	ServerData ParseServer(std::ifstream &configfile, std::string &buffer);
+	void parse(std::string const &name);
+	ServerData parseServer(std::ifstream &configfile, std::string &buffer);
 	std::map<int, ServerData> &getServers();
+
 };
 
 #endif

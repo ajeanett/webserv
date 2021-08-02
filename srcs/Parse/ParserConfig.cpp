@@ -138,7 +138,7 @@ LocationData ParseLocations(std::ifstream &configfile, std::string &buffer, size
 	return (l);
 }
 
-ServerData ParserConfig::ParseServer(std::ifstream &configfile, std::string &buffer)
+ServerData ParserConfig::parseServer(std::ifstream &configfile, std::string &buffer)
 {
 	ServerData s;
 	size_t next;
@@ -157,7 +157,7 @@ ServerData ParserConfig::ParseServer(std::ifstream &configfile, std::string &buf
 	return (s);
 }
 
-void ParserConfig::Parser(std::string const &name)
+void ParserConfig::parse(std::string const &name)
 {
 
 	_server_open = false;
@@ -190,7 +190,10 @@ void ParserConfig::Parser(std::string const &name)
 			check_brackets(buffer);
 			if (_server_open && _serv_num < 4)
 			{
-				_servers.insert(std::pair<int, ServerData>(_serv_num, ParseServer(configfile, buffer)));
+				_servers.insert(std::pair<int, ServerData>(_serv_num,
+														   parseServer(
+																   configfile,
+																   buffer)));
 				_serv_num += 1;
 				server_find = false;
 			}

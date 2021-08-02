@@ -18,5 +18,4 @@ public:
 
 };
 
-
 #endif //WEBSERV_GETRESPONDER_HPP

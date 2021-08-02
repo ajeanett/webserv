@@ -14,11 +14,11 @@ include_directories(includes)
 
 add_executable(webserv
 		srcs/main.cpp
-		srcs/server_engine/ServerEngine.cpp
-		srcs/parse_config/LocationData.cpp
-		srcs/parse_config/ServerData.cpp
-		srcs/parse_config/ParserConfig.cpp
-		srcs/server_engine/Date.cpp
+		srcs/Engine/ServerEngine.cpp
+		srcs/Parse/LocationData.cpp
+		srcs/Parse/ServerData.cpp
+		srcs/Parse/ParserConfig.cpp
+		srcs/Utils/Date.cpp
 		srcs/CGI/CGI.cpp
 		srcs/CGI/CGI.hpp
 		srcs/HTTP/Request.cpp

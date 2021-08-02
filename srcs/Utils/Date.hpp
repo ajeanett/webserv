@@ -7,16 +7,16 @@
 
 class Date
 {
-	private:
-		char				_buf[1000];
-		struct timeval		_t;
-		struct tm*			_tm;
-		static std::string	_ret;
+private:
+	char				_buf[1000];
+	struct timeval		_t;
+	struct tm*			_tm;
+	static std::string	_ret;
 
 public:
-		Date(){}
-		~Date(){}
-		std::string get_time();
+	Date(){}
+	~Date(){}
+	std::string get_time();
 
 };
 
