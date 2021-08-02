@@ -37,6 +37,7 @@ static bool	match(std::string const &s1, std::string const &s2)
 
 const LocationData *AResponder::getCurrentLocation(std::vector<LocationData> const &locations, std::string const &requestLocation, std::string const &method) const
 {
+	std::list<LocationData const *> candidates;
 	std::vector<LocationData const *> cpy;
 	cpy.reserve(locations.size());
 	for (std::vector<LocationData>::const_iterator it = locations.begin(); it != locations.end(); ++it)
@@ -53,13 +54,23 @@ const LocationData *AResponder::getCurrentLocation(std::vector<LocationData> con
 	{
 		std::string location = (*it)->getLocationPath();
 		if (location.find('*') != std::string::npos && match(requestLocation, location))
-			return (*it);
+		{
+			if ((*it)->getMethods().empty() || std::find((*it)->getMethods().begin(), (*it)->getMethods().end(), method) != (*it)->getMethods().end())
+				return (*it);
+			candidates.push_front(*it);
+		}
 		if (location == requestLocation)
 			return (*it);
 		size_t l = std::min(location.length(), requestLocation.length());
 		if (location.compare(0, l, requestLocation, 0, l) == 0 && location.length() <= requestLocation.length())
+		{
+			if ((*it)->getMethods().empty() || std::find((*it)->getMethods().begin(), (*it)->getMethods().end(), method) != (*it)->getMethods().end())
+				return (*it);
 			return (*it);
+		}
 	}
+	if (!candidates.empty())
+		return (candidates.front());
 	// если будет location /directory/*.bla, get запрос идет через него
 	return (nullptr);
 }

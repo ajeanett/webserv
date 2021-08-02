@@ -2,6 +2,7 @@
 #define WEBSERV_ARESPONDER_HPP
 
 #include "Parse/ServerData.hpp"
+#include <list>
 
 class ParserConfig;
 class Response;
