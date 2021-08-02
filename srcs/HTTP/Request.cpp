@@ -123,10 +123,6 @@ void Request::parse_body()
 	size_t	start_chunk_size = 0;
 	size_t	start_body = 0;
 	size_t	end_body = 0;
-//	size_t	size_body = 0;
-	size_t 	last_chunk;
-
-	size_t	chunk_size_length;
 	size_t	chunk_size;
 	char  **tmp = nullptr;
 
@@ -134,16 +130,12 @@ void Request::parse_body()
 	{
 		while ((start_body = _body.find("\r\n", start_chunk_size)) != std::string::npos)
 		{
-//			if ((last_chunk = _body.find("0\r\n\r\n", start_chunk_size)) != std::string::npos)
-//			{
-//				_body.erase(last_chunk, 5);
-////				break;
-//			}
-			chunk_size = std::strtol(_body.substr(start_chunk_size, start_body - start_chunk_size).c_str(), tmp, 16);
-			start_body += 2;
-			_body.erase(end_body, start_body - end_body);
+			std::string head_chunk = _body.substr(start_chunk_size, start_body - start_chunk_size);
+			chunk_size = std::strtol(head_chunk.c_str(), tmp, 16);
+			_body.erase(end_body, start_body + 2 - end_body);
+			start_body -= head_chunk.length();
 			end_body = _body.find("\r\n", 0);
-			if (chunk_size != end_body && chunk_size != 0)
+			if (chunk_size != end_body - start_body && chunk_size != 0)
 				throw HTTPBadRequest();
 			_body.erase(end_body, 2);
 			start_chunk_size += chunk_size;
