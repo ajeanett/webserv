@@ -66,8 +66,15 @@ void    CGI::fillTmpEnvCgi(const Request &req, const ServerData & serv){
 
     curr_loc_str = req.getLocation();
     locs = serv.getLocationData();
+    /*
+     *
+     *  \0
+     *  dsfdsfdsf\0fdfdsfsd\0
+     *
+     * \*/
 
     _tmpEnvCGI["SERVER_NAME"] = serv.getServerName();
+    _tmpEnvCGI["HTTP_X_SECRET_HEADER_FOR_TEST"] = "1";
     _tmpEnvCGI["GATEWAY_INTERFACE"] = "CGI/1.1";
     _tmpEnvCGI["SERVER_PROTOCOL"] = req.getVersion();
     _tmpEnvCGI["SERVER_PORT"] = std::to_string(serv.getPort());

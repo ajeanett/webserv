@@ -125,12 +125,18 @@ void Request::parse_body()
 	}
 	else
 		_body = _request.substr(this->_requestPosition);
+
 //	_body = _request.erase(0, this->_requestPosition); альтернативный вариант получения body, посмотреть потом, что быстрее - substr или erase
 
-//	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
-//	{
+	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
+	{
+		size_t next = _body.find("0\r\n\r\n", 0);
+		if (next != std::string::npos)
+		{
+			_body = "";
+		}
 //		chunked_body_handler();
-//	}
+	}
 
 
 //	_body += "hjghghjjhghjdd f dfh dfhh df fd fd fd fd df";
@@ -142,6 +148,7 @@ void Request::parse_body()
 void Request::parse(const std::string &request_str)
 {
 	_request = request_str;
+	std::cout << request_str << std::endl;
 	try
 	{
 		parse_request();
@@ -182,6 +189,7 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 		return (Response().error("400", "Bad Request"));
 	std::string response = responder->respond(*this, config, serverData);
 	delete responder;
+	std::cout << response << std::endl;
 	return (response);
 }
 
