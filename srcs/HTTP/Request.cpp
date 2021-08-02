@@ -17,7 +17,7 @@ Request::~Request()
 {
 }
 
-void Request::parse_request(ServerData const &data)
+int	Request::parse_request(ServerData const &data)
 {
 
 	// Ищем первую строку
@@ -54,12 +54,9 @@ void Request::parse_request(ServerData const &data)
 //         for (it=_startLine.begin(); it!=_startLine.end(); it++)
 //             std::cout << it->first << " " << it->second << std::endl;
 //         std::cout << "END of MAP First Line" << std::endl;
-}
 
-void Request::parse_headers()
-{
-	// Ищем хедеры и заносим их в мапу
-	size_t findPosition = _request.find("\r\n\r\n", _requestPosition);
+
+	findPosition = _request.find("\r\n\r\n", _requestPosition);
 
 	if (findPosition != std::string::npos)
 	{
@@ -69,10 +66,52 @@ void Request::parse_headers()
 	else
 	{
 		perror("ERROR. Invalid message.");
+		_error = "400";
+		return 400;
 	}
-//	if ()
+	/*
+	 * Функция определяет текущий локейшен  сервере, проверяет наличие max_client_buffer_size, сверяет с длиной body текущего request`а
+	 * Если body больше буффера, то возвращает ошибку 413;
+	 * */
+	if (_method == "POST")
+	{
+		LocationData const *currentLocation = nullptr;
+
+		const std::vector<LocationData> &locations = data.getLocationData();
+		for (std::vector<LocationData>::const_reverse_iterator it = locations.rbegin(); it != locations.rend(); ++it)
+		{
+			std::string location = it->getLocationPath();
+			if (location.length() != 0 && location[0] != '/')
+				location.insert(0, "/");
+			if (location.compare(0, location.length(), _location, 0, location.length()) == 0)
+			{
+				currentLocation = &(*it);
+				if (currentLocation->getClientBufferBodySize() != 0 && currentLocation->getClientBufferBodySize() < (_request.length() - _requestPosition))
+				{
+					_error = "413";
+					return 413;
+				}  // размер боди
+
+				//	if ()
 //	if (this->conf.getBodySize() != 0 && this->conf.getBodySize() < this->req.getBody().size())
 //		throw BaseException("Payload Too Large", 413);
+				break;
+			}
+		}
+		if (currentLocation == nullptr)
+		{
+			_error = "404";
+			return 404;
+		}
+	}
+	return 0;
+}
+
+void Request::parse_headers()
+{
+	// Ищем хедеры и заносим их в мапу
+
+	size_t	findPosition = 0;
 
 	size_t _linePosition = 0;
 
