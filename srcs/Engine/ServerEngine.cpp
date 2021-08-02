@@ -137,7 +137,7 @@ int ServerEngine::ft_select(int mx, timeval *timeout)
 	return (ret);
 }
 
-bool ServerEngine::ft_send(const Request &request, int current_port)
+bool ServerEngine::ft_send(const Request &request)
 {
 	bool ret = false;
 
@@ -151,7 +151,7 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 			int serverFd = -1;
 			for (std::map<int, ServerData>::iterator it_data = _config.getServers().begin(); it_data != _config.getServers().end(); ++it_data) // servers с пустым сервером
 			{
-				if (it_data->second.getPort() == current_port)
+				if (it_data->second.getPort() == _current_port)
 				{
 					serverFd = it_data->first;
 					break;
@@ -168,7 +168,9 @@ bool ServerEngine::ft_send(const Request &request, int current_port)
 //				CGI cgi(request, data, "./cgi_scripts/test.py", "py");
 //				cgi.runCGI(); // для тестирования CGI
 //				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
-//				send(*it, cgi_out.c_str(), cgi_out.length(), 0); // проверка отправки результата выполнения cgi
+//				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi.getBody().length()) + "\r\n\r\n" + cgi.getBody();
+//				std::cout << "CGI_MSG\n"<< cgi_msg << std::endl;
+//				send(*it, cgi_msg .c_str(), cgi_msg .length(), 0); // проверка отправки результата выполнения cgi
 //			}
 			_clients_recv.insert(*it);
 			FD_CLR(*it, &_writeset_master);
@@ -318,7 +320,7 @@ bool ServerEngine::ft_receive(Request &request)
 	return (ret);
 }
 
-bool ServerEngine::ft_accept(int *mx, int *current_port)
+bool ServerEngine::ft_accept(int *mx)
 {
 	bool ret = false;
 
@@ -337,7 +339,7 @@ bool ServerEngine::ft_accept(int *mx, int *current_port)
 				perror("accept");
 				exit(3);
 			}
-			*current_port = _fdPort.find(*it)->second;
+			_current_port = _fdPort.find(*it)->second;
 			if (*mx < sock)
 				*mx = sock;
 			fcntl(sock, F_SETFL, O_NONBLOCK);
@@ -366,7 +368,7 @@ void ServerEngine::run()
 	timeout.tv_sec = 15;
 	timeout.tv_usec = 0;
 	bool _run = true;
-	int current_port = 0;
+	_current_port = 0;
 	Request request;
 	while (_run)
 	{
@@ -379,7 +381,7 @@ void ServerEngine::run()
 		}
 		if (!sel)
 		{
-			sel = ft_send(request, current_port); // отправка данных клиенту
+			sel = ft_send(request); // отправка данных клиенту
 		}
 		if (!sel)
 		{
@@ -395,7 +397,7 @@ void ServerEngine::run()
 		}
 		if (!sel)
 		{
-			sel = ft_accept(&mx, &current_port); // проверяем запросы на соединение
+			sel = ft_accept(&mx); // проверяем запросы на соединение
 		}
 		sel = true;
 	}

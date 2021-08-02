@@ -45,7 +45,8 @@ private:
 	// bool                        _sel; //
 	std::map<int, bool> _chunked; // проверка на фрагментированность каждого запроса. int -  это фд клиента, bool - фрагментирован запрос или нет.
 	/* Ключ-значение fd-port */
-	std::map<int, int> _fdPort;
+	std::map<int, int>	_fdPort;
+	int 				_current_port;
 
 public:
 	ServerEngine(ServerEngine const &src);
@@ -64,9 +65,9 @@ public:
 	void run();
 	void setAddr(int port, std::string &host);
 	int ft_select(int mx, timeval *timeout);
-	bool ft_send(Request const &request, int current_port);
+	bool ft_send(Request const &request);
 	bool ft_receive(Request &request);
-	bool ft_accept(int *mx, int *current_port);
+	bool ft_accept(int *mx);
 	bool check_request(std::string const &buffer);
 
 };
