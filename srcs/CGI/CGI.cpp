@@ -31,30 +31,29 @@ CGI::CGI(const Request &req, const ServerData & serv, const std::string &cgi_pat
 
 CGI::~CGI()
 {
-    
 }
 
-int     CGI::clearCGI(){
-
-    _tmpEnvCGI["SERVER_NAME"].clear();
-    _tmpEnvCGI["GATEWAY_INTERFACE"].clear();
-    _tmpEnvCGI["SERVER_PROTOCOL"].clear();
-    _tmpEnvCGI["SERVER_PORT"].clear();
-    _tmpEnvCGI["REQUEST_METHOD"].clear();
-    _tmpEnvCGI["PATH_INFO"].clear();
-    _tmpEnvCGI["PATH_TRANSLATED"].clear();
-    _tmpEnvCGI["SCRIPT_NAME"].clear();
-    _tmpEnvCGI["QUERY_STRING"].clear();
-    _tmpEnvCGI["REMOTE_HOST"].clear();
-    _tmpEnvCGI["REMOTE_ADDR"].clear();
-    _tmpEnvCGI["AUTH_TYPE"].clear();
-    _tmpEnvCGI["REMOTE_USER"].clear();
-    _tmpEnvCGI["REMOTE_IDENT"].clear();
-    _tmpEnvCGI["CONTENT_TYPE"].clear();
-    _tmpEnvCGI["CONTENT_LENGTH"].clear();
-    _tmpEnvCGI["HTTP_ACCEPT"].clear();
-    _tmpEnvCGI["HTTP_USER_AGENT"].clear();
-    _current_root.clear();
+int		CGI::clearCGI()
+{
+	_tmpEnvCGI["SERVER_NAME"].clear();
+	_tmpEnvCGI["GATEWAY_INTERFACE"].clear();
+	_tmpEnvCGI["SERVER_PROTOCOL"].clear();
+	_tmpEnvCGI["SERVER_PORT"].clear();
+	_tmpEnvCGI["REQUEST_METHOD"].clear();
+	_tmpEnvCGI["PATH_INFO"].clear();
+	_tmpEnvCGI["PATH_TRANSLATED"].clear();
+	_tmpEnvCGI["SCRIPT_NAME"].clear();
+	_tmpEnvCGI["QUERY_STRING"].clear();
+	_tmpEnvCGI["REMOTE_HOST"].clear();
+	_tmpEnvCGI["REMOTE_ADDR"].clear();
+	_tmpEnvCGI["AUTH_TYPE"].clear();
+	_tmpEnvCGI["REMOTE_USER"].clear();
+	_tmpEnvCGI["REMOTE_IDENT"].clear();
+	_tmpEnvCGI["CONTENT_TYPE"].clear();
+	_tmpEnvCGI["CONTENT_LENGTH"].clear();
+	_tmpEnvCGI["HTTP_ACCEPT"].clear();
+	_tmpEnvCGI["HTTP_USER_AGENT"].clear();
+	_current_root.clear();
 	return (0);
 }
 
@@ -66,12 +65,6 @@ void    CGI::fillTmpEnvCgi(const Request &req, const ServerData & serv){
 
     curr_loc_str = req.getLocation();
     locs = serv.getLocationData();
-    /*
-     *
-     *  \0
-     *  dsfdsfdsf\0fdfdsfsd\0
-     *
-     * \*/
 
     _tmpEnvCGI["SERVER_NAME"] = serv.getServerName();
     _tmpEnvCGI["HTTP_X_SECRET_HEADER_FOR_TEST"] = "1";
@@ -82,7 +75,7 @@ void    CGI::fillTmpEnvCgi(const Request &req, const ServerData & serv){
     _tmpEnvCGI["PATH_INFO"] = req.getLocation(); // target
     for (it = locs.begin(); it != locs.end(); ++it)
     {
-        if ((*it).getLocationPath() == curr_loc_str)
+        if (it->getLocationPath() == curr_loc_str)
         {
             _tmpEnvCGI["PATH_TRANSLATED"] = (*it).getRoot(); //
             _current_root = (*it).getRoot();

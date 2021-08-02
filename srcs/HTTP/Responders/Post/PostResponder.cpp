@@ -26,6 +26,7 @@ PostResponder &PostResponder::operator = (PostResponder const &src)
 std::string PostResponder::respond(const Request &request, const ParserConfig &config, const ServerData &serverData) const
 {
 	Response response;
+	std::map<std::string, std::string> &responseHeaders = response.getHeaders();
 
 //	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
 //	{
@@ -53,13 +54,23 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 	if (!locationMethods.empty() && std::find(locationMethods.begin(), locationMethods.end(), request.getMethod()) == locationMethods.end())
 		return (response.error("405", "Method Not Allowed"));
 
+	response.setStatus("200", "OK");
 	std::string content;
 	if (!currentLocation->getCgiPath().empty())
 	{
-		std::cout << "request body: '" << request.getBody() << "'" << std::endl;
 		CGI cgi(request, serverData, currentLocation->getCgiPath(), currentLocation->getCgiExtension());
 		cgi.runCGI();
 		content = cgi.getBody();
+		responseHeaders["Content-Length"] = std::to_string(content.length());
+		if (cgi.getHeaders().find("Status") != cgi.getHeaders().end())
+		{
+			std::string status = cgi.getHeaders().find("Status")->second;
+			std::string code = status.substr(0, 3);
+			status.erase(0, 4);
+			response.setStatus(code, status);
+		}
+		for (std::map<std::string, std::string>::const_iterator it = cgi.getHeaders().begin(); it != cgi.getHeaders().end(); ++it)
+			response.getHeaders()[it->first] = it->second;
 	}
 	else
 	{
@@ -85,6 +96,7 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 		content_stream << ifs.rdbuf();
 		ifs.close();
 		content = content_stream.str();
+		responseHeaders["Content-Length"] = std::to_string(content.length());
 	}
 
 //	response.getHeaders()["Content-Type"] = "text/plain";
@@ -98,10 +110,9 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 //		response.getHeaders()["Content-Type"] = type + '/' + extension;
 //		std::cout << "result: " << response.getHeaders()["Content-Type"] << std::endl;
 //	}
-	response.getHeaders()["Content-length"] = std::to_string(content.length());
-	response.getHeaders()["Connection"] = "keep-alive";
+
+	responseHeaders["Connection"] = "keep-alive";
 	response.setBody(content);
-	std::cout << "response body: '" << content << "'" << std::endl;
 
 	return (response.str());
 }
