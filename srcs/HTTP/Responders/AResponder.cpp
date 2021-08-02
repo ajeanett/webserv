@@ -66,11 +66,10 @@ const LocationData *AResponder::getCurrentLocation(std::vector<LocationData> con
 		{
 			if ((*it)->getMethods().empty() || std::find((*it)->getMethods().begin(), (*it)->getMethods().end(), method) != (*it)->getMethods().end())
 				return (*it);
-			return (*it);
+			candidates.push_front(*it);
 		}
 	}
 	if (!candidates.empty())
 		return (candidates.front());
-	// если будет location /directory/*.bla, get запрос идет через него
 	return (nullptr);
 }
