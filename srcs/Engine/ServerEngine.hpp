@@ -45,8 +45,11 @@ private:
 	// bool                        _sel; //
 	std::map<int, bool> _chunked; // проверка на фрагментированность каждого запроса. int -  это фд клиента, bool - фрагментирован запрос или нет.
 	/* Ключ-значение fd-port */
-	std::map<int, int>	_fdPort;
-	int 				_current_port;
+	std::map<int, int>	_fdPort; // map связывающий присвоенный fd сервера (ключ) c его портом (значение)
+	int 				_current_port; //текущий порт
+	int 				_serverFd; //текущий номер используемого сервера из конфига
+	LocationData		_currentLocation;
+
 
 public:
 	ServerEngine(ServerEngine const &src);

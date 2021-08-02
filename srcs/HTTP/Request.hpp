@@ -39,7 +39,7 @@ private:
 	size_t _requestPosition;
 	std::string _error;
 
-	void parse_request();
+	void parse_request(ServerData const &data);
 	void parse_headers();
 	void parse_body();
 
@@ -48,7 +48,7 @@ public:
 	Request(const std::string &request);
 	virtual ~Request();
 
-	void parse(std::string const &request_str);
+	void parse(std::string const &request_str, ServerData const &data);
 	std::string respond(ParserConfig const &config, ServerData const &serverData) const;
 	void clear();
 

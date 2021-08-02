@@ -148,18 +148,18 @@ bool ServerEngine::ft_send(const Request &request)
 //			displayTimeStamp();
 //			std::cout << "ft_send" << std::endl;
 			errno = 0;
-			int serverFd = -1;
-			for (std::map<int, ServerData>::iterator it_data = _config.getServers().begin(); it_data != _config.getServers().end(); ++it_data) // servers с пустым сервером
-			{
-				if (it_data->second.getPort() == _current_port)
-				{
-					serverFd = it_data->first;
-					break;
-				}
-			}
-			if (serverFd < 0)
-				throw std::exception();
-			ServerData const &data = _config.getServers().find(serverFd)->second;
+//			int serverFd = -1;
+//			for (std::map<int, ServerData>::iterator it_data = _config.getServers().begin(); it_data != _config.getServers().end(); ++it_data) // servers с пустым сервером
+//			{
+//				if (it_data->second.getPort() == _current_port)
+//				{
+//					serverFd = it_data->first;
+//					break;
+//				}
+//			}
+//			if (serverFd < 0)
+//				throw std::exception();
+			ServerData const &data = _config.getServers().find(_serverFd)->second;
 			std::string msg = request.respond(_config, data);
 			send(*it, msg.c_str(), msg.length(), 0);
 //			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
@@ -304,7 +304,7 @@ bool ServerEngine::ft_receive(Request &request)
 			if (full_request)
 			{
 				request.clear();
-				request.parse(_buffer[*it]);
+				request.parse(_buffer[*it], _config.getServers().find(_serverFd)->second);
 				displayTimeStamp();
 				std::cout << request.getMethod() << ' ' << request.getLocation() << std::endl;
 				_clients_send.insert(*it);
@@ -340,6 +340,17 @@ bool ServerEngine::ft_accept(int *mx)
 				exit(3);
 			}
 			_current_port = _fdPort.find(*it)->second;
+			_serverFd = -1;
+			for (std::map<int, ServerData>::iterator it_data = _config.getServers().begin(); it_data != _config.getServers().end(); ++it_data) // servers с пустым сервером
+			{
+				if (it_data->second.getPort() == _current_port)
+				{
+					_serverFd = it_data->first;
+					break;
+				}
+			}
+			if (_serverFd < 0)
+				throw std::exception();
 			if (*mx < sock)
 				*mx = sock;
 			fcntl(sock, F_SETFL, O_NONBLOCK);

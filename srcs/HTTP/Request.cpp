@@ -17,7 +17,7 @@ Request::~Request()
 {
 }
 
-void Request::parse_request()
+void Request::parse_request(ServerData const &data)
 {
 
 	// Ищем первую строку
@@ -70,6 +70,9 @@ void Request::parse_headers()
 	{
 		perror("ERROR. Invalid message.");
 	}
+//	if ()
+//	if (this->conf.getBodySize() != 0 && this->conf.getBodySize() < this->req.getBody().size())
+//		throw BaseException("Payload Too Large", 413);
 
 	size_t _linePosition = 0;
 
@@ -144,12 +147,12 @@ void Request::parse_body()
 	}
 }
 
-void Request::parse(const std::string &request_str)
+void Request::parse(const std::string &request_str, ServerData const &data)
 {
 	_request = request_str;
 	try
 	{
-		parse_request();
+		parse_request(data);
 		parse_headers();
 		parse_body();
 	}
@@ -169,6 +172,8 @@ std::string Request::respond(ParserConfig const &config, ServerData const &serve
 			return (Response().error(_error, "Not Found"));
 		if (_error == "405")
 			return (Response().error(_error, "Method Not Allowed"));
+		if (_error == "413")
+			return (Response().error(_error, "Payload Too Large"));
 		if (_error == "500")
 			return (Response().error(_error, "Internal Server Error"));
 	}
