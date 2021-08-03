@@ -1,12 +1,13 @@
 #include "CGI.hpp"
 
-CGI::CGI(const Request &req, const ServerData & serv, const std::string &cgi_path, const std::string &cgi_type) :
-	_req(req),
-	_serv(serv),
-	_cgi_type(cgi_type),
-	_cgi_path(cgi_path)
+CGI::CGI(const Request &req, const ServerData &serv,
+		 const std::string &cgi_path, const std::string &cgi_type) :
+		_req(req),
+		_serv(serv),
+		_cgi_type(cgi_type),
+		_cgi_path(cgi_path)
 {
-	 /* environment variables for CGI */
+	/* environment variables for CGI */
 	_tmpEnvCGI["SERVER_SOFTWARE"] = "Webserv by kfriese and ajeanett";
 	_tmpEnvCGI["SERVER_NAME"];
 	_tmpEnvCGI["GATEWAY_INTERFACE"];
@@ -33,7 +34,7 @@ CGI::~CGI()
 {
 }
 
-int		CGI::clearCGI()
+int CGI::clear()
 {
 	_tmpEnvCGI["SERVER_NAME"].clear();
 	_tmpEnvCGI["GATEWAY_INTERFACE"].clear();
@@ -57,107 +58,127 @@ int		CGI::clearCGI()
 	return (0);
 }
 
-void    CGI::fillTmpEnvCgi(const Request &req, const ServerData & serv){
-
-    std::string curr_loc_str;
-    std::vector<LocationData> locs;
-    std::vector<LocationData>::iterator it;
-
-    curr_loc_str = req.getLocation();
-    locs = serv.getLocationData();
-
-    _tmpEnvCGI["SERVER_NAME"] = serv.getServerName();
-//    _tmpEnvCGI["HTTP_X_SECRET_HEADER_FOR_TEST"] = "1";
-    _tmpEnvCGI["GATEWAY_INTERFACE"] = "CGI/1.1";
-    _tmpEnvCGI["SERVER_PROTOCOL"] = req.getVersion();
-    _tmpEnvCGI["SERVER_PORT"] = std::to_string(serv.getPort());
-    _tmpEnvCGI["REQUEST_METHOD"] = req.getMethod();
-    _tmpEnvCGI["PATH_INFO"] = req.getLocation(); // target
-    for (it = locs.begin(); it != locs.end(); ++it)
-    {
-        if (it->getLocationPath() == curr_loc_str)
-        {
-            _tmpEnvCGI["PATH_TRANSLATED"] = (*it).getRoot(); //
-            _current_root = (*it).getRoot();
-            _tmpEnvCGI["SCRIPT_NAME"] = !(*it).getCgiPath().empty() ? (*it).getCgiPath() : "" ;
-        }
-    }
-        _tmpEnvCGI["QUERY_STRING"] = "";
-//        _tmpEnvCGI["REMOTE_HOST"] = req.getHeaders().find("Referer") == req.getHeaders().end() ? "" : req.getHeaders().find("Content-Type")->second;
-        _tmpEnvCGI["REMOTE_ADDR"] = "";
-        _tmpEnvCGI["AUTH_TYPE"] = "BASIC";
-        _tmpEnvCGI["REMOTE_USER"] = "User";
-        // _tmpEnvCGI["REMOTE_IDENT"] = "";
-        _tmpEnvCGI["CONTENT_TYPE"] = req.getHeaders().find("Content-Type") == req.getHeaders().end() ? "" : req.getHeaders().find("Content-Type")->second;
-        _tmpEnvCGI["CONTENT_LENGTH"] = std::to_string(req.getBody().size());
-        _tmpEnvCGI["HTTP_ACCEPT"] =  req.getHeaders().find("Accept") == req.getHeaders().end() ? "" : req.getHeaders().find("Accept")->second;
-        _tmpEnvCGI["HTTP_USER_AGENT"] = req.getHeaders().find("User-Agent") == req.getHeaders().end() ? "" : req.getHeaders().find("User-Agent")->second;
+static std::string transformXHeader(std::string const &str)
+{
+	std::string r;
+	for (size_t i = 0; i < str.length(); ++i)
+	{
+		if (str[i] == '-')
+			r += '_';
+		else
+			r += (char)std::toupper(str[i]);
+	}
+	return (r);
 }
 
-void    CGI::fillEnvp(char *** envp){
+void CGI::fillTmpEnvCgi(const Request &req, const ServerData &serv)
+{
 
-    *envp = new char* [_tmpEnvCGI.size() + 1];
-	int	i = 0;
-    //Заплняем переменные окружения в char** из мапы, которую мы создали ранее
-	for (std::map<std::string, std::string>::iterator it = _tmpEnvCGI.begin(); it != _tmpEnvCGI.end(); ++it) {
-		std::string	var = it->first + "=" + it->second; //каждая строка в переменной окружения должна быть вида key=value
+	std::string curr_loc_str;
+	std::vector<LocationData> locs;
+
+	curr_loc_str = req.getLocation();
+	locs = serv.getLocationData();
+
+	_tmpEnvCGI["SERVER_NAME"] = serv.getServerName();
+//    _tmpEnvCGI["HTTP_X_SECRET_HEADER_FOR_TEST"] = "1";
+	_tmpEnvCGI["GATEWAY_INTERFACE"] = "CGI/1.1";
+	_tmpEnvCGI["SERVER_PROTOCOL"] = req.getVersion();
+	_tmpEnvCGI["SERVER_PORT"] = std::to_string(serv.getPort());
+	_tmpEnvCGI["REQUEST_METHOD"] = req.getMethod();
+	_tmpEnvCGI["PATH_INFO"] = req.getLocation(); // target
+	for (std::vector<LocationData>::iterator it = locs.begin();
+		 it != locs.end(); ++it)
+	{
+		if (it->getLocationPath() == curr_loc_str)
+		{
+			_tmpEnvCGI["PATH_TRANSLATED"] = (*it).getRoot(); //
+			_current_root = (*it).getRoot();
+			_tmpEnvCGI["SCRIPT_NAME"] = !(*it).getCgiPath().empty()
+										? (*it).getCgiPath() : "";
+		}
+	}
+	_tmpEnvCGI["QUERY_STRING"] = "";
+//        _tmpEnvCGI["REMOTE_HOST"] = req.getHeaders().find("Referer") == req.getHeaders().end() ? "" : req.getHeaders().find("Content-Type")->second;
+	_tmpEnvCGI["REMOTE_ADDR"] = "";
+	_tmpEnvCGI["AUTH_TYPE"] = "BASIC";
+	_tmpEnvCGI["REMOTE_USER"] = "User";
+	// _tmpEnvCGI["REMOTE_IDENT"] = "";
+	_tmpEnvCGI["CONTENT_TYPE"] =
+			req.getHeaders().find("Content-Type") == req.getHeaders().end() ? ""
+																			: req.getHeaders().find("Content-Type")->second;
+	_tmpEnvCGI["CONTENT_LENGTH"] = std::to_string(req.getBody().size());
+	_tmpEnvCGI["HTTP_ACCEPT"] =
+			req.getHeaders().find("Accept") == req.getHeaders().end() ? ""
+																	  : req.getHeaders().find("Accept")->second;
+	_tmpEnvCGI["HTTP_USER_AGENT"] =
+			req.getHeaders().find("User-Agent") == req.getHeaders().end() ? ""
+																		  : req.getHeaders().find("User-Agent")->second;
+
+	/* X- Headers */
+	for (std::map<std::string, std::string>::const_iterator it = _req.getHeaders().begin(); it != _req.getHeaders().end(); ++it)
+	{
+		if (it->first.compare(0, 2, "X-", 0, 2) == 0)
+			_tmpEnvCGI["HTTP_" + transformXHeader(it->first)] = it->second;
+	}
+}
+
+void CGI::fillEnvp(char ***envp)
+{
+	*envp = new char *[_tmpEnvCGI.size() + 1];
+	int i = 0;
+	//Заплняем переменные окружения в char** из мапы, которую мы создали ранее
+	for (std::map<std::string, std::string>::iterator it = _tmpEnvCGI.begin(); it != _tmpEnvCGI.end(); ++it)
+	{
+		std::string var = it->first + "=" + it->second; //каждая строка в переменной окружения должна быть вида key=value
 		(*envp)[i] = new char[var.size() + 1];
 		std::strcpy((*envp)[i], var.c_str());
 		i++;
 	}
-	(*envp)[i] = NULL; //зануляем двухмерный массив
-
-    return ;
+	(*envp)[i] = nullptr; //зануляем двухмерный массив
 }
 
-void    CGI::prepareEnvCGI(const Request &req, const ServerData & serv, char *** envp){
-
-    clearCGI(); //очищаем предыдущие данные перед повторным использованием;
-    fillTmpEnvCgi(req, serv);
-    fillEnvp(envp);
+void
+CGI::prepareEnvCGI(const Request &req, const ServerData &serv, char ***envp)
+{
+	clear(); //очищаем предыдущие данные перед повторным использованием;
+	fillTmpEnvCgi(req, serv);
+	fillEnvp(envp);
 }
 
-// void    CGI::startCGI(char *** envp){
-
-// }
-
-/*
- * cgi_real_path - путь к исполяемому файлу CGI = root + cgi_path из конфига
- * cgi_type -  тип из конфига
- * */
 void CGI::runCGI()
 {
-    char **envp = NULL;
-    std::string _ret; // возвращаемая строка;
-    prepareEnvCGI(_req, _serv, &envp);
+	char **envp = nullptr;
+	std::string _ret; // возвращаемая строка;
+	prepareEnvCGI(_req, _serv, &envp);
 
-    pid_t _pid;
-    int _status;
+	pid_t _pid;
+	int _status;
 
 	std::string cgi_tmp_path_in = "./cgi_tmp_in";
 	std::string cgi_tmp_path_out = "./cgi_tmp_out";
 	/* tmp_file_fd_in - временнй файл для сохранения body запроса, для обработки этих данныхв CGI*/
 	int tmp_file_fd_in = open(cgi_tmp_path_in.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
 	/* tmp_file_fd_out - временнй файл для сохранения результата выполнения CGI*/
-	int tmp_file_fd_out = open(cgi_tmp_path_out.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
+	int tmp_file_fd_out = open(cgi_tmp_path_out.c_str(),  O_RDWR | O_TRUNC | O_CREAT, 0777);
 	write(tmp_file_fd_in, _req.getBody().c_str(), _req.getBody().length());
 	lseek(tmp_file_fd_in, 0, SEEK_SET);
 
-    _pid = fork();
+	_pid = fork();
 
-    if (_pid == -1)
-    {
-        perror("Fork error\n");
-    } 
-    else if (_pid == 0)
+	if (_pid == -1)
+	{
+		perror("Fork error\n");
+	}
+	else if (_pid == 0)
 	{
 		dup2(tmp_file_fd_in, STDIN_FILENO);
 		dup2(tmp_file_fd_out, STDOUT_FILENO);
 		char **arg = new char *[3];
 		/* выполняем cgi_tester */
 		arg[0] = const_cast<char *>(_cgi_path.c_str()); //strdup(path.c_str());
-		arg[1] = NULL; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
-		arg[2] = NULL;
+		arg[1] = nullptr; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
+		arg[2] = nullptr;
 		if (execve(arg[0], arg, envp) == -1)
 		{
 			std::cerr << "ERROR CGI" << std::endl;
@@ -172,7 +193,8 @@ void CGI::runCGI()
 		fstat(tmp_file_fd_out, &file);
 		lseek(tmp_file_fd_out, 0, SEEK_SET);
 		_ret.resize(file.st_size);
-		read(tmp_file_fd_out, const_cast<char *>(_ret.c_str()), _ret.capacity());
+		read(tmp_file_fd_out, const_cast<char *>(_ret.c_str()),
+			 _ret.capacity());
 		close(tmp_file_fd_out);
 		close(tmp_file_fd_in);
 		remove(cgi_tmp_path_in.c_str());
@@ -190,7 +212,6 @@ void CGI::runCGI()
 		else
 		{
 			perror("ERROR 500. Internal server error!. No headers in CGI data.");
-			// exception 500
 		}
 
 		std::vector<std::string> headers_raw;
@@ -203,7 +224,6 @@ void CGI::runCGI()
 		headers_raw.push_back(_headers_all.substr(prev));
 
 		//  Печать хедеров для проверки
-		std::vector<std::string>::iterator it;
 		// std::cout << "Vector Headers" << std::endl;
 		// for (it = headers_raw.begin(); it != headers_raw.end(); it++)
 		//     std::cout << *it << std::endl;
@@ -213,7 +233,7 @@ void CGI::runCGI()
 		std::string header_key;
 		std::string header_value;
 
-		for (it = headers_raw.begin(); it != headers_raw.end(); it++)
+		for (std::vector<std::string>::iterator it = headers_raw.begin(); it != headers_raw.end(); it++)
 		{
 			prev = 0;
 			if ((next = it->find(delim, prev)) != std::string::npos)
@@ -224,79 +244,19 @@ void CGI::runCGI()
 			header_value = it->substr(prev);
 			_headers[header_key] = header_value;
 		}
-
 		_body = _ret;
-//		_headers["Content-Length"] = std::to_string(_body.length());
 	}
-
-//	 std::map<std::string,std::string>::iterator itm;
-//	 std::cout << "HEADERS in MAP" << std::endl;
-//	 for (itm = _headers.begin(); itm != _headers.end(); itm++)
-//	     std::cout <<"Key: " <<itm->first << " Value: " << itm->second << std::endl;
-//	 std::cout << "HEADERS in MAP END" << std::endl;
-//	 std::cout << "BODY: " << std::endl;
-//	std::cout << _body << std::endl;
-//	std::cout << "BODY END" << std::endl;
-
-/*
-	_headers["Content-Type"] = "text/plain"; // example
-	_body ="It's Python! (test.py)\n"
-		   "\n"
-		   "Random number: 100\n"
-		   "time: 2021-08-01 11:06:57.250976";
-	*/
-		if (envp)
+	if (envp)
+	{
+		for (int i = 0; envp[i] != nullptr; ++i)
 		{
-			for (int i = 0; envp[i] != nullptr; ++i)
-			{
-				delete[] envp[i];
-			}
-			delete[] envp;
-			envp = nullptr;
+			delete[] envp[i];
 		}
-		return;
+		delete[] envp;
+		envp = nullptr;
+	}
+	return;
 
-		/*Добавляем первую строку и хедеры*/
-		size_t find = _ret.find("Status:");
-		if (find == 0)
-		{
-			_ret.replace(0, 7, "HTTP/1.1");
-		}
-		if ((find = _ret.find("HTTP/1.1")) != 0)
-		{
-			/*Значит это другие исполяемые файлы - python или php*/
-//		std::string _ret_cgi = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(_ret.length()) + "\r\n\r\n" + _ret;
-			std::string cont_length = std::to_string(_ret.length());
-			_ret.insert(0, "\r\n\r\n");
-			if (!_tmpEnvCGI["CONTENT_TYPE"].empty())
-			{
-				_ret.insert(0, _tmpEnvCGI["CONTENT_TYPE"]);
-				_ret.insert(0, "\r\nContent-Type: ");
-				_ret.insert(0, _d.get_time());
-				_ret.insert(0, "\r\nDate: ");
-			} else
-			{
-				_ret.insert(0, "\r\nContent-Type: text/plain");
-			}
-			_ret.insert(0, cont_length);
-			_ret.insert(0, "HTTP/1.1 200 OK\r\nContent-Length: ");
-		}
-//	find = _ret.find("HTTP/1.1");
-//	if (find == 0)
-//	{
-//		/*Значит это тестер CGI*/
-//		_ret.replace(0,  7, "HTTP/1.1");
-//	}
-//	else
-//	{
-//		/*Значит это другие исполяемые файлы - python или php*/
-//		std::string _ret_cgi = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(_ret.length()) + "\r\n\r\n" + _ret;
-//		std::string cont_lenght = std::to_string(_ret.length());
-//		_ret.insert(0,  "\r\n\r\n");
-//		_ret.insert(0, cont_lenght );
-//		_ret.insert(0,"HTTP/1.1 200 OK\r\nContent-Length: ");
-//	}
-//    return _ret;
 }
 
 const std::map<std::string, std::string> &CGI::getHeaders() const

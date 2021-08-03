@@ -17,7 +17,6 @@ class CGI
 private:
 	/* data */
 	std::map<std::string, std::string> _tmpEnvCGI;  // мапа для занесения пар ключ\значение для переменных окружения CGI, перед выполнением execve нужно будет перевести в char**
-//	char **_envp; // переменные окружения для execve;
 	std::string _current_root;
 	const Request &_req;
 	const ServerData &_serv;
@@ -29,7 +28,7 @@ private:
 	std::string _body;
 
 	void prepareEnvCGI(const Request &req, const ServerData &serv, char ***envp);
-	int clearCGI();
+	int clear();
 	void fillTmpEnvCgi(const Request &req, const ServerData &serv);
 	void fillEnvp(char ***envp);
 
