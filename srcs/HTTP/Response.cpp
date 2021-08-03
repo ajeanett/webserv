@@ -60,6 +60,11 @@ std::string Response::error(const std::string &code, const std::string &message)
 	return (str());
 }
 
+const std::string &Response::getStatusCode() const
+{
+	return _statusCode;
+}
+
 void Response::setVersion(const std::string &version)
 {
 	_version = version;

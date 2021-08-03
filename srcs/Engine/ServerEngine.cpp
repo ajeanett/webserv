@@ -242,6 +242,16 @@ bool ServerEngine::ft_send(const Request &request)
 			std::cout << "Bytes sent: " << bytes_sent << ", length left: " << _writeBuffer[*it].length() << std::endl;
 		#endif
 			ret = true;
+			if (bytes_sent < 0)
+			{
+				FD_CLR(*it, &_readset_master);
+				FD_CLR(*it, &_writeset_master);
+				close(*it);
+				_readBuffer.erase(*it);
+				_clients_send.erase(*it);
+				ret = true;
+				break;
+			}
 			if (_writeBuffer[*it].length() == 0)
 			{
 				_writeBuffer.erase(*it);

@@ -26,6 +26,10 @@ public:
 private:
 	std::string _version;
 	std::string _statusCode;
+public:
+	const std::string &getStatusCode() const;
+
+private:
 	std::string _statusMessage;
 	std::map<std::string, std::string> _headers;
 	std::string _body;
