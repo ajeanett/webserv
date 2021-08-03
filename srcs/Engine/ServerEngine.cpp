@@ -123,8 +123,10 @@ int ServerEngine::ft_select(int mx, timeval *timeout)
 
 	FD_ZERO(&_readset); // всегда обновлять в начале while
 	FD_ZERO(&_writeset); // всегда обновлять в начале while
-//	displayTimeStamp();
-//	std::cout << "ft_select, mx = " << mx << std::endl;
+#ifdef DEBUG
+	displayTimeStamp();
+	std::cout << "ft_select, mx = " << mx << std::endl;
+#endif
 	memcpy(&_readset, &_readset_master, sizeof(_readset_master));
 	memcpy(&_writeset, &_writeset_master, sizeof(_writeset_master));
 	errno = 0;
@@ -219,8 +221,10 @@ bool ServerEngine::ft_send(const Request &request)
 	{
 		if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
 		{
+		#ifdef DEBUG
 			displayTimeStamp();
 			std::cout << GREEN << "ft_send" << END << std::endl;
+		#endif
 			errno = 0;
 			ServerData const &data = _config.getServers().find(_serverFd)->second;
 			if (_writeBuffer.find(*it) == _writeBuffer.end())
@@ -232,17 +236,14 @@ bool ServerEngine::ft_send(const Request &request)
 			if (len > TCP_MAX)
 				len = TCP_MAX;
 			ssize_t bytes_sent = send(*it, _writeBuffer[*it].c_str(), len, 0);
-//			_fd_size_to_send[*it] -= bytes_sent;
-			displayTimeStamp();
 			_writeBuffer[*it].erase(0, bytes_sent);
+		#ifdef DEBUG
+			displayTimeStamp();
 			std::cout << "Bytes sent: " << bytes_sent << ", length left: " << _writeBuffer[*it].length() << std::endl;
+		#endif
 			ret = true;
 			if (_writeBuffer[*it].length() == 0)
 			{
-				for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
-				{
-					std::cout << std::setw(30) << it->first << ": " << it->second << std::endl;
-				}
 				_writeBuffer.erase(*it);
 				FD_CLR(*it, &_writeset_master);
 				close(*it);
@@ -274,8 +275,10 @@ bool ServerEngine::ft_receive(Request &request)
 			bytes_read = recv(*it, _buf, TCP_MAX, 0);
 			if (bytes_read >= 0)
 				_buf[bytes_read] = '\0';
+		#ifdef DEBUG
 			displayTimeStamp();
 			std::cout << MAGENTA << "ft_receive" << END << ", bytes_read = " << bytes_read << ", *it = " << *it << std::endl;
+		#endif
 			if (bytes_read <= 0)
 			{
 				FD_CLR(*it, &_readset_master);
@@ -301,8 +304,10 @@ bool ServerEngine::ft_receive(Request &request)
 			{
 				request.clear();
 				request.parse(_readBuffer[*it], _config.getServers().find(_serverFd)->second);
+			#ifdef DEBUG
 				displayTimeStamp();
 				std::cout << request.getMethod() << ' ' << request.getLocation() << std::endl;
+			#endif
 				_clients_send.insert(*it);
 				FD_SET(*it, &_writeset_master);
 				_clients_recv.erase(*it);
@@ -325,11 +330,13 @@ bool ServerEngine::ft_accept(int *mx)
 //		Определяем тип события и выполняем соответствующие действия
 		if (FD_ISSET(*it, &_readset))
 		{
+		#ifdef DEBUG
 			displayTimeStamp();
 			std::cout << BLUE << "ft_accept" << END << std::endl;
+		#endif
 			// Поступил новый запрос на соединение, используем accept
 			errno = 0;
-			int sock = accept(*it, NULL, NULL);
+			int sock = accept(*it, nullptr, nullptr);
 			if (sock < 0)
 			{
 				perror("accept");
@@ -370,7 +377,7 @@ void ServerEngine::run()
 	for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
 		FD_SET(*it, &_readset_master);
 
-	struct timeval tv = {10, 0};
+	struct timeval tv = {1, 0};
 //	struct timeval timeout;
 //	timeout.tv_sec = 15;
 //	timeout.tv_usec = 0;
