@@ -18,6 +18,32 @@
 #define DEBUG 0
 #define TCP_MAX 65535
 
+class t_req_data
+{
+public:
+	std::string buffer;
+	bool _is_transfer_encoding;
+	bool _is_content_length;
+	bool _is_not_body;
+	size_t _body_size;
+	bool _is_body; //\r\n\r\n
+	size_t _start_body;
+	size_t _cur_pos;
+	t_req_data() {
+		this->clear();
+	}
+	void clear() {
+		_is_transfer_encoding = false;
+		_is_content_length = false;
+		_is_not_body = false;
+		_is_body = false;
+		_body_size = 0;
+		_start_body = 0;
+		_cur_pos = 0;
+		buffer.clear();
+	}
+};
+
 class ServerEngine
 {
 private:
@@ -41,7 +67,8 @@ private:
 	fd_set _readset; // нужны четыре сета, два читающих, два слушающих, для select
 	fd_set _writeset; // нужны четыре сета, два читающих, два слушающих, для select
 	char _buf[TCP_MAX + 1]; // максимальный размер пакета http
-	std::map<int, std::string> _readBuffer;// мапа для чтения запросов\request`ов, int -  это фд клиента, string - буффер отдельно для каждого клиента.
+	//std::map<int, std::string> _readBuffer;// мапа для чтения запросов\request`ов, int -  это фд клиента, string - буффер отдельно для каждого клиента.
+	std::map<int, t_req_data>	_readBuffer;
 	std::map<int, std::string> _writeBuffer;// мапа для чтения запросов\request`ов, int -  это фд клиента, string - буффер отдельно для каждого клиента.
 	/* Ключ-значение fd-port */
 	std::map<int, int>	_fdPort; // map связывающий присвоенный fd сервера (ключ) c его портом (значение)
@@ -63,7 +90,7 @@ public:
 	bool ft_send(Request const &request);
 	bool ft_receive(Request &request);
 	bool ft_accept(int *mx);
-	bool check_request(std::string const &buffer);
+	bool check_request(t_req_data &buffer);
 
 	void setAddr(int port, std::string &host);
 	std::map<int, std::string> getPorts() const
