@@ -215,9 +215,6 @@ bool ServerEngine::check_request(std::string const &buffer)
 bool ServerEngine::ft_send(const Request &request)
 {
 	bool ret = false;
-	bool _close_post = true;
-	if (request.getMethod() == "POST" && (request.getLocation() == "/directory/youpi.bla" || request.getLocation() == "/directory/youpla.bla"))
-		_close_post = false;
 	for (std::set<int>::iterator it = _clients_send.begin(); it != _clients_send.end(); ++it)
 	{
 		if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
@@ -240,8 +237,6 @@ bool ServerEngine::ft_send(const Request &request)
 			_writeBuffer[*it].erase(0, bytes_sent);
 			std::cout << "Bytes sent: " << bytes_sent << ", length left: " << _writeBuffer[*it].length() << std::endl;
 			ret = true;
-			FD_CLR(*it, &_readset_master);
-			_clients_recv.erase(*it);
 			if (_writeBuffer[*it].length() == 0)
 			{
 				for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
@@ -250,13 +245,9 @@ bool ServerEngine::ft_send(const Request &request)
 				}
 				_writeBuffer.erase(*it);
 				FD_CLR(*it, &_writeset_master);
-				if (_close_post)
-					close(*it);
-				else
-				{
-					FD_SET(*it, &_readset_master);
-					_clients_recv.insert(*it);
-				}
+				close(*it);
+				FD_CLR(*it, &_readset_master);
+				_clients_recv.erase(*it);
 				_clients_send.erase(*it);
 				break;
 			}
@@ -264,51 +255,6 @@ bool ServerEngine::ft_send(const Request &request)
 	}
 	return (ret);
 }
-
-//bool ServerEngine::ft_send(const Request &request)
-//{
-//	bool ret = false;
-//
-//	for (std::set<int>::iterator it = _clients_send.begin(); it != _clients_send.end(); ++it)
-//	{
-//		if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
-//		{
-//			displayTimeStamp();
-//			std::cout << GREEN << "ft_send" << END << std::endl;
-//			errno = 0;
-//			ServerData const &data = _config.getServers().find(_serverFd)->second;
-//			if (_writeBuffer.find(*it) == _writeBuffer.end())
-//				_writeBuffer[*it] = request.respond(_config, data);
-//			size_t len = _writeBuffer[*it].length();
-//			if (len > TCP_MAX)
-//				len = TCP_MAX;
-//			ssize_t bytes_sent = send(*it, _writeBuffer[*it].c_str(), len, 0);
-//			_writeBuffer[*it].erase(0, bytes_sent);
-//			displayTimeStamp();
-//			std::cout << "Bytes sent: " << bytes_sent << ", length left: " << _writeBuffer[*it].length() << std::endl;
-//			ret = true;
-//			FD_CLR(*it, &_readset_master);
-//			_clients_recv.erase(*it);
-//			if (_writeBuffer[*it].empty() || bytes_sent == 0)
-//			{
-//				_writeBuffer.erase(*it);
-//				FD_CLR(*it, &_writeset_master);
-////				if (request.getHeaders().find("Connection") != request.getHeaders().end() &&
-////						request.getHeaders().find("Connection")->second == "keep-alive")
-//				if (std::cin.get() == 'y')
-//				{
-//					FD_SET(*it, &_readset_master);
-//					_clients_recv.insert(*it);
-//				}
-//				else
-//					close(*it);
-//				_clients_send.erase(*it);
-//				break;
-//			}
-//		}
-//	}
-//	return (ret);
-//}
 
 bool ServerEngine::ft_receive(Request &request)
 {

@@ -99,7 +99,7 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 //		std::cout << "result: " << response.getHeaders()["Content-Type"] << std::endl;
 //	}
 
-	responseHeaders["Connection"] = "keep-alive";
+	responseHeaders["Connection"] = "close";
 	response.setBody(content);
 
 	return (response.str());
