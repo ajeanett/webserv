@@ -145,8 +145,8 @@ bool ServerEngine::ft_send(const Request &request)
 	{
 		if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
 		{
-//			displayTimeStamp();
-//			std::cout << "ft_send" << std::endl;
+			displayTimeStamp();
+			std::cout << "ft_send" << std::endl;
 			errno = 0;
 //			int serverFd = -1;
 //			for (std::map<int, ServerData>::iterator it_data = _config.getServers().begin(); it_data != _config.getServers().end(); ++it_data) // servers с пустым сервером
@@ -160,25 +160,26 @@ bool ServerEngine::ft_send(const Request &request)
 //			if (serverFd < 0)
 //				throw std::exception();
 			ServerData const &data = _config.getServers().find(_serverFd)->second;
-			std::string msg = request.respond(_config, data);
-			send(*it, msg.c_str(), msg.length(), 0);
-//			std::cout << "CGI returned: '" << check_cgi << "'" << std::endl;
-//			{
-//				CGI cgi(request, data, "./testers/cgi_tester", "py");
-//				CGI cgi(request, data, "./cgi_scripts/test.py", "py");
-//				cgi.runCGI(); // для тестирования CGI
-//				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi_out.length()) + "\r\n\r\n" + cgi_out;
-//				std::string cgi_msg = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(cgi.getBody().length()) + "\r\n\r\n" + cgi.getBody();
-//				std::cout << "CGI_MSG\n"<< cgi_msg << std::endl;
-//				send(*it, cgi_msg .c_str(), cgi_msg .length(), 0); // проверка отправки результата выполнения cgi
-//			}
-			_clients_recv.insert(*it);
-			FD_CLR(*it, &_writeset_master);
-			FD_CLR(*it, &_readset_master); // на чтение
-			close(*it);
-			_clients_send.erase(*it);
+			if (_writeBuffer.find(*it) == _writeBuffer.end())
+				_writeBuffer[*it] += request.respond(_config, data);
+			size_t len = _writeBuffer[*it].length();
+			if (len > TCP_MAX)
+				len = TCP_MAX;
+			ssize_t bytes_sent = send(*it, _writeBuffer[*it].c_str(), len, 0);
+			displayTimeStamp();
+			_writeBuffer[*it].erase(0, bytes_sent);
+			std::cout << "Bytes sent: " << bytes_sent << ", length left: " << _writeBuffer[*it].length() << std::endl;
 			ret = true;
-			break;
+			if (bytes_sent == 0)
+			{
+				_writeBuffer.erase(*it);
+				_clients_recv.insert(*it);
+				FD_CLR(*it, &_writeset_master);
+				close(*it);
+				_clients_send.erase(*it);
+				break;
+			}
+//			FD_CLR(*it, &_readset_master); // на чтение
 		}
 	}
 	return (ret);
@@ -277,15 +278,15 @@ bool ServerEngine::ft_receive(Request &request)
 			bytes_read = recv(*it, _buf, TCP_MAX, 0);
 			if (bytes_read >= 0)
 				_buf[bytes_read] = '\0';
-//			displayTimeStamp();
-//			std::cout << "ft_receive, bytes_read = " << bytes_read << ", *it = " << *it << std::endl;
+			displayTimeStamp();
+			std::cout << "ft_receive, bytes_read = " << bytes_read << ", *it = " << *it << std::endl;
 			if (bytes_read <= 0) // was <= 0
 			{
 				// удаляем сокет из множества
 				FD_CLR(*it, &_readset_master);
 				FD_CLR(*it, &_writeset_master);
 				close(*it);
-				_buffer.erase(*it);
+				_readBuffer.erase(*it);
 				_clients_send.erase(*it);
 				ret = true;
 				break;
@@ -299,19 +300,19 @@ bool ServerEngine::ft_receive(Request &request)
 			 * Если content-lenght нет, то проверить transfer encoding и равен ли он chunked. Если равен, то дождаться, когда придет "0\r\n\r\n" (неважно, в конце боди или нет, важно, чтобы после первого \r\n\r\n)
 			 * Если нету ни content length или transfer encoding и есть \r\n\r\n, то значит запрос пришел полностью
 			 */
-			_buffer[*it] += _buf;
-			full_request = check_request(_buffer[*it]);
+			_readBuffer[*it] += _buf;
+			full_request = check_request(_readBuffer[*it]);
 			if (full_request)
 			{
 				request.clear();
-				request.parse(_buffer[*it], _config.getServers().find(_serverFd)->second);
+				request.parse(_readBuffer[*it], _config.getServers().find(_serverFd)->second);
 				displayTimeStamp();
 				std::cout << request.getMethod() << ' ' << request.getLocation() << std::endl;
 				_clients_send.insert(*it);
 				FD_SET(*it, &_writeset_master);
 				_clients_recv.erase(*it);
 				FD_CLR(*it, &_readset_master);
-				_buffer.erase(*it);
+				_readBuffer.erase(*it);
 			}
 			ret = true;
 			break;
@@ -329,8 +330,8 @@ bool ServerEngine::ft_accept(int *mx)
 //		Определяем тип события и выполняем соответствующие действия
 		if (FD_ISSET(*it, &_readset))
 		{
-//			displayTimeStamp();
-//			std::cout << "ft_accept" << std::endl;
+			displayTimeStamp();
+			std::cout << "ft_accept" << std::endl;
 			// Поступил новый запрос на соединение, используем accept
 			errno = 0;
 			int sock = accept(*it, NULL, NULL);

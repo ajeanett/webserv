@@ -1,12 +1,22 @@
 #!/bin/bash
 
+dirs=(www cgi_scripts ex.conf testers YoupiBanane)
+
+echo "--- Removing files from cmake-build-debug/ ---"
+
+for i in ${dirs};
+do
+	rm -rf ./cmake-build-debug/$i;
+done;
+
+echo
+
 echo "--- Copying files to cmake-build-debug/ ---"
-cp -r ./www ./cmake-build-debug/
-cp -r ./cgi_scripts ./cmake-build-debug/
-cp -r ./ex.conf ./cmake-build-debug/
-cp -r ./testers ./cmake-build-debug/
-cp -r ./YoupiBanane ./cmake-build-debug/
-echo "--- Done ---"
+
+for i in ${dirs};
+do
+	cp -r ./$i ./cmake-build-debug/$i;
+done;
 
 echo
 
