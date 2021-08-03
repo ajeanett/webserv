@@ -141,11 +141,6 @@ void Request::parse_headers()
 		if ((findPosition = (*it).find(delim, _linePosition)) != std::string::npos)
 		{
 			header_key = (*it).substr(_linePosition, findPosition - _linePosition);
-			if (header_key.find("X-"))
-			{
-				_secret_header = header_key;
-				_secret = true;
-			}
 			_linePosition = findPosition + 2;
 		}
 		header_value = (*it).substr(_linePosition);
@@ -193,7 +188,8 @@ void Request::parse(const std::string &request_str, ServerData const &data)
 	_request = request_str;
 	try
 	{
-		parse_request(data);
+		if (parse_request(data) > 0)
+			return;
 		parse_headers();
 		parse_body();
 	}
@@ -279,22 +275,3 @@ void Request::setError(std::string const &error)
 	_error = error;
 }
 
-bool Request::isSecret() const
-{
-	return _secret;
-}
-
-void Request::setSecret(bool secret)
-{
-	_secret = secret;
-}
-
-const std::string &Request::getSecretHeader() const
-{
-	return _secret_header;
-}
-
-void Request::setSecretHeader(const std::string &secretHeader)
-{
-	_secret_header = secretHeader;
-}
