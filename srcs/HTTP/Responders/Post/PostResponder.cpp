@@ -42,7 +42,7 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 	if (!locationMethods.empty() && std::find(locationMethods.begin(), locationMethods.end(), request.getMethod()) == locationMethods.end())
 		return (response.error("405", "Method Not Allowed"));
 
-	response.setStatus("200", "OK");
+	response.setStatus("204", "No Content");
 	std::string content;
 	if (!currentLocation->getCgiPath().empty())
 	{
@@ -57,6 +57,8 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 			status.erase(0, 4);
 			response.setStatus(code, status);
 		}
+		else
+			response.setStatus("200", "OK");
 		for (std::map<std::string, std::string>::const_iterator it = cgi.getHeaders().begin(); it != cgi.getHeaders().end(); ++it)
 			responseHeaders[it->first] = it->second;
 	}
@@ -68,8 +70,6 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 		struct stat s;
 		if (stat(uri.c_str(), &s) < 0)
 			return (response.error("404", "Not Found"));
-		else
-			response.setStatus("200", "OK");
 		if (s.st_mode & S_IFDIR)
 		{
 			if (uri.length() != 0 && uri[uri.length() - 1] != '/')
@@ -80,6 +80,8 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 			return (response.error("404", "Not Found"));
 
 		std::ifstream ifs(uri, std::ifstream::in);
+		if (!ifs.is_open())
+			return (response.error("500", "Internal Server Error"));
 		std::stringstream content_stream;
 		content_stream << ifs.rdbuf();
 		ifs.close();

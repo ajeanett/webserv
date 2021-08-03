@@ -1,7 +1,6 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-// #include "ServerEngine.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -22,7 +21,6 @@
 #include "HTTP/Errors/HTTPError.hpp"
 #include "HTTP/Errors/HTTPNotFound.hpp"
 #include "HTTP/Errors/HTTPBadRequest.hpp"
-#include "Autoindex.h"
 
 class Request
 {
@@ -40,17 +38,16 @@ private:
 	std::string _error;
 
 private:
-
-	int parse_request(ServerData const &data);
+	int parse_request();
 	void parse_headers();
-	void parse_body();
+	void parse_body(ServerData const &serverData);
 
 public:
 	Request();
 	Request(const std::string &request);
-	virtual ~Request();
+	~Request();
 
-	void parse(std::string const &request_str, ServerData const &data);
+	void parse(std::string const &request_str, ServerData const &serverData);
 	std::string respond(ParserConfig const &config, ServerData const &serverData) const;
 	void clear();
 

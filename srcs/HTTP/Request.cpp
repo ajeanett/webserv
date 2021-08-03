@@ -16,7 +16,7 @@ Request::~Request()
 {
 }
 
-int	Request::parse_request(ServerData const &data)
+int	Request::parse_request()
 {
 
 	// Ищем первую строку
@@ -36,9 +36,7 @@ int	Request::parse_request(ServerData const &data)
 		_error = "400";
 	}
 
-	size_t _linePosition = 0;
-	// ifs , ss
-	_linePosition = _currentLine.find_first_of(' ');
+	size_t _linePosition = _currentLine.find_first_of(' ');
 	if (_linePosition != std::string::npos)
 		_method = _currentLine.substr(0, _linePosition);
 	findPosition = _currentLine.find(' ', _linePosition + 1);
@@ -48,13 +46,6 @@ int	Request::parse_request(ServerData const &data)
 	findPosition = _currentLine.size();
 	if (_linePosition != std::string::npos)
 		_version = _currentLine.substr(_linePosition + 1, findPosition - _linePosition - 1);
-//         // Печать стартовой строки для проверки
-//         std::map<std::string,std::string>::iterator it;
-//         std::cout << "MAP First Line" << std::endl;
-//         for (it=_startLine.begin(); it!=_startLine.end(); it++)
-//             std::cout << it->first << " " << it->second << std::endl;
-//         std::cout << "END of MAP First Line" << std::endl;
-
 
 	findPosition = _request.find("\r\n\r\n", _requestPosition);
 
@@ -69,48 +60,12 @@ int	Request::parse_request(ServerData const &data)
 		_error = "400";
 		return 400;
 	}
-	/*
-	 * Функция определяет текущий локейшен  сервере, проверяет наличие max_client_buffer_size, сверяет с длиной body текущего request`а
-	 * Если body больше буффера, то возвращает ошибку 413;
-	 * */
-	if (_method == "POST")
-	{
-		LocationData const *currentLocation = nullptr;
-
-		const std::vector<LocationData> &locations = data.getLocationData();
-		for (std::vector<LocationData>::const_reverse_iterator it = locations.rbegin(); it != locations.rend(); ++it)
-		{
-			std::string location = it->getLocationPath();
-			if (location.length() != 0 && location[0] != '/')
-				location.insert(0, "/");
-			if (location.compare(0, location.length(), _location, 0, location.length()) == 0)
-			{
-				currentLocation = &(*it);
-				if (currentLocation->getClientBufferBodySize() != 0 && currentLocation->getClientBufferBodySize() < (_request.length() - _requestPosition))
-				{
-					_error = "413";
-					return 413;
-				}  // размер боди
-
-				//	if ()
-//	if (this->conf.getBodySize() != 0 && this->conf.getBodySize() < this->req.getBody().size())
-//		throw BaseException("Payload Too Large", 413);
-				break;
-			}
-		}
-		if (currentLocation == nullptr)
-		{
-			_error = "404";
-			return 404;
-		}
-	}
 	return 0;
 }
 
 void Request::parse_headers()
 {
 	// Ищем хедеры и заносим их в мапу
-	_secret = false;
 	size_t	findPosition = 0;
 
 	size_t _linePosition = 0;
@@ -148,7 +103,7 @@ void Request::parse_headers()
 	}
 }
 
-void Request::parse_body()
+void Request::parse_body(ServerData const &serverData)
 {
 	// заносим боди. В get его не будет. Get - body нет. Put - body тут.
 	// если длина боди больше, чем длина content-lenght, то заносим только content-lenght
@@ -181,17 +136,31 @@ void Request::parse_body()
 		}
 		_body = tmp;
 	}
+
+	/*
+	 * Функция определяет текущий локейшен  сервере, проверяет наличие max_client_buffer_size, сверяет с длиной body текущего request`а
+	 * Если body больше буффера, то возвращает ошибку 413;
+	 */
+	LocationData const *currentLocation = AResponder::getCurrentLocation(serverData.getLocationData(), _location, _method);
+	if (currentLocation == nullptr)
+	{
+		_error = "404";
+	}
+	else if (currentLocation->getClientBufferBodySize() != 0 && currentLocation->getClientBufferBodySize() < _body.length())
+	{
+		_error = "413";
+	}
 }
 
-void Request::parse(const std::string &request_str, ServerData const &data)
+void Request::parse(const std::string &request_str, ServerData const &serverData)
 {
 	_request = request_str;
 	try
 	{
-		if (parse_request(data) > 0)
+		if (parse_request() != 0)
 			return;
 		parse_headers();
-		parse_body();
+		parse_body(serverData);
 	}
 	catch (HTTPError &e)
 	{

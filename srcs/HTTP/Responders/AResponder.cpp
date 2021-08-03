@@ -35,7 +35,7 @@ static bool	match(std::string const &s1, std::string const &s2)
 		return (false);
 }
 
-const LocationData *AResponder::getCurrentLocation(std::vector<LocationData> const &locations, std::string const &requestLocation, std::string const &method) const
+const LocationData *AResponder::getCurrentLocation(std::vector<LocationData> const &locations, std::string const &requestLocation, std::string const &method)
 {
 	std::list<LocationData const *> candidates;
 	std::vector<LocationData const *> cpy;
