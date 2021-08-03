@@ -47,6 +47,7 @@ private:
 	int 				_current_port; //текущий порт
 	int 				_serverFd; //текущий номер используемого сервера из конфига
 	LocationData		_currentLocation;
+	std::map<int,ssize_t>	_fd_size_to_send;
 
 public:
 	ServerEngine(ServerEngine const &src);

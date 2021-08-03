@@ -140,7 +140,9 @@ int ServerEngine::ft_select(int mx, timeval *timeout)
 bool ServerEngine::ft_send(const Request &request)
 {
 	bool ret = false;
-
+	bool _close_post = true;
+	if (request.getMethod() == "POST" && (request.getLocation() == "/directory/youpi.bla" || request.getLocation() == "/directory/youpla.bla"))
+		_close_post = false;
 	for (std::set<int>::iterator it = _clients_send.begin(); it != _clients_send.end(); ++it)
 	{
 		if (FD_ISSET(*it, &_writeset)) // поступили данные на отправку, отправляем
@@ -161,22 +163,35 @@ bool ServerEngine::ft_send(const Request &request)
 //				throw std::exception();
 			ServerData const &data = _config.getServers().find(_serverFd)->second;
 			if (_writeBuffer.find(*it) == _writeBuffer.end())
-				_writeBuffer[*it] += request.respond(_config, data);
-			size_t len = _writeBuffer[*it].length();
+			{
+				_writeBuffer[*it] = request.respond(_config, data);
+				_fd_size_to_send[*it] = _writeBuffer[*it].length();
+			}
+			ssize_t len = _writeBuffer[*it].length();
 			if (len > TCP_MAX)
 				len = TCP_MAX;
 			ssize_t bytes_sent = send(*it, _writeBuffer[*it].c_str(), len, 0);
+			_fd_size_to_send[*it] -= bytes_sent;
 			displayTimeStamp();
 			_writeBuffer[*it].erase(0, bytes_sent);
-			std::cout << "Bytes sent: " << bytes_sent << ", length left: " << _writeBuffer[*it].length() << std::endl;
+			std::cout << "Bytes sent: " << bytes_sent << ", length left: " << _writeBuffer[*it].length() << "_fd_size_to_send[*it]: " << _fd_size_to_send[*it] << std::endl;
 			ret = true;
-			if (bytes_sent == 0)
+			FD_CLR(*it, &_readset_master);
+			_clients_recv.erase(*it);
+			if (_writeBuffer[*it].length() == 0)
 			{
 				_writeBuffer.erase(*it);
-				_clients_recv.insert(*it);
+//				FD_CLR(*it, &_readset_master); // на чтение
 				FD_CLR(*it, &_writeset_master);
-				close(*it);
+				if (_close_post)
+					close(*it);
+				else
+				{
+					FD_SET(*it, &_readset_master);
+					_clients_recv.insert(*it);
+				}
 				_clients_send.erase(*it);
+//				_clients_recv.erase(*it);
 				break;
 			}
 //			FD_CLR(*it, &_readset_master); // на чтение
@@ -376,9 +391,9 @@ void ServerEngine::run()
 		FD_SET(*it, &_readset_master);
 
 	struct timeval tv = {10, 0};
-	struct timeval timeout;
-	timeout.tv_sec = 15;
-	timeout.tv_usec = 0;
+//	struct timeval timeout;
+//	timeout.tv_sec = 15;
+//	timeout.tv_usec = 0;
 	bool _run = true;
 	_current_port = 0;
 	Request request;

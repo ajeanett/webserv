@@ -13,6 +13,7 @@ echo
 
 echo "--- Copying files to cmake-build-debug/ ---"
 
+mkdir -p ./YoupiBanane/put_dir
 for i in ${dirs};
 do
 	cp -r ./$i ./cmake-build-debug/$i;
