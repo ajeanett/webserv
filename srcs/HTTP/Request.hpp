@@ -38,6 +38,10 @@ private:
 	std::string _body;
 	size_t _requestPosition;
 	std::string _error;
+	bool 		_secret;
+	std::string	_secret_header;
+
+private:
 
 	int parse_request(ServerData const &data);
 	void parse_headers();
@@ -58,6 +62,10 @@ public:
 	const std::map<std::string, std::string> &getHeaders() const;
 	const std::string &getBody() const;
 	void setError(std::string const &error);
+	bool isSecret() const;
+	void setSecret(bool secret);
+	const std::string &getSecretHeader() const;
+	void setSecretHeader(const std::string &secretHeader);
 
 };
 

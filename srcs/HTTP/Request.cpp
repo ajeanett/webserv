@@ -32,7 +32,8 @@ int	Request::parse_request(ServerData const &data)
 	}
 	else
 	{
-		perror("ERROR. Invalid message.");
+		perror("ERROR. BAD REQUEST");
+		_error = "400";
 	}
 
 	size_t _linePosition = 0;
@@ -109,7 +110,7 @@ int	Request::parse_request(ServerData const &data)
 void Request::parse_headers()
 {
 	// Ищем хедеры и заносим их в мапу
-
+	_secret = false;
 	size_t	findPosition = 0;
 
 	size_t _linePosition = 0;
@@ -140,6 +141,11 @@ void Request::parse_headers()
 		if ((findPosition = (*it).find(delim, _linePosition)) != std::string::npos)
 		{
 			header_key = (*it).substr(_linePosition, findPosition - _linePosition);
+			if (header_key.find("X-"))
+			{
+				_secret_header = header_key;
+				_secret = true;
+			}
 			_linePosition = findPosition + 2;
 		}
 		header_value = (*it).substr(_linePosition);
@@ -163,7 +169,7 @@ void Request::parse_body()
 
 	size_t	start_chunk_size = 0;
 	size_t	start_body = 0;
-	size_t	end_body = 0;
+//	size_t	end_body = 0;
 	size_t	chunk_size;
 
 	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
@@ -271,4 +277,24 @@ const std::string &Request::getBody() const
 void Request::setError(std::string const &error)
 {
 	_error = error;
+}
+
+bool Request::isSecret() const
+{
+	return _secret;
+}
+
+void Request::setSecret(bool secret)
+{
+	_secret = secret;
+}
+
+const std::string &Request::getSecretHeader() const
+{
+	return _secret_header;
+}
+
+void Request::setSecretHeader(const std::string &secretHeader)
+{
+	_secret_header = secretHeader;
 }
