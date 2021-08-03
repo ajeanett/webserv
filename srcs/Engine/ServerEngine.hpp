@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <algorithm>
 
+#define DEBUG 0
 #define TCP_MAX 65535
 
 class ServerEngine

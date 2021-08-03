@@ -119,7 +119,6 @@ void Request::parse_body(ServerData const &serverData)
 
 	size_t	start_chunk_size = 0;
 	size_t	start_body = 0;
-//	size_t	end_body = 0;
 	size_t	chunk_size;
 
 	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
