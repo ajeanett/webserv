@@ -161,53 +161,25 @@ void Request::parse_body()
 	else
 		_body = _request.substr(this->_requestPosition);
 
-//	_body = _request.erase(0, this->_requestPosition); альтернативный вариант получения body, посмотреть потом, что быстрее - substr или erase
-
-
-	displayTimeStamp();
-	std::cout << "chunk parse begin" << std::endl;
-
 	size_t	start_chunk_size = 0;
 	size_t	start_body = 0;
 	size_t	end_body = 0;
 	size_t	chunk_size;
-	char	**tmp = nullptr;
 
 	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
 	{
+		std::string tmp;
 		while ((start_body = _body.find("\r\n", start_chunk_size)) != std::string::npos)
 		{
 			std::string head_chunk = _body.substr(start_chunk_size, start_body - start_chunk_size);
-			chunk_size = std::strtol(head_chunk.c_str(), tmp, 16);
-			_body.erase(end_body, start_body + 2 - end_body);
-			start_body -= head_chunk.length();
-			end_body = _body.find("\r\n", 0);
-			if (chunk_size != end_body - start_body && chunk_size != 0)
-				throw HTTPBadRequest();
-			_body.erase(end_body, 2);
-			start_chunk_size += chunk_size;
-		}
-	}
-
-//	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] == "chunked")
-//	{
-//		size_t chunk_header;
-//		while ((chunk_header = _body.find("\r\n", 0)) != std::string::npos)
-//		{
-//			std::string head_chunk = _body.substr(start_chunk_size, start_body - start_chunk_size);
-//			chunk_size = std::strtol(head_chunk.c_str(), tmp, 16);
-//			_body.erase(end_body, start_body + 2 - end_body);
-//			start_body -= head_chunk.length();
-//			end_body = _body.find("\r\n", 0);
+			chunk_size = std::strtol(head_chunk.c_str(), nullptr, 16);
+			tmp += _body.substr(start_body + 2, chunk_size);
 //			if (chunk_size != end_body - start_body && chunk_size != 0)
 //				throw HTTPBadRequest();
-//			_body.erase(end_body, 2);
-//			start_chunk_size += chunk_size;
-//		}
-//	}
-
-	displayTimeStamp();
-	std::cout << "chunk parse end" << std::endl;
+			start_chunk_size += chunk_size + 2 + head_chunk.length() + 2;
+		}
+		_body = tmp;
+	}
 }
 
 void Request::parse(const std::string &request_str, ServerData const &data)

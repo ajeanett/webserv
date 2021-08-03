@@ -38,11 +38,25 @@ std::string Response::error(const std::string &code, const std::string &message)
 {
 	_statusCode = code;
 	_statusMessage = message;
-	std::ifstream ifs("./www/" + code + ".html", std::ifstream::in);
-	std::stringstream html;
-	html << ifs.rdbuf();
-	ifs.close();
-	_body = html.str();
+	_body = "<!DOCTYPE html>\n"
+			"<html lang=\"en\">\n"
+			"<head>\n"
+			"\t<meta charset=\"UTF-8\">\n"
+			"\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+			"\t<title>Test Page</title>\n"
+			"\t<link rel=\"stylesheet\" href=\"/styles.css\">\n"
+			"</head>\n"
+			"\n"
+			"<body>\n"
+			"\n"
+			"<h1 style=\"color: #d44b25;\">" + code + ' ' + message + "</h1>\n"
+			"<div class=\"back-img\" style=\"background-image: url('/img/" + code + ".jpg'); width: 500px;\"></div>\n"
+			"<a class=\"go-home\" href=\"/index.html\">\n"
+			"\t← Home\n"
+			"</a>\n"
+			"\n"
+			"</body>\n"
+			"</html>";
 	return (str());
 }
 

@@ -2,6 +2,7 @@
 #ifndef SERVERENGINE_HPP
 #define SERVERENGINE_HPP
 
+#include "colors.hpp"
 #include "../HTTP/Request.hpp"
 #include "../HTTP/Errors/HTTPError.hpp"
 #include "../HTTP/Errors/HTTPNotFound.hpp"
@@ -41,13 +42,12 @@ private:
 	char _buf[TCP_MAX + 1]; // максимальный размер пакета http
 	std::map<int, std::string> _readBuffer;// мапа для чтения запросов\request`ов, int -  это фд клиента, string - буффер отдельно для каждого клиента.
 	std::map<int, std::string> _writeBuffer;// мапа для чтения запросов\request`ов, int -  это фд клиента, string - буффер отдельно для каждого клиента.
-	std::map<int, bool> _chunked; // проверка на фрагментированность каждого запроса. int -  это фд клиента, bool - фрагментирован запрос или нет.
 	/* Ключ-значение fd-port */
 	std::map<int, int>	_fdPort; // map связывающий присвоенный fd сервера (ключ) c его портом (значение)
 	int 				_current_port; //текущий порт
 	int 				_serverFd; //текущий номер используемого сервера из конфига
 	LocationData		_currentLocation;
-	std::map<int,ssize_t>	_fd_size_to_send;
+	std::map<int, size_t>	_fd_size_to_send;
 
 public:
 	ServerEngine(ServerEngine const &src);
