@@ -138,8 +138,7 @@ void CGI::fillEnvp(char ***envp)
 	(*envp)[i] = nullptr; //зануляем двухмерный массив
 }
 
-void
-CGI::prepareEnvCGI(const Request &req, const ServerData &serv, char ***envp)
+void CGI::prepareEnvCGI(const Request &req, const ServerData &serv, char ***envp)
 {
 	clear(); //очищаем предыдущие данные перед повторным использованием;
 	fillTmpEnvCgi(req, serv);
@@ -159,7 +158,6 @@ void CGI::runCGI()
 	std::string cgi_tmp_path_out = "./cgi_tmp_out";
 	/* tmp_file_fd_in - временнй файл для сохранения body запроса, для обработки этих данныхв CGI*/
 	int tmp_file_fd_in = open(cgi_tmp_path_in.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
-	/* tmp_file_fd_out - временнй файл для сохранения результата выполнения CGI*/
 	int tmp_file_fd_out = open(cgi_tmp_path_out.c_str(),  O_RDWR | O_TRUNC | O_CREAT, 0777);
 	write(tmp_file_fd_in, _req.getBody().c_str(), _req.getBody().length());
 	lseek(tmp_file_fd_in, 0, SEEK_SET);

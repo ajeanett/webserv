@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <algorithm>
 
-#define DEBUG 1
+#define DEBUG 0
 
 //class t_req_data
 //{
@@ -50,8 +50,6 @@ class ServerEngine
 
 private:
 	bool _ready;
-	int count;
-	int works;
 	static const int _tcp_max = 65535;
 	static const int _timeout = 10;
 	static const int _queue = 4000;
@@ -87,8 +85,6 @@ private:
 	std::map<int, size_t>	_fd_size_to_send;
 
 public:
-	ServerEngine(ServerEngine const &src);
-	ServerEngine &operator=(ServerEngine const &src);
 	ServerEngine();
 	virtual ~ServerEngine();
 

@@ -34,6 +34,7 @@ std::string PostResponder::respond(const Request &request, const ServerData &ser
 //	}
 //	std::cout << "'" << request.getBody() << "'" << std::endl;
 
+	responseHeaders["Connection"] = "close";
 	LocationData const *currentLocation = AResponder::getCurrentLocation(serverData.getLocationData(), request.getLocation(), "POST");
 
 	if (currentLocation == nullptr)
@@ -101,7 +102,7 @@ std::string PostResponder::respond(const Request &request, const ServerData &ser
 //		std::cout << "result: " << response.getHeaders()["Content-Type"] << std::endl;
 //	}
 
-	responseHeaders["Connection"] = "close";
+	responseHeaders["Connection"] = "keep-alive";
 	response.setBody(content);
 
 	return (response.str());

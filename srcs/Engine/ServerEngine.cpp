@@ -230,73 +230,11 @@ bool ServerEngine::check_request(t_req_data &buffer)
 		}
 	}
 	return false;
-//	next = buffer.find("\r\n\r\n", prev);
-//	//проверить \r\n\r\n, затем проверяем наличие content-lenght, если число равно боди. Нужно будет актуальный размер боди сравнивать с этим числом.
-//	//Если content-lenght нет, то проверить transfer encoding и равен ли он chunked. Если равен, то дождаться, когда придет "0\r\n\r\n" (неважно, в конце боди или нет, важно, чтобы после первого \r\n\r\n)
-//	// Если нету ни content length или transfer encoding и есть \r\n\r\n, то значит запрос пришел полностью
-//
-//	if (next != std::string::npos)
-//	{
-////		if (buffer.find("0\r\n\r\n", prev) != std::string::npos)
-////			return (true);
-//		size_t body_size = buffer.length() - next - 4;
-//		next = buffer.find("Content-Length: ", prev); //проверяем наличие content-lenght
-//		if (next != std::string::npos)
-//		{
-//			prev = next + 16;
-//			next = buffer.find("\r\n", prev);
-//			if (next != std::string::npos)
-//			{
-//				tmp = buffer.substr(prev, next - prev);
-//				size_t content_length = std::stoi(tmp);
-//				return (body_size == content_length);
-//			}
-//		}
-//		prev = 0;
-//		next = buffer.find("Transfer-Encoding: ", prev); // проверяем transfer-encoding, не является ли запрос фрагментированным
-//		if (next != std::string::npos)
-//		{
-//			prev = next + 19;
-//			next = buffer.find("\r\n", prev);
-//			if (next != std::string::npos)
-//			{
-//				tmp = buffer.substr(prev, next - prev);
-//				// trim(tmp); //утонить, нужно ли обрезать пробелы и табуляцию по краям. upd. Уточнил - не нужно.
-//				if (tmp == "chunked")
-//				{
-//					// _chunked[fd] = true; // нет необходимости в булевой переменной
-//					if (buffer.find("0\r\n\r\n", prev) != std::string::npos)
-//						return (true);
-//					return (false);
-//				}
-//			}
-//		}
-//		return (true); // есть \r\n\r\n , нет transfer-encoding и content-lenght, запрос пришел полностью
-//	}
-//	return (false); // проверить ошибки 404, 500, 505
 }
-
-/*
- * старт лайн
- * хедеры
- * chunked
- * rnrn
- * в боди ищу rn substr - strtol - записываем в переменную, чтобы сравнить со следующим отрезком
- * След отрезок до rn я сохраняю в боди и сверяем со значением strtol - если не совпадает - badrequest
- * по циклу идем, пока strtol не вернет 0 и след отрезок не будет пустым
- *
- * Для response обязательно Content-Length - размер боди
- * Content-Type - тип , если не определяешь, то text/plain
- * Date
- * Connection
- *
- * Если среди хедеров запроса есть хедер, в котором присутствует слово secret, то этот хедер нужно преобразовать и записать в переменные среды для cgi (все тире заменяем на нижнее подчеркивание, все символы переводишь в верхний регистр
- * и в начало добавляешь HTTP_)
- *
- */
 
 bool ServerEngine::ft_send()
 {
+	static size_t nbr;
 	bool ret = false;
 	int fd;
 	for (std::set<int>::iterator it = _clients_send.begin(); it != _clients_send.end();)
@@ -339,13 +277,17 @@ bool ServerEngine::ft_send()
 			}
 			if (_fd_size_to_send[fd] == 0)
 			{
-				std::string errror = _writeBuffer[fd].substr(9, _writeBuffer[fd].find(' ', 9) - 9);
-				count--;
-				works++;
+				++nbr;
+				if (nbr % 1000 == 0)
+				{
+					displayTimeStamp();
+					std::cout << "Response count: " << nbr << std::endl;
+				}
+				std::string statusCode = _writeBuffer[fd].substr(9, _writeBuffer[fd].find(' ', 9) - 9);
 				_fd_size_to_send.erase(fd);
 				_writeBuffer.erase(fd);
 				FD_CLR(fd, &_writeset_master);
-				if (errror != "200" || request[fd].getMethod() == "POST")
+				if (statusCode[0] != '2') // statusCode != "200" || request[fd].getMethod() == "POST"
 				{
 					close(fd);
 					_clients_recv.erase(fd);
@@ -379,7 +321,6 @@ bool ServerEngine::ft_receive()
 			++it;
 			if (FD_ISSET(fd, &_readset))
 			{
-				bool full_request = true;
 				// Поступили данные от клиента, читаем их
 				errno = 0;
 				ssize_t bytes_read;
@@ -401,26 +342,18 @@ bool ServerEngine::ft_receive()
 					continue;
 				}
 				/*
-				 *
-				 *
 				 * Если recv возвращает 0 или -1 то закрываем сокет удаляем из сета write и read
 				 * Добавить обработку сигнала в main sig_int и в функции обработки изменить значение булевой глоб переменной на false
 				 * Очистка структур, очистка классов, закрытие сокетов
-				 *
-				 * проверить \r\n\r\n, затем проверяем наличие content-lenght, если число равно боди. Нужно будет актуальный размер боди сравнивать с этим числом.
-				 * Если content-lenght нет, то проверить transfer encoding и равен ли он chunked. Если равен, то дождаться, когда придет "0\r\n\r\n" (неважно, в конце боди или нет, важно, чтобы после первого \r\n\r\n)
-				 * Если нету ни content length или transfer encoding и есть \r\n\r\n, то значит запрос пришел полностью
 				 */
 				_readBuffer[fd].buffer += _buf;
-				full_request = check_request(_readBuffer[fd]);
-				if (full_request)
+				if (check_request(_readBuffer[fd]))
 				{
-					count++;
 					request[fd].clear();
 					request[fd].parse(_readBuffer[fd], _config.getServers().find(_serverFd)->second);
-#ifdef DEBUG
-//					displayTimeStamp();
-//					std::cout << request[fd].getMethod() << ' ' << request[fd].getLocation() << std::endl;
+#if DEBUG
+					displayTimeStamp();
+					std::cout << request[fd].getMethod() << ' ' << request[fd].getLocation() << std::endl;
 #endif
 					_clients_send.insert(fd);
 					FD_SET(fd, &_writeset_master);
@@ -504,8 +437,6 @@ void ServerEngine::run()
 	_clients_send.clear();
 	FD_ZERO(&_readset_master);
 	FD_ZERO(&_writeset_master);
-	count = 0;
-	works = 0;
 
 	for (std::set<int>::iterator it = _listen_fds.begin(); it != _listen_fds.end(); ++it)
 		FD_SET(*it, &_readset_master);
@@ -526,10 +457,6 @@ void ServerEngine::run()
 		{
 			sel = ft_accept(&mx); // проверяем запросы на соединение
 		}
-//		if (!sel)
-//		{
-//			sel = ft_send(); // отправка данных клиенту
-//		}
 		if (!sel)
 		{
 			sel = ft_receive(); // получение данные от клиента
@@ -538,7 +465,6 @@ void ServerEngine::run()
 		{
 			sel = ft_send(); // отправка данных клиенту
 		}
-//		std::cout << "Count = " << count << ", Works = " << works << std::endl;
 
 		sel = true;
 	}
