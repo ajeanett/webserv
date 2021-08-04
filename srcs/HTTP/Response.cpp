@@ -57,6 +57,7 @@ std::string Response::error(const std::string &code, const std::string &message)
 			"\n"
 			"</body>\n"
 			"</html>";
+	_headers["Connection"] = "close";
 	return (str());
 }
 

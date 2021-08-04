@@ -48,8 +48,10 @@
 class ServerEngine
 {
 private:
+	int count;
+	int works;
 	static const int _tcp_max = 65535;
-	static const int _timeout = 60;
+	static const int _timeout = 10;
 	static const int _queue = 4000;
 
 	/* Временные переменные */
@@ -64,6 +66,7 @@ private:
 
 	/*_config Класс содержаший конфигурацию */
 	ParserConfig _config;
+	std::map<int, Request> request;
 
 	std::set<int> _clients_recv; // для итератора чтения
 	std::set<int> _clients_send; // для итератора отправки
@@ -92,8 +95,8 @@ public:
 	int setup();
 	void run();
 	int ft_select(int mx, timeval *timeout);
-	bool ft_send(Request const &request);
-	bool ft_receive(Request &request);
+	bool ft_send();
+	bool ft_receive();
 	bool ft_accept(int *mx);
 	bool check_request(t_req_data &buffer);
 

@@ -88,8 +88,8 @@ void Request::parse_headers(t_req_data &buffer)
 	//  Печать хедеров для проверки
 	std::vector<std::string>::iterator it;
 	// std::cout << "Vector Headers" << std::endl;
-	 for (it = headers_raw.begin(); it != headers_raw.end(); it++)
-	     std::cout << *it << std::endl;
+//	 for (it = headers_raw.begin(); it != headers_raw.end(); it++)
+//	     std::cout << *it << std::endl;
 	// std::cout << "Vector Headers END" << std::endl;
 
 	std::string delim = ": ";
