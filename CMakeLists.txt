@@ -43,4 +43,6 @@ add_executable(webserv
 		srcs/HTTP/Autoindex.h
 		srcs/HTTP/Responders/AResponder.cpp
 		srcs/HTTP/Responders/AResponder.hpp
+		srcs/HTTP/Errors/HTTPInternalServerError.cpp
+		srcs/HTTP/Errors/HTTPInternalServerError.hpp
 )

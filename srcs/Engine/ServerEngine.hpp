@@ -6,6 +6,7 @@
 #include "../HTTP/Request.hpp"
 #include "../HTTP/Errors/HTTPError.hpp"
 #include "../HTTP/Errors/HTTPNotFound.hpp"
+#include "../HTTP/Errors/HTTPInternalServerError.hpp"
 #include "../Parse/ParserConfig.hpp"
 #include "../CGI/CGI.hpp"
 #include "logging.hpp"
@@ -15,8 +16,7 @@
 #include <arpa/inet.h>
 #include <algorithm>
 
-#define DEBUG 0
-#define TCP_MAX 65535
+#define DEBUG 1
 
 class t_req_data
 {
@@ -47,6 +47,10 @@ public:
 class ServerEngine
 {
 private:
+	static const int _tcp_max = 65535;
+	static const int _timeout = 60;
+	static const int _queue = 4000;
+
 	/* Временные переменные */
 	int _fd;
 	struct sockaddr_in _addr;
@@ -66,7 +70,7 @@ private:
 	fd_set _writeset_master; // нужны четыре сета, два читающих, два слушающих, для select
 	fd_set _readset; // нужны четыре сета, два читающих, два слушающих, для select
 	fd_set _writeset; // нужны четыре сета, два читающих, два слушающих, для select
-	char _buf[TCP_MAX + 1]; // максимальный размер пакета http
+	char _buf[_tcp_max + 1]; // максимальный размер пакета http
 	//std::map<int, std::string> _readBuffer;// мапа для чтения запросов\request`ов, int -  это фд клиента, string - буффер отдельно для каждого клиента.
 	std::map<int, t_req_data>	_readBuffer;
 	std::map<int, std::string> _writeBuffer;// мапа для чтения запросов\request`ов, int -  это фд клиента, string - буффер отдельно для каждого клиента.
@@ -99,7 +103,6 @@ public:
 	{ return (this->_fd); }
 	void setFd(int const &src)
 	{ this->_fd = src; }
-
 
 };
 
