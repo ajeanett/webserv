@@ -16,7 +16,7 @@
 #include <algorithm>
 
 #define DEBUG 0
-#define TCP_MAX 1000000 //65535
+#define TCP_MAX 65535
 
 class t_req_data
 {
