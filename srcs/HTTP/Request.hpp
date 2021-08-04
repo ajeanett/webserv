@@ -22,6 +22,7 @@
 #include "HTTP/Errors/HTTPNotFound.hpp"
 #include "HTTP/Errors/HTTPBadRequest.hpp"
 #include "Request_data.hpp"
+#include "HTTP/Responders/Delete/DeleteResponder.hpp"
 
 class Request
 {
@@ -50,7 +51,7 @@ public:
 	~Request();
 
 	void parse(t_req_data &buffer, ServerData const &serverData);
-	std::string respond(ParserConfig const &config, ServerData const &serverData) const;
+	std::string respond(ServerData const &serverData) const;
 	void clear();
 
 	const std::string &getMethod() const;

@@ -45,4 +45,4 @@ add_executable(webserv
 		srcs/HTTP/Responders/AResponder.hpp
 		srcs/HTTP/Errors/HTTPInternalServerError.cpp
 		srcs/HTTP/Errors/HTTPInternalServerError.hpp
-		srcs/HTTP/Request_data.hpp)
+		srcs/HTTP/Request_data.hpp srcs/HTTP/Responders/Delete/DeleteResponder.cpp srcs/HTTP/Responders/Delete/DeleteResponder.hpp)

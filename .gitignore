@@ -1,23 +1,5 @@
-
-# Compiled Object files
-*.o
-*.obj
-
-# Compiled Dynamic libraries
-*.dylib
-
-# Compiled Static libraries
-*.a
-*.lib
-
-# Executables
-*.out
-*.app
-*.exe
-
-.vscode
-
 webserv
+obj/
 **/cmake-build-*/
 .idea/*
 !.idea/runConfigurations/

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dirs=(www cgi_scripts ex.conf testers YoupiBanane)
+dirs=(www cgi_scripts default.conf testers YoupiBanane)
 
 echo "--- Removing files from cmake-build-debug/ ---"
 

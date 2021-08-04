@@ -21,7 +21,7 @@ PutResponder &PutResponder::operator=(PutResponder const &src)
 	return (*this);
 }
 
-std::string PutResponder::respond(const Request &request, const ParserConfig &config, const ServerData &serverData) const
+std::string PutResponder::respond(const Request &request, const ServerData &serverData) const
 {
 	Response response;
 

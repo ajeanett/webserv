@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include "HTTP/Errors/HTTPError.hpp"
 
 class Response
 {
@@ -17,6 +18,8 @@ public:
 
 	std::string str() const;
 	std::string error(std::string const &code, const std::string &statusMessage);
+	std::string error(std::string const &code);
+	std::string error(HTTPError const &error);
 
 	void setVersion(const std::string &version);
 	void setStatus(const std::string &statusCode, const std::string &message);

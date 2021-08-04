@@ -23,7 +23,7 @@ PostResponder &PostResponder::operator = (PostResponder const &src)
 	return (*this);
 }
 
-std::string PostResponder::respond(const Request &request, const ParserConfig &config, const ServerData &serverData) const
+std::string PostResponder::respond(const Request &request, const ServerData &serverData) const
 {
 	Response response;
 	std::map<std::string, std::string> &responseHeaders = response.getHeaders();
@@ -37,7 +37,7 @@ std::string PostResponder::respond(const Request &request, const ParserConfig &c
 	LocationData const *currentLocation = AResponder::getCurrentLocation(serverData.getLocationData(), request.getLocation(), "POST");
 
 	if (currentLocation == nullptr)
-		return (response.error("404", "Not Found"));
+		return (response.error(HTTPNotFound()));
 	std::vector<std::string> const &locationMethods = currentLocation->getMethods();
 	if (!locationMethods.empty() && std::find(locationMethods.begin(), locationMethods.end(), request.getMethod()) == locationMethods.end())
 		return (response.error("405", "Method Not Allowed"));

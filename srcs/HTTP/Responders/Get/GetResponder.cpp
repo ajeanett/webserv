@@ -22,7 +22,7 @@ GetResponder &GetResponder::operator=(GetResponder const &src)
 	return (*this);
 }
 
-std::string GetResponder::respond(Request const &request, ParserConfig const &config, ServerData const &serverData) const
+std::string GetResponder::respond(Request const &request, ServerData const &serverData) const
 {
 	Response response;
 
@@ -34,25 +34,29 @@ std::string GetResponder::respond(Request const &request, ParserConfig const &co
 //	}
 //	std::cout << "'" << request.getBody() << "'" << std::endl;
 
+	response.getHeaders()["Connection"] = "close";
 	if (currentLocation == nullptr)
 		return (response.error("404", "Not Found"));
+	if (!currentLocation->getRedirect().empty())
+	{
+		response.setStatus("301", "Moved Permanently");
+		response.getHeaders()["Location"] = "https://www.google.com/";
+		return (response.str());
+	}
+	std::string uri = currentLocation->getRoot() + request.getLocation().substr(currentLocation->getLocationPath().length());
 	if (currentLocation->getIndex().empty() && currentLocation->getAutoindex() && request.getLocation()[request.getLocation().length() - 1] == '/')
 	{
-		Autoindex autoIndex(currentLocation->getRoot() + request.getLocation());
+		Autoindex autoIndex(uri);
 		std::string content = autoIndex.get_html();
 		response.setStatus("200", "OK");
 		response.getHeaders()["Content-Type"] = "text/html";
-		response.getHeaders()["Content-length"] = std::to_string(content.length());
+		response.getHeaders()["Content-Length"] = std::to_string(content.length());
 		response.setBody(content);
 		return (response.str());
 	}
 	std::vector<std::string> const &locationMethods = currentLocation->getMethods();
 	if (!locationMethods.empty() && std::find(locationMethods.begin(), locationMethods.end(), request.getMethod()) == locationMethods.end())
 		return (response.error("405", "Method Not Allowed"));
-	std::string requestLocation = request.getLocation();
-	requestLocation.erase(0, currentLocation->getLocationPath().length());
-	std::string uri = currentLocation->getRoot() + requestLocation;
-
 	if (uri.empty())
 		return (response.error("404", "Not Found"));
 

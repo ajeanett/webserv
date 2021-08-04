@@ -47,7 +47,9 @@
 
 class ServerEngine
 {
+
 private:
+	bool _ready;
 	int count;
 	int works;
 	static const int _tcp_max = 65535;
@@ -82,13 +84,11 @@ private:
 	std::map<int, int>	_fdPort; // map связывающий присвоенный fd сервера (ключ) c его портом (значение)
 	int 				_current_port; //текущий порт
 	int 				_serverFd; //текущий номер используемого сервера из конфига
-	LocationData		_currentLocation;
 	std::map<int, size_t>	_fd_size_to_send;
 
 public:
 	ServerEngine(ServerEngine const &src);
 	ServerEngine &operator=(ServerEngine const &src);
-	ServerEngine(std::set<int> const &ports);
 	ServerEngine();
 	virtual ~ServerEngine();
 

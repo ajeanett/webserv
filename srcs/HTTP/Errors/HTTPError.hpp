@@ -8,6 +8,7 @@ class HTTPError : public std::exception
 
 public:
 	virtual const char *what() const throw();
+	static std::string getMessage(std::string const &code);
 
 };
 

@@ -12,34 +12,82 @@
 
 NAME = webserv
 SRCS =	main.cpp \
-		server_engine/ServerEngine.cpp \
-		parse_config/LocationData.cpp \
-		parse_config/ServerData.cpp \
-		parse_config/ParserConfig.cpp \
-		server_engine/Date.cpp \
-		HTTP/Request.cpp \
-		HTTP/Response.cpp \
-		HTTP/Responders/GetResponder.cpp \
-		CGI/CGI.cpp
+		CGI.cpp \
+		ServerEngine.cpp \
+		HTTPBadRequest.cpp \
+		HTTPError.cpp \
+		HTTPInternalServerError.cpp \
+		HTTPNotFound.cpp \
+		DeleteResponder.cpp \
+		GetResponder.cpp \
+		PostResponder.cpp \
+		PutResponder.cpp \
+		AResponder.cpp \
+		Autoindex.cpp \
+		Request.cpp \
+		Response.cpp \
+		LocationData.cpp \
+		ParserConfig.cpp \
+		ServerData.cpp \
+		Date.cpp \
+		logging.cpp
 
-OBJECTS = $(SRCS:.cpp=.o)
-#FLAGS = clang++ -Wall -Wextra -Werror
-FLAGS = clang++ -Wall
+OBJ_DIR = obj
+
+OBJ = $(foreach f, $(SRCS), $(addprefix $(OBJ_DIR)/, $(notdir $(f:.cpp=.o))))
+
+FLAGS = clang++ -O2 -I./includes -I./srcs -Wall -Wextra -Werror
 
 all: $(NAME)
 
-$(NAME): $(OBJECTS)
-	clang++ $(OBJECTS) -o $(NAME)
+$(NAME): $(OBJ_DIR) $(OBJ)
+	clang++ $(OBJ) -o $(NAME)
 
-%.o: %.cpp %.hpp
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+$(OBJ_DIR)/%.o: srcs/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/CGI/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/Engine/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/HTTP/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/HTTP/Errors/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/HTTP/Responders/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/HTTP/Responders/Delete/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/HTTP/Responders/Get/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/HTTP/Responders/Post/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/HTTP/Responders/Put/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/Parse/%.cpp
+	$(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: srcs/Utils/%.cpp
 	$(FLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJECTS)
+	rm -rf $(OBJ)
 
 fclean: clean
 	rm -rf $(NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re %.o test
+.PHONY: all clean fclean re %.o

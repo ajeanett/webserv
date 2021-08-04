@@ -51,7 +51,7 @@ std::string Response::error(const std::string &code, const std::string &message)
 			"\n"
 			"<h1 style=\"color: #d44b25;\">" + code + ' ' + message + "</h1>\n"
 			"<div class=\"back-img\" style=\"background-image: url('/img/" + code + ".jpg'); width: 500px;\"></div>\n"
-			"<a class=\"go-home\" href=\"/index.html\">\n"
+			"<a class=\"go-home\" href=\"/\">\n"
 			"\t← Home\n"
 			"</a>\n"
 			"\n"
@@ -59,6 +59,16 @@ std::string Response::error(const std::string &code, const std::string &message)
 			"</html>";
 	_headers["Connection"] = "close";
 	return (str());
+}
+
+std::string Response::error(HTTPError const &error)
+{
+	return (this->error(error.what(), HTTPError::getMessage(_statusCode)));
+}
+
+std::string Response::error(const std::string &code)
+{
+	return (error(code, HTTPError::getMessage(code)));
 }
 
 const std::string &Response::getStatusCode() const
@@ -79,7 +89,6 @@ void Response::setStatus(const std::string &statusCode, const std::string &statu
 
 void Response::setBody(const std::string &body)
 {
-//	_headers["Content-Length"] = std::to_string(body.length());
 	_body = body;
 }
 

@@ -15,7 +15,7 @@ public:
 	~GetResponder();
 	GetResponder &operator = (GetResponder const &src);
 
-	std::string respond(Request const &request, ParserConfig const &config, ServerData const &serverData) const;
+	std::string respond(Request const &request, ServerData const &serverData) const;
 
 };
 
