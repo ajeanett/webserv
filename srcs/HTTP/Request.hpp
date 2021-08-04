@@ -21,6 +21,7 @@
 #include "HTTP/Errors/HTTPError.hpp"
 #include "HTTP/Errors/HTTPNotFound.hpp"
 #include "HTTP/Errors/HTTPBadRequest.hpp"
+#include "Request_data.hpp"
 
 class Request
 {
@@ -38,16 +39,16 @@ private:
 	std::string _error;
 
 private:
-	int parse_request();
-	void parse_headers();
-	void parse_body(ServerData const &serverData);
+	int parse_request(t_req_data &buffer);
+	void parse_headers(t_req_data &buffer);
+	void parse_body(t_req_data &buffer, ServerData const &serverData);
 
 public:
 	Request();
 	Request(const std::string &request);
 	~Request();
 
-	void parse(std::string const &request_str, ServerData const &serverData);
+	void parse(t_req_data &buffer, ServerData const &serverData);
 	std::string respond(ParserConfig const &config, ServerData const &serverData) const;
 	void clear();
 

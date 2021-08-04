@@ -16,7 +16,7 @@ Request::~Request()
 {
 }
 
-int	Request::parse_request()
+int	Request::parse_request(t_req_data &buffer)
 {
 
 	// Ищем первую строку
@@ -47,23 +47,29 @@ int	Request::parse_request()
 	if (_linePosition != std::string::npos)
 		_version = _currentLine.substr(_linePosition + 1, findPosition - _linePosition - 1);
 
-//	findPosition = _request.find("\r\n\r\n", _requestPosition);
-//
-//	if (findPosition != std::string::npos)
-//	{
-//		_currentLine = _request.substr(_requestPosition, findPosition - _requestPosition);
-//		_requestPosition = findPosition + 4;
-//	}
+	findPosition = _request.find("\r\n\r\n", _requestPosition);
+
+	if (findPosition != std::string::npos)
+	{
+		_currentLine = _request.substr(_requestPosition, findPosition - _requestPosition);
+		_requestPosition = findPosition + 4;
+	}
+	else
+	{
+		perror("ERROR. Invalid message.");
+		_error = "400";
+		return 400;
+	}
+//	if (buffer._is_body)
+//		_currentLine = _request.substr(_requestPosition, buffer._start_body - _requestPosition - 4);
 //	else
 //	{
-//		perror("ERROR. Invalid message.");
-//		_error = "400";
-//		return 400;
+//		throw HTTPBadRequest();
 //	}
 	return 0;
 }
 
-void Request::parse_headers()
+void Request::parse_headers(t_req_data &buffer)
 {
 	// Ищем хедеры и заносим их в мапу
 	size_t	findPosition = 0;
@@ -103,7 +109,7 @@ void Request::parse_headers()
 	}
 }
 
-void Request::parse_body(ServerData const &serverData)
+void Request::parse_body(t_req_data &buffer, ServerData const &serverData)
 {
 	// заносим боди. В get его не будет. Get - body нет. Put - body тут.
 	// если длина боди больше, чем длина content-lenght, то заносим только content-lenght
@@ -151,15 +157,15 @@ void Request::parse_body(ServerData const &serverData)
 	}
 }
 
-void Request::parse(const std::string &request_str, ServerData const &serverData)
+void Request::parse(t_req_data &buffer, ServerData const &serverData)
 {
-	_request = request_str;
+	_request = buffer.buffer;
 	try
 	{
-		if (parse_request() != 0)
+		if (parse_request(buffer) != 0)
 			return;
-		parse_headers();
-		parse_body(serverData);
+		parse_headers(buffer);
+		parse_body(buffer, serverData);
 	}
 	catch (HTTPError &e)
 	{
