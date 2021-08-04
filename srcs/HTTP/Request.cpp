@@ -47,19 +47,19 @@ int	Request::parse_request()
 	if (_linePosition != std::string::npos)
 		_version = _currentLine.substr(_linePosition + 1, findPosition - _linePosition - 1);
 
-	findPosition = _request.find("\r\n\r\n", _requestPosition);
-
-	if (findPosition != std::string::npos)
-	{
-		_currentLine = _request.substr(_requestPosition, findPosition - _requestPosition);
-		_requestPosition = findPosition + 4;
-	}
-	else
-	{
-		perror("ERROR. Invalid message.");
-		_error = "400";
-		return 400;
-	}
+//	findPosition = _request.find("\r\n\r\n", _requestPosition);
+//
+//	if (findPosition != std::string::npos)
+//	{
+//		_currentLine = _request.substr(_requestPosition, findPosition - _requestPosition);
+//		_requestPosition = findPosition + 4;
+//	}
+//	else
+//	{
+//		perror("ERROR. Invalid message.");
+//		_error = "400";
+//		return 400;
+//	}
 	return 0;
 }
 
