@@ -287,10 +287,9 @@ bool ServerEngine::ft_send()
 				_fd_size_to_send.erase(fd);
 				_writeBuffer.erase(fd);
 				FD_CLR(fd, &_writeset_master);
-				if (statusCode != "200" || request[fd].getMethod() == "POST") // statusCode != "200" || request[fd].getMethod() == "POST"
+				if (statusCode[0] != '2' || request[fd].getMethod() != "GET") // statusCode != "200" || request[fd].getMethod() == "POST"
 				{
 					close(fd);
-					std::cout << RED << " <<<<<<<<<<<<<<<<<<CLOSE SEND>>>>>>>>>>>>>>" << END << std::endl;
 					_clients_recv.erase(fd);
 					FD_CLR(fd, &_readset_master);
 				}
@@ -337,7 +336,6 @@ bool ServerEngine::ft_receive()
 					FD_CLR(fd, &_readset_master);
 					FD_CLR(fd, &_writeset_master);
 					close(fd);
-					std::cout << BLUE << " <<<<<<<<<<<<<<<<<<CLOSE READ>>>>>>>>>>>>>>" << END << std::endl;
 					_readBuffer.erase(fd);
 					_clients_send.erase(fd);
 					ret = true;
