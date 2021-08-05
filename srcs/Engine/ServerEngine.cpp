@@ -287,7 +287,7 @@ bool ServerEngine::ft_send()
 				_fd_size_to_send.erase(fd);
 				_writeBuffer.erase(fd);
 				FD_CLR(fd, &_writeset_master);
-				if (statusCode[0] != '2') // statusCode != "200" || request[fd].getMethod() == "POST"
+				if (statusCode != "200") // statusCode != "200" || request[fd].getMethod() == "POST"
 				{
 					close(fd);
 					_clients_recv.erase(fd);

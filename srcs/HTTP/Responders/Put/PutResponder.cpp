@@ -25,6 +25,7 @@ std::string PutResponder::respond(const Request &request, const ServerData &serv
 {
 	Response response;
 
+	response.getHeaders()["Connection"] = "keep-alive";
 	LocationData const *currentLocation = AResponder::getCurrentLocation(serverData.getLocationData(), request.getLocation(), "PUT");
 
 //	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
@@ -58,5 +59,6 @@ std::string PutResponder::respond(const Request &request, const ServerData &serv
 	ofs << request.getBody();
 	ofs.close();
 
+//	response.getHeaders()["Connection"] = "keep-alive";
 	return (response.str());
 }
