@@ -278,11 +278,11 @@ bool ServerEngine::ft_send()
 			if (_fd_size_to_send[fd] == 0)
 			{
 				++nbr;
-				if (nbr % 1000 == 0)
-				{
+//				if (nbr % 1000 == 0)
+//				{
 					displayTimeStamp();
 					std::cout << "Response count: " << nbr << std::endl;
-				}
+//				}
 				std::string statusCode = _writeBuffer[fd].substr(9, _writeBuffer[fd].find(' ', 9) - 9);
 				_fd_size_to_send.erase(fd);
 				_writeBuffer.erase(fd);
@@ -290,6 +290,7 @@ bool ServerEngine::ft_send()
 				if (statusCode != "200") // statusCode != "200" || request[fd].getMethod() == "POST"
 				{
 					close(fd);
+					std::cout << RED <<"<<<<<<<<<<<<<<<<<  CLOSE SEND!!!!!!!!!!!!! >>>>>>>>>>>>>>>>>>>>>>>>" << END <<std::endl;
 					_clients_recv.erase(fd);
 					FD_CLR(fd, &_readset_master);
 				}
@@ -336,6 +337,7 @@ bool ServerEngine::ft_receive()
 					FD_CLR(fd, &_readset_master);
 					FD_CLR(fd, &_writeset_master);
 					close(fd);
+					std::cout << BLUE <<"<<<<<<<<<<<<<<<<<  CLOSE READ!!!!!!!!!!!!! >>>>>>>>>>>>>>>>>>>>>>>>" << END <<std::endl;
 					_readBuffer.erase(fd);
 					_clients_send.erase(fd);
 					ret = true;
