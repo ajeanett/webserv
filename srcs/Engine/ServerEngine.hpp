@@ -19,6 +19,8 @@
 
 #define DEBUG 0
 
+
+
 class ServerEngine
 {
 
@@ -58,6 +60,7 @@ private:
 	int 				_serverFd; //текущий номер используемого сервера из конфига
 	std::map<int, size_t>	_fd_size_to_send;
 
+
 public:
 	ServerEngine();
 	virtual ~ServerEngine();
@@ -69,6 +72,7 @@ public:
 	bool ft_receive();
 	bool ft_accept(int *mx);
 	bool check_request(t_req_data &buffer);
+	void serv_clear();
 
 	void setAddr(int port, std::string &host);
 	std::map<int, std::string> getPorts() const

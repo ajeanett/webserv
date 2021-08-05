@@ -12,8 +12,11 @@
 
 #include "Engine/ServerEngine.hpp"
 
+bool g_sel;
+
 int main()
 {
+	g_sel = true;
 	ServerEngine serv;
 	serv.setup();
 	serv.run();

@@ -1,5 +1,7 @@
 #include "ServerEngine.hpp"
 
+extern  bool g_sel;
+
 ServerEngine::ServerEngine() : _ready(false)
 {
 	// this->_ports.insert(80);
@@ -12,6 +14,20 @@ ServerEngine::ServerEngine() : _ready(false)
 
 ServerEngine::~ServerEngine()
 {
+		std::set<int>::iterator ite;
+
+	for (ite =_listen_fds.begin(); ite != _listen_fds.end(); ++ite)
+	{
+		close(*ite);
+	}
+	for (ite =_clients_recv.begin(); ite != _clients_recv.end(); ++ite)
+	{
+		close(*ite);
+	}
+	for (ite =_clients_send.begin(); ite != _clients_send.end(); ++ite)
+	{
+		close(*ite);
+	}
 	std::cout << "WebServer destroyed!\n";
 }
 
@@ -35,7 +51,7 @@ static int hostToInt(std::string& str) {
 			}
 		}
 	}
-	std::cerr << "Error! Invalid host in configfile" << str << std::endl;
+//	std::cerr << "Error! Invalid host in configfile" << str << std::endl;
 	return (1);
 }
 
@@ -142,7 +158,7 @@ int ServerEngine::ft_select(int mx, timeval *timeout)
 	if (ret < 0)
 	{
 		perror("select");
-		throw HTTPInternalServerError();
+//		throw HTTPInternalServerError();
 	}
 	return (ret);
 }
@@ -446,25 +462,26 @@ void ServerEngine::run()
 	_current_port = 0;
 	while (_run)
 	{
-		bool sel = true;
-		while (sel)
+		g_sel = true;
+		while (g_sel)
 		{
 			int ret = ft_select(mx, &tv);
 			if (ret > 0)
-				sel = false;
+				g_sel = false;
 		}
-		if (!sel)
+		if (!g_sel)
 		{
-			sel = ft_accept(&mx); // проверяем запросы на соединение
+			g_sel = ft_accept(&mx); // проверяем запросы на соединение
 		}
-		if (!sel)
+		if (!g_sel)
 		{
-			sel = ft_receive(); // получение данные от клиента
+			g_sel = ft_receive(); // получение данные от клиента
 		}
-		if (!sel)
+		if (!g_sel)
 		{
-			sel = ft_send(); // отправка данных клиенту
+			g_sel = ft_send(); // отправка данных клиенту
 		}
-		sel = true;
+		g_sel = true;
 	}
+	serv_clear();
 }
