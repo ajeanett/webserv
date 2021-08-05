@@ -59,6 +59,6 @@ std::string PutResponder::respond(const Request &request, const ServerData &serv
 	ofs << request.getBody();
 	ofs.close();
 
-	response.getHeaders()["Connection"] = "keep-alive";
+	response.getHeaders()["Connection"] = "close";
 	return (response.str());
 }
