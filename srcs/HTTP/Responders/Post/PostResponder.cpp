@@ -102,7 +102,7 @@ std::string PostResponder::respond(const Request &request, const ServerData &ser
 //	}
 
 	if (request.getHeaders().find("Connection") == request.getHeaders().end())
-		response.getHeaders()["Connection"] = "keep-alive";
+		response.getHeaders()["Connection"] = "close";
 	else
 		response.getHeaders()["Connection"] = request.getHeaders().find("Connection")->second;
 	response.setBody(content);
