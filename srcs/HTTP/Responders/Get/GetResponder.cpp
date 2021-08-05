@@ -42,12 +42,28 @@ std::string GetResponder::respond(Request const &request, ServerData const &serv
 		return (response.str());
 	}
 	std::string uri = currentLocation->getRoot() + request.getLocation().substr(currentLocation->getLocationPath().length());
+
+	response.getHeaders()["Content-Type"] = "text/html";
+	size_t n = uri.find_last_of('.');
+	if (n != std::string::npos)
+	{
+		std::string type;
+		std::string extension;
+		extension = uri.substr(n + 1, uri.length() - n);
+		type = "text";
+		if (extension == "jpg" || extension == "jpeg" || extension == "png")
+			type = "image";
+		if (extension != "html" && extension != "css" && extension != "jpg" && extension != "jpeg" && extension != "png")
+			extension = "html";
+		response.getHeaders()["Content-Type"] = type + '/' + extension;
+	}
+
 	if (currentLocation->getIndex().empty() && currentLocation->getAutoindex() && request.getLocation()[request.getLocation().length() - 1] == '/')
 	{
 		Autoindex autoIndex(uri);
 		std::string content = autoIndex.get_html();
 		response.setStatus("200", "OK");
-		response.getHeaders()["Content-Type"] = "text/html";
+//		response.getHeaders()["Content-Type"] = "text/html";
 		response.getHeaders()["Content-Length"] = std::to_string(content.length());
 		response.setBody(content);
 		return (response.str());
@@ -110,17 +126,6 @@ std::string GetResponder::respond(Request const &request, ServerData const &serv
 		content = content_stream.str();
 	}
 
-//	response.getHeaders()["Content-Type"] = "text/plain";
-//	size_t n = uri.find_last_of('.');
-//	if (n != std::string::npos)
-//	{
-//		std::string type;
-//		std::string extension;
-//		type = "text";
-//		extension = uri.substr(n + 1, uri.length() - n);
-//		response.getHeaders()["Content-Type"] = type + '/' + extension;
-//		std::cout << "result: " << response.getHeaders()["Content-Type"] << std::endl;
-//	}
 	response.getHeaders()["Content-Length"] = std::to_string(content.length());
 	if (request.getHeaders().find("Connection") == request.getHeaders().end())
 		response.getHeaders()["Connection"] = "keep-alive";
