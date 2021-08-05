@@ -154,12 +154,21 @@ void CGI::runCGI()
 	pid_t _pid;
 	int _status;
 
-	std::string cgi_tmp_path_in = "./cgi_tmp_in";
-	std::string cgi_tmp_path_out = "./cgi_tmp_out";
-	/* tmp_file_fd_in - временнй файл для сохранения body запроса, для обработки этих данныхв CGI*/
-	int tmp_file_fd_in = open(cgi_tmp_path_in.c_str(), O_RDWR | O_TRUNC | O_CREAT, 0777);
-	int tmp_file_fd_out = open(cgi_tmp_path_out.c_str(),  O_RDWR | O_TRUNC | O_CREAT, 0777);
-	write(tmp_file_fd_in, _req.getBody().c_str(), _req.getBody().length());
+	FILE *tmp_file_out = tmpfile();
+	int tmp_file_fd_out = fileno(tmp_file_out);
+
+	FILE *tmp_file_in = tmpfile();
+	int tmp_file_fd_in = fileno(tmp_file_in);
+	ssize_t i = 1;
+	size_t cursor = 0;
+	while (i > 0 && cursor != _req.getBody().length())
+	{
+		size_t len = 65535;
+		if (len > _req.getBody().length() - cursor)
+			len = _req.getBody().length() - cursor;
+		i = write(tmp_file_fd_in, _req.getBody().c_str() + cursor, len);
+		cursor += i;
+	}
 	lseek(tmp_file_fd_in, 0, SEEK_SET);
 
 	_pid = fork();
@@ -172,12 +181,7 @@ void CGI::runCGI()
 	{
 		dup2(tmp_file_fd_in, STDIN_FILENO);
 		dup2(tmp_file_fd_out, STDOUT_FILENO);
-		char **arg = new char *[3];
-		/* выполняем cgi_tester */
-		arg[0] = const_cast<char *>(_cgi_path.c_str()); //strdup(path.c_str());
-		arg[1] = nullptr; //strdup(_tmpEnvCGI["PATH_TRANSLATED"].c_str());
-		arg[2] = nullptr;
-		if (execve(arg[0], arg, envp) == -1)
+		if (execve(_cgi_path.c_str(), nullptr, envp) == -1)
 		{
 			std::cerr << "ERROR CGI" << std::endl;
 		}
@@ -187,16 +191,17 @@ void CGI::runCGI()
 	{
 		waitpid(_pid, &_status, 0);
 
-		struct stat file;
-		fstat(tmp_file_fd_out, &file);
 		lseek(tmp_file_fd_out, 0, SEEK_SET);
-		_ret.resize(file.st_size);
-		read(tmp_file_fd_out, const_cast<char *>(_ret.c_str()),
-			 _ret.capacity());
-		close(tmp_file_fd_out);
-		close(tmp_file_fd_in);
-		remove(cgi_tmp_path_in.c_str());
-		remove(cgi_tmp_path_out.c_str());
+		i = 1;
+		char buffer[65535 + 1];
+		while (i > 0)
+		{
+			i = read(tmp_file_fd_out, buffer, 65535);
+			buffer[i] = '\0';
+			_ret += buffer;
+		}
+		fclose(tmp_file_in);
+		fclose(tmp_file_out);
 
 		// Ищем хедеры и заносим их в мапу
 		size_t prev = 0;
@@ -246,15 +251,9 @@ void CGI::runCGI()
 	}
 	if (envp)
 	{
-		for (int i = 0; envp[i] != nullptr; ++i)
-		{
-			delete[] envp[i];
-		}
 		delete[] envp;
 		envp = nullptr;
 	}
-	return;
-
 }
 
 const std::map<std::string, std::string> &CGI::getHeaders() const

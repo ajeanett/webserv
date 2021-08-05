@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <algorithm>
 
-#define DEBUG 1
+#define DEBUG 0
 
 //class t_req_data
 //{
