@@ -102,7 +102,7 @@ std::string PostResponder::respond(const Request &request, const ServerData &ser
 //		std::cout << "result: " << response.getHeaders()["Content-Type"] << std::endl;
 //	}
 
-//	responseHeaders["Connection"] = "keep-alive";
+	responseHeaders["Connection"] = "close";
 	response.setBody(content);
 
 	return (response.str());
