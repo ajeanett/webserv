@@ -243,7 +243,7 @@ bool ServerEngine::check_request(t_req_data &buffer)
 
 bool ServerEngine::ft_send()
 {
-	static size_t nbr;
+//	static size_t nbr;
 	bool ret = false;
 	int fd;
 	for (std::set<int>::iterator it = _clients_send.begin(); it != _clients_send.end();)
@@ -286,12 +286,12 @@ bool ServerEngine::ft_send()
 			}
 			if (_fd_size_to_send[fd] == 0)
 			{
-				++nbr;
-				if (nbr >= 106597 || nbr % 1000 == 0)
-				{
-					displayTimeStamp();
-					std::cout << "Response count: " << nbr << std::endl;
-				}
+//				++nbr;
+//				if (nbr >= 106597 || nbr % 1000 == 0)
+//				{
+//					displayTimeStamp();
+//					std::cout << "Response count: " << nbr << std::endl;
+//				}
 				std::string statusCode = _writeBuffer[fd].substr(9, _writeBuffer[fd].find(' ', 9) - 9);
 				_fd_size_to_send.erase(fd);
 				_writeBuffer.erase(fd);

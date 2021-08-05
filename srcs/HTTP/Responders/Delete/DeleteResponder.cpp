@@ -68,7 +68,7 @@ std::string DeleteResponder::respond(const Request &request, const ServerData &s
 
 	std::string content;
 	struct stat s;
-	if (s.st_mode & S_IFDIR || stat(uri.c_str(), &s) < 0)
+	if (stat(uri.c_str(), &s) < 0 || s.st_mode & S_IFDIR)
 		content = "{success: false}";
 	else
 	{
