@@ -22,10 +22,8 @@ GetResponder &GetResponder::operator=(GetResponder const &src)
 	return (*this);
 }
 
-std::string GetResponder::respond(Request const &request, ServerData const &serverData) const
+std::string GetResponder::respond(Request const &request, ServerData const &serverData, Response &response) const
 {
-	Response response;
-
 	LocationData const *currentLocation = AResponder::getCurrentLocation(serverData.getLocationData(), request.getLocation(), "GET");
 
 //	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
@@ -123,8 +121,11 @@ std::string GetResponder::respond(Request const &request, ServerData const &serv
 //		response.getHeaders()["Content-Type"] = type + '/' + extension;
 //		std::cout << "result: " << response.getHeaders()["Content-Type"] << std::endl;
 //	}
-	response.getHeaders()["Content-length"] = std::to_string(content.length());
-	response.getHeaders()["Connection"] = "keep-alive";
+	response.getHeaders()["Content-Length"] = std::to_string(content.length());
+	if (request.getHeaders().find("Connection") == request.getHeaders().end())
+		response.getHeaders()["Connection"] = "keep-alive";
+	else
+		response.getHeaders()["Connection"] = request.getHeaders().find("Connection")->second;
 	response.setBody(content);
 
 	return (response.str());

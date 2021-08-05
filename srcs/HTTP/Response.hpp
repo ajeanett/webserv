@@ -25,14 +25,12 @@ public:
 	void setStatus(const std::string &statusCode, const std::string &message);
 	void setBody(const std::string &body);
 	std::map<std::string, std::string> &getHeaders();
+	std::map<std::string, std::string> const &getHeaders() const;
+	const std::string &getStatusCode() const;
 
 private:
 	std::string _version;
 	std::string _statusCode;
-public:
-	const std::string &getStatusCode() const;
-
-private:
 	std::string _statusMessage;
 	std::map<std::string, std::string> _headers;
 	std::string _body;

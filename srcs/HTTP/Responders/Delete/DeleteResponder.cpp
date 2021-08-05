@@ -23,10 +23,8 @@ DeleteResponder &DeleteResponder::operator=(DeleteResponder const &src)
 	return (*this);
 }
 
-std::string DeleteResponder::respond(const Request &request, const ServerData &serverData) const
+std::string DeleteResponder::respond(const Request &request, const ServerData &serverData, Response &response) const
 {
-	Response response;
-
 	LocationData const *currentLocation = AResponder::getCurrentLocation(serverData.getLocationData(), request.getLocation(), "DELETE");
 
 //	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)

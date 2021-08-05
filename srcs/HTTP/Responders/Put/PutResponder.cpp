@@ -21,10 +21,8 @@ PutResponder &PutResponder::operator=(PutResponder const &src)
 	return (*this);
 }
 
-std::string PutResponder::respond(const Request &request, const ServerData &serverData) const
+std::string PutResponder::respond(const Request &request, const ServerData &serverData, Response &response) const
 {
-	Response response;
-
 	response.getHeaders()["Connection"] = "close";
 	LocationData const *currentLocation = AResponder::getCurrentLocation(serverData.getLocationData(), request.getLocation(), "PUT");
 

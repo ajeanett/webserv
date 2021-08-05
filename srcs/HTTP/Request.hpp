@@ -29,6 +29,7 @@ class Request
 
 private:
 	/* data */
+	Response _response;
 	std::string _request;
 	std::string _currentLine;
 	std::string _method;
@@ -51,7 +52,7 @@ public:
 	~Request();
 
 	void parse(t_req_data &buffer, ServerData const &serverData);
-	std::string respond(ServerData const &serverData) const;
+	std::string respond(ServerData const &serverData);
 	void clear();
 
 	const std::string &getMethod() const;
@@ -60,6 +61,7 @@ public:
 	const std::map<std::string, std::string> &getHeaders() const;
 	const std::string &getBody() const;
 	void setError(std::string const &error);
+	Response const &getResponse() const;
 
 };
 

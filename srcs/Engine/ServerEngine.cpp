@@ -1,11 +1,7 @@
 #include "ServerEngine.hpp"
 
-extern  bool g_sel;
-
 ServerEngine::ServerEngine() : _ready(false)
 {
-	// this->_ports.insert(80);
-	// this->_ports.insert(81);
 	// в конфиге пройтись по всем серверам и загнать все прты из серверов в _ports/ не здесь а в start_server
 	_listen_fds.clear();
 	displayTimeStamp();
@@ -148,9 +144,6 @@ int ServerEngine::ft_select(int mx, timeval *timeout)
 	displayTimeStamp();
 	std::cout << YELLOW << "ft_select" << END << ", mx = " << mx << std::endl;
 #endif
-//	std::cout << "_listen_fds size: " << _listen_fds.size() << std::endl;
-//	std::cout << "_clients_recv size: " << _clients_recv.size() << std::endl;
-//	std::cout << "_clients_send size: " << _clients_send.size() << std::endl;
 	memcpy(&_readset, &_readset_master, sizeof(_readset_master));
 	memcpy(&_writeset, &_writeset_master, sizeof(_writeset_master));
 	errno = 0;
@@ -294,7 +287,7 @@ bool ServerEngine::ft_send()
 			if (_fd_size_to_send[fd] == 0)
 			{
 				++nbr;
-				if (nbr % 10 == 7)
+				if (nbr >= 106597 || nbr % 1000 == 0)
 				{
 					displayTimeStamp();
 					std::cout << "Response count: " << nbr << std::endl;
@@ -303,7 +296,8 @@ bool ServerEngine::ft_send()
 				_fd_size_to_send.erase(fd);
 				_writeBuffer.erase(fd);
 				FD_CLR(fd, &_writeset_master);
-				if (statusCode[0] != '2' || request[fd].getMethod() != "GET") // statusCode != "200" || request[fd].getMethod() == "POST"
+				std::map<std::string, std::string>::const_iterator connection = request[fd].getResponse().getHeaders().find("Connection");
+				if (connection != request[fd].getResponse().getHeaders().end() && connection->second == "close")
 				{
 					close(fd);
 					_clients_recv.erase(fd);
@@ -462,26 +456,26 @@ void ServerEngine::run()
 	_current_port = 0;
 	while (_run)
 	{
-		g_sel = true;
-		while (g_sel)
+		bool sel = true;
+		while (sel)
 		{
 			int ret = ft_select(mx, &tv);
 			if (ret > 0)
-				g_sel = false;
+				sel = false;
 		}
-		if (!g_sel)
+		if (!sel)
 		{
-			g_sel = ft_accept(&mx); // проверяем запросы на соединение
+			sel = ft_accept(&mx); // проверяем запросы на соединение
 		}
-		if (!g_sel)
+		if (!sel)
 		{
-			g_sel = ft_receive(); // получение данные от клиента
+			sel = ft_receive(); // получение данные от клиента
 		}
-		if (!g_sel)
+		if (!sel)
 		{
-			g_sel = ft_send(); // отправка данных клиенту
+			sel = ft_send(); // отправка данных клиенту
 		}
-		g_sel = true;
+		sel = true;
 	}
 	serv_clear();
 }

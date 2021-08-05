@@ -23,9 +23,8 @@ PostResponder &PostResponder::operator = (PostResponder const &src)
 	return (*this);
 }
 
-std::string PostResponder::respond(const Request &request, const ServerData &serverData) const
+std::string PostResponder::respond(const Request &request, const ServerData &serverData, Response &response) const
 {
-	Response response;
 	std::map<std::string, std::string> &responseHeaders = response.getHeaders();
 
 //	for (std::map<std::string, std::string>::const_iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); ++it)
@@ -102,7 +101,10 @@ std::string PostResponder::respond(const Request &request, const ServerData &ser
 //		std::cout << "result: " << response.getHeaders()["Content-Type"] << std::endl;
 //	}
 
-	responseHeaders["Connection"] = "close";
+	if (request.getHeaders().find("Connection") == request.getHeaders().end())
+		response.getHeaders()["Connection"] = "keep-alive";
+	else
+		response.getHeaders()["Connection"] = request.getHeaders().find("Connection")->second;
 	response.setBody(content);
 
 	return (response.str());

@@ -172,7 +172,7 @@ void Request::parse(t_req_data &buffer, ServerData const &serverData)
 	}
 }
 
-std::string Request::respond(ServerData const &serverData) const
+std::string Request::respond(ServerData const &serverData)
 {
 	if (!_error.empty())
 		return (Response().error(_error));
@@ -189,7 +189,7 @@ std::string Request::respond(ServerData const &serverData) const
 		responder = new DeleteResponder();
 	else
 		return (Response().error("405"));
-	std::string response = responder->respond(*this, serverData);
+	std::string response = responder->respond(*this, serverData, _response);
 	delete responder;
 	return (response);
 }
@@ -237,3 +237,7 @@ void Request::setError(std::string const &error)
 	_error = error;
 }
 
+const Response & Request::getResponse() const
+{
+	return (_response);
+}

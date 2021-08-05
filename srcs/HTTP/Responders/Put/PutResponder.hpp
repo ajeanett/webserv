@@ -14,7 +14,7 @@ public:
 	~PutResponder();
 	PutResponder &operator=(PutResponder const &src);
 
-	std::string respond(Request const &request, ServerData const &serverData) const;
+	std::string respond(Request const &request, ServerData const &serverData, Response &response) const;
 
 };
 

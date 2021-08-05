@@ -17,7 +17,7 @@ public:
 	virtual ~AResponder();
 	AResponder &operator=(AResponder const &src);
 
-	virtual std::string respond(Request const &request, ServerData const &serverData) const = 0;
+	virtual std::string respond(Request const &request, ServerData const &serverData, Response &response) const = 0;
 	static LocationData const *getCurrentLocation(std::vector<LocationData> const &locations, std::string const &requestLocation, std::string const &method) ;
 
 };

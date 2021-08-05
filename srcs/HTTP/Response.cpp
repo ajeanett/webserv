@@ -57,7 +57,8 @@ std::string Response::error(const std::string &code, const std::string &message)
 			"\n"
 			"</body>\n"
 			"</html>";
-	_headers["Connection"] = "close";
+//	_headers["Connection"] = "close";
+	_headers["Content-Length"] = std::to_string(_body.length());
 	return (str());
 }
 
@@ -93,6 +94,11 @@ void Response::setBody(const std::string &body)
 }
 
 std::map<std::string, std::string> &Response::getHeaders()
+{
+	return (_headers);
+}
+
+const std::map<std::string, std::string> &Response::getHeaders() const
 {
 	return (_headers);
 }
