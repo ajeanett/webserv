@@ -38,7 +38,8 @@ std::string GetResponder::respond(Request const &request, ServerData const &serv
 	if (!currentLocation->getRedirect().empty())
 	{
 		response.setStatus("301", "Moved Permanently");
-		response.getHeaders()["Location"] = "https://www.google.com/";
+		response.getHeaders()["Location"] = currentLocation->getRedirect();//"https://www.google.com/";
+		std::cout << "currentLocation->getRedirect()" << currentLocation->getRedirect() << std::endl;
 		return (response.str());
 	}
 	std::string uri = currentLocation->getRoot() + request.getLocation().substr(currentLocation->getLocationPath().length());
